@@ -4,21 +4,27 @@ const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 // html
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const devMode = process.env.NODE_ENV !== 'production';
+
 // 配置style-loader
 let styleLoader = {
     loader: null,
     options: {}
 }
-// if(devMode) {
-//     styleLoader.loader = 'style-loader';
-// } else {
-//     styleLoader.loader = MiniCssExtractPlugin.loader;
-//     styleLoader.options = {
-//         name: '[name].[hash].css'
-//     }
-// }
-console.log('styleLoader：', styleLoader);
+
+
+function styleLoaderFn() {
+  const prodMode = process.env.NODE_ENV === 'production';
+  if(!prodMode) {
+    return { loader: 'style-loader' };
+  } else {
+    return {
+      loader: MiniCssExtractPlugin.loader,
+      options: {
+        name: '[name].[hash].css'
+      }
+    }
+  }
+}
 module.exports = {
     entry: {
         index: './src/index.js'
@@ -63,19 +69,7 @@ module.exports = {
                 use: 'babel-loader',
                 exclude: /node_modules/
             },
-            {
-                test: /\.css$/,
-                use: [
-                    styleLoader,
-                    {
-                        loader: 'css-loader',
-                        options: {
-                            modules: true
-                        }
-                    }
-                ],
-                exclude: /node_modules/
-            },
+            
             { // 图片文件
                 test: /\.(png|jpg|gif|jpeg|webp|svg)$/,
                 use: [
