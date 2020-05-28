@@ -13,6 +13,8 @@ module.exports = merge(base, {
   devServer: {
     // 开启热更新
     hot: true,
+    // 打开浏览器
+    open: true,
     contentBase: path.join(__dirname, './../dist')
   },
   devtool: 'inline-source-map'  
