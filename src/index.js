@@ -1,12 +1,18 @@
 import React from 'react';
 import ReactDom from 'react-dom';
-import styels from '@ast/css/test.css';
-import img from '@ast/image/01.jpeg';
+import { BrowserRouter as Router } from "react-router-dom";
+// 通用样式
+import '@/assets/css/reset.less';
+import '@/assets/css/base.less';
+// 组件
+import Index from './pages/index';
 
-function Test() {
-  return <h1 className={styels.h1}>测试0</h1>;
-}
-ReactDom.render(<Test />, document.getElementById("root"));
+ReactDom.render(
+    <Router>
+        <Index />
+    </Router>, 
+    document.getElementById("root")
+);
 if (module.hot) {  
     module.hot.accept();
 }

@@ -12,15 +12,21 @@ module.exports = merge(base, {
   module: {
     rules: [
       {
-        test: /\.css$/,
+        test: /\.(css|less)$/,
         use: [{
-              loader: 'style-loader'
-            },{
-                loader: 'css-loader',
-                options: {
-                    modules: true
-                }
-            }],
+            loader: 'style-loader'
+        }, {
+            loader: 'css-loader',
+            options: {
+                modules: true,
+                localsConvention: 'camelCase' // 将样式文件的 box-header 导入后 改为 boxHeader
+            }
+        }, {
+            loader: require.resolve('less-loader'), // compiles Less to LESS
+            options: {
+                sourceMap: true
+            },
+        }],
         exclude: /node_modules/
     },
     ]

@@ -11,19 +11,8 @@ let styleLoader = {
     options: {}
 }
 
-
-function styleLoaderFn() {
-  const prodMode = process.env.NODE_ENV === 'production';
-  if(!prodMode) {
-    return { loader: 'style-loader' };
-  } else {
-    return {
-      loader: MiniCssExtractPlugin.loader,
-      options: {
-        name: '[name].[hash].css'
-      }
-    }
-  }
+function resolve(_path) {
+    return path.resolve(__dirname, _path);
 }
 module.exports = {
     entry: {
@@ -31,12 +20,16 @@ module.exports = {
     },
     output: {
         filename: 'js/bundle.js',
-        path: path.resolve(__dirname, './../dist')
+        path: resolve('./../dist')
     },
     resolve: {
+        extensions: ['.js', '.jsx', '.json'], // 配置后缀识别
         alias: { // 配置别名
-            '@': path.resolve(__dirname, './../src'),
-            '@ast': path.resolve(__dirname, './../src/assets')
+            '@': resolve('./../src'),
+            '@ast': resolve('./../src/assets'),
+            '@pages': resolve('./../src/pages'),
+            '@comp': resolve('./../src/components'),
+            '@utils': resolve('./../src/utils')
         }
     },
     optimization: { // 代码分隔
