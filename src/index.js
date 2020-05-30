@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDom from 'react-dom';
 import { BrowserRouter as Router } from "react-router-dom";
 // 通用样式
+import '@/assets/css/theme.less';
 import '@/assets/css/reset.less';
 import '@/assets/css/base.less';
 // 组件
