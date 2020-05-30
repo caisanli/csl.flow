@@ -4,31 +4,14 @@ const base = require('./webpack.base');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 // 静态资源拷贝
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const StyleLoader = require('./styleLoader');
 // 拆分css
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+
 module.exports = merge(base, {
   mode: 'production',
   module: {
-    rules: [
-      {
-        test: /\.(css|less)$/,
-        use: [{
-            loader: MiniCssExtractPlugin.loader,
-        }, {
-            loader: 'css-loader',
-            options: {
-                modules: true,
-                localsConvention: 'camelCase' // 将样式文件的 box-header 导入后 改为 boxHeader
-            }
-        }, {
-            loader: require.resolve('less-loader'), // compiles Less to LESS
-            options: {
-                modules: true,
-            },
-        }],
-        exclude: /node_modules/
-    },
-    ]
+    rules: [StyleLoader('prod')]
   },
   plugins: [
     new CleanWebpackPlugin(),
