@@ -1,0 +1,39 @@
+@height: 40px;
+.tool-bar-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;    
+    font-size: 0.8rem;
+    color: @base;
+    height: @height;
+}
+.tools {
+    display: flex;
+    .tool {
+        position: relative;
+        height: @height;
+        line-height: @height;
+        padding: 0 5px;
+        cursor: pointer;
+        transition: color 0.2s;
+        &:hover {
+            color: #607D8B;
+        }
+        &.interval::after {
+            content: "";
+            display: inline-block;
+            position: absolute;
+            top: -1px;
+            right: 0;
+            height: 100%;
+            border-right: 1px solid #8a9caf;
+        }
+        &.interval {
+            padding-right: 10px;
+            & + .tool {
+                padding-left: 10px;
+            }
+        }
+
+    }
+}
