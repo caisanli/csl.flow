@@ -10,9 +10,9 @@ export default function ({ click }) {
         <div className={style.toolBarBox}>
             {/* 常用功能 */}
             <div className={style.tools}>
-                {tools.map(t => {
+                {tools.map((t, i) => {
                     return (
-                        <div onClick={() => click(t)} className={[style.tool, t.interval ? style.interval : ''].join(' ')}>
+                        <div key={i} onClick={() => click(t)} className={[style.tool, t.interval ? style.interval : ''].join(' ')}>
                             {t.name}
                         </div>
                     )
