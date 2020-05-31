@@ -1,0 +1,27 @@
+.item {
+    @borderColor: #899baf;
+    .header {
+        font-weight: 500;
+        font-size: 0.8rem;
+        padding: 12px 10px;
+        border-bottom: 1px solid @borderColor;
+        background-color: #fcfcfc;
+        cursor: pointer;
+    }
+    .content {
+        display: none;
+        border-bottom: 1px solid @borderColor;
+        padding: 10px 10px;
+    }
+    &.active {
+        .header {
+            box-shadow: 0 0 2px @borderColor;
+        }
+        .content {
+            display: block;
+        }
+    }
+    &:not(:last-child) {
+        // border-top: 1px solid @borderColor;
+    }
+}

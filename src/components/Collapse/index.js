@@ -1,5 +1,5 @@
-import Collapse from './collapse'
-import Panel from "./panel";
+import Collapse1 from './collapse'
+import Panel1 from "./panel";
 
-export const Collapse = Collapse;
-export const Panel = Panel;
+export const Collapse = Collapse1;
+export const Panel = Panel1;
