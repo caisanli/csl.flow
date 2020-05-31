@@ -4,6 +4,8 @@ import style from "./index.module.less";
 // 组件
 import ToolBar from '@comp/ToolBar';
 import Scroll from '@comp/Scroll';
+import { Collapse, Panel } from "@comp/Collapse";
+import Text from '@comp/Graph/base/Text';
 /**
  * 整体布局：
  * 1、上方工具栏
@@ -23,7 +25,19 @@ export default function() {
             {/* 图形选择栏 */}
             <div className={style.editorLeftAside}>
                 <Scroll visible={false}>
-                    <div style={{height: 7000+'px'}}></div>
+                    <Collapse defaultActiveKeys={['1']}>
+                        <Panel header={'基础图形'} key={'1'}>
+                            <p>
+                                <Text width={70} height={70} />
+                            </p>
+                        </Panel>
+                        <Panel header={'FlowChart流程图'} key={'2'}>
+                            <p>这是内容01</p>
+                        </Panel>
+                        <Panel header={'EVC企业价值链'} key={'3'}>
+                            <p>这是内容01</p>
+                        </Panel>
+                    </Collapse>
                 </Scroll>
             </div>
             {/* 编辑区域 */}
