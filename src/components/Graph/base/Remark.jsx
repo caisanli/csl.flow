@@ -5,8 +5,8 @@ import Svg from '../Svg'
 export default function(props) {
     return (
         <Svg {...props} >
-            <polygon points="20,0 80,0 100,20 100,120 20,120" fill="#ffffaa" stroke="#ffffaa"/>
-            <polygon points="80,0 100,20 80,20" fill="#cdcd78" stroke="#cdcd78"/>
+            <polygon stroke-width="1" points="170,85 640,85 850,170 850,935 170,935" fill="#ffffaa" stroke="#ffffaa"/>
+            <polygon stroke-width="1" points="640,85 680,240 850,170" fill="#cdcd78" stroke="#cdcd78"/>
         </Svg>
     );
 }

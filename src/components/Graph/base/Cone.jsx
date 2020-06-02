@@ -5,7 +5,7 @@ import Svg from '../Svg'
 export default function(props) {
     return (
         <Svg {...props} >
-            <path d="M20 30 C 50 10, 70 10, 100 30 L60 100 L20 30" stroke="black" fill="transparent"/>
+            <path d="M170 255 C 425 85, 595 85, 850 255 L510 850 L170 255"/>
         </Svg>
     );
 }

@@ -5,7 +5,7 @@ import Svg from '../Svg'
 export default function(props) {
     return (
         <Svg {...props} >
-            <rect x="0" y="20" width="120" height="80" />
+            <rect x="85" y="170" width="935" height="680" />
         </Svg>
     );
 }

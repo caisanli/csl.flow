@@ -5,7 +5,7 @@ import Svg from '../Svg'
 export default function(props) {
     return (
         <Svg {...props} >
-            <polygon points="50,0 70,0 70,50 120,50 120,70 70,70 70,120 50,120 50,70 0,70 0,50 50,50" />
+            <polygon points="425,85 595,85 595,425 935,425 935,595 595,595 595,935 425,935 425,595 85,595 85,425 425,425" />
         </Svg>
     );
 }
