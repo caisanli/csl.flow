@@ -2,7 +2,6 @@ import React from 'react'
 import PropTypes from 'prop-types'
 // 样式
 import style from './index.module.less'
-console.log(style)
 class Scroll extends React.Component {
   constructor(props) {
     super(props)

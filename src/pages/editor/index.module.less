@@ -14,15 +14,21 @@
 .editor-left-aside {
   float: left;
   height: 100%;
-  width: 300px;
+  width: 210px;
   border-right: 1px solid @base;
 }
 .editor-warp {
   height: 100%;
-  margin-left: 300px;
+  margin-left: 210px;
 }
 .editor-right-aside {
   position: absolute;
   top: 0;
   left: 0;
+}
+.graph {
+    display: inline-block;
+    &:not(:nth-child(1n+0)) {
+        margin-left: 10px;
+    }
 }

@@ -5,7 +5,10 @@ import style from "./index.module.less";
 import ToolBar from '@comp/ToolBar';
 import Scroll from '@comp/Scroll';
 import { Collapse, Panel } from "@comp/Collapse";
-import Text from '@comp/Graph/base/Text';
+// 图形组件
+import Bases from '@comp/Graph/base';
+
+// import Text from '@comp/Graph/base/Text';
 /**
  * 整体布局：
  * 1、上方工具栏
@@ -27,9 +30,9 @@ export default function() {
                 <Scroll visible={false}>
                     <Collapse defaultActiveKeys={['1']}>
                         <Panel header={'基础图形'} key={'1'}>
-                            <p>
-                                <Text width={70} height={70} />
-                            </p>
+                            {
+                                Bases.map((b, i) => <Graph key={i} Comp={b.Comp} />)
+                            }
                         </Panel>
                         <Panel header={'FlowChart流程图'} key={'2'}>
                             <p>这是内容01</p>
@@ -45,6 +48,13 @@ export default function() {
             {/* 浮动工具栏 */}
             <div className={style.editorRightAside}></div>
           </div>
+        </div>
+    )
+}
+function Graph(props) {
+    return (
+        <div className={style.graph}>
+            <props.Comp width={40} height={40} strokeWidth={30} />
         </div>
     )
 }

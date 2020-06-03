@@ -1,7 +1,7 @@
 import React from 'react';
 // svg基础组件
 function Svg (props) {
-    let { width, height, viewBox, fill, stroke } = props;
+    let { width, height, viewBox, fill, stroke, strokeWidth } = props;
     return (
         <svg xmlns="http://www.w3.org/2000/svg" 
             width={width} 
@@ -9,6 +9,7 @@ function Svg (props) {
             viewBox={viewBox} 
             fill={fill} 
             stroke={stroke} 
+            strokeWidth={strokeWidth}
             version="1.1"
         >
             {props.children}
@@ -20,6 +21,7 @@ Svg.defaultProps = {
     height: 120,
     fill: 'none',
     stroke: '#000',
-    viewBox: '0 0 120 120'
+    strokeWidth: '5',
+    viewBox: '0 0 1024 1024'
 }
 export default Svg;
