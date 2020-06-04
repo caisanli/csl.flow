@@ -28,7 +28,30 @@
 }
 .graph {
     display: inline-block;
-    &:not(:nth-child(1n+0)) {
-        margin-left: 10px;
+    margin-bottom: 5px;
+    &:not(:nth-child(4n+1)) {
+        margin-left: 9px;
+    }
+}
+.graph-detail {
+    &-box {
+        position: fixed;
+        top: 0;
+        left: 215px;
+        z-index: 10;
+    }
+    &-content {
+        padding: 10px 10px;
+        border: 1px solid #c6ccd2;
+        border-radius: 5px;
+        box-shadow: 1px 1px 5px 0px #244462;
+        background-color: #fafafa;
+    }
+    &-svg {
+        margin-bottom: 5px;
+    }
+    &-title {
+        color: #244462;
+        text-align: center;
     }
 }
