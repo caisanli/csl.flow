@@ -32,7 +32,6 @@ export default class EditorBox extends React.Component {
         this.onMouseLeave = this.onMouseLeave.bind(this);
     }
     onMouseEnter(e, graph) {
-        console.log('进来了');
         this.setState({
             detailY: e.pageY,
             detailVisible: true,
