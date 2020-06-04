@@ -1,3 +1,6 @@
+@wh: 10px;
+@bg: #c6ccd2;
+@op: 0.6;
 .scroll-box {
   position: relative; 
   height: 100%;
@@ -7,7 +10,7 @@
         opacity: 0;
       }
       &:hover .scroll-vertical-thumb, &:hover .scroll-horizontal-thumb {
-          opacity: 1;
+        opacity: @op;
       }
   }
 }
@@ -18,15 +21,16 @@
   right: 3px; 
   z-index: 3;
 }
+
 .scroll-vertical-bar {
-  width: 5px; 
   height: 100%; 
   border-radius: 3px;
 }
 .scroll-vertical-thumb {
   transform: translateY(0px); 
-  background-color: #ddd; 
-  width: 5px;
+  background-color: @bg; 
+  width: @wh;
+  opacity: @op;
   border-radius: 3px;
 }
 .scroll-horizontal-bar-box {
@@ -42,9 +46,10 @@
 }
 .scroll-horizontal-thumb {
   transform: translateX(0px); 
-  background-color: #ddd; 
+  background-color: @bg; 
   width: 0; 
-  height: 5px;
+  height: @wh;
+  opacity: @op;
   border-radius: 3px;
 }
 .scroll-content {
