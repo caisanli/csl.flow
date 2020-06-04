@@ -173,9 +173,6 @@ class Scroll extends React.Component {
       heightScale = 0
       right = 0
     }
-    console.log('clientHeight', this.$content.current.clientHeight)
-    console.log('scrollHeight：', this.$content.current.scrollHeight)
-    console.log('heightScale：', heightScale);
     this.setState({mr: right})
     if (this.props.y) this.setState({ yh: heightScale })
     if (this.props.x) {

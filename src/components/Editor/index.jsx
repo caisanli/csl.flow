@@ -15,7 +15,7 @@ export default class Editor extends React.Component {
             <div className={style.editorBox} >
                 <Scroll>
                     <div className={style.editorContainer}>
-                        <div style={{width, height}}></div>
+                        <div className={style.editorWarp} style={{width, height}}></div>
                     </div>
                 </Scroll>
             </div>
