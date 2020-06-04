@@ -45,6 +45,7 @@ class Scroll extends React.Component {
     this.scrollBarWidth = this._getBarWidth()
     this._events()
     this._setThumbWidthHeight()
+    this._setScrollCenter()
   }
   componentWillUnmount() {
     // 销毁之前
@@ -53,6 +54,15 @@ class Scroll extends React.Component {
     y && document.removeEventListener('mousemove', this._onYMouseMove)
     document.removeEventListener('mouseup', this._onMouseup)
     window.removeEventListener('resize', this._onResize)
+  }
+  _setScrollCenter() { // 设置
+    let {scrollWidth, scrollHeight} = this.$content.current;
+    let {boxWidth, boxHeight} = this.eventOption
+    let top = 0, left = 0;
+    top = (scrollHeight - boxHeight) / 2;
+    left = (scrollWidth - boxWidth) / 2;
+    this.$content.current.scrollTop = top;
+    this.$content.current.scrollLeft = left;
   }
   appendChild(elem) {
     // 添加
@@ -93,15 +103,23 @@ class Scroll extends React.Component {
   }
   _onResize() {// 监听窗口变化
     this.eventOption.boxHeight = this.$content.current.offsetHeight
+    this.eventOption.boxWidth = this.$content.current.offsetWidth;
     this._setThumbWidthHeight();
     this._onScroll()
   }
   _onScroll() { // 监听滚动事件
-    let scale = this.$content.current.scrollTop / this.$content.current.scrollHeight
-    let top = scale * this.eventOption.boxHeight
+    console.log('滚动了')
+    let heightScale = this.$content.current.scrollTop / this.$content.current.scrollHeight;
+    let widthScale = this.$content.current.scrollLeft / this.$content.current.scrollWidth;
+    let top = heightScale * this.eventOption.boxHeight
+    let left = widthScale * this.eventOption.boxWidth
     this.eventOption.ty = top
+    this.eventOption.tx = left
+    if(this.props.scroll)
+        this.props.scroll(left, top);
     this.setState({
       yt: top,
+      xl: left
     })
   }
   _onMouseup(e) {
@@ -140,6 +158,7 @@ class Scroll extends React.Component {
     let scrollWidth = this.$content.current.scrollWidth
     left = (left * this.$content.current.scrollWidth) / this.eventOption.boxWidth
     this.$content.current.scrollLeft = left
+    return ;
     let scale = left / scrollWidth
     let x = scale * this.eventOption.boxWidth
     let xw = this.state.xw;
@@ -252,11 +271,13 @@ class Scroll extends React.Component {
 Scroll.propTypes = {
   x: PropTypes.bool,
   y: PropTypes.bool,
+  center: PropTypes.bool,
   visible: PropTypes.bool,
 }
 Scroll.defaultProps = {
   x: true,
   y: true,
+  center: false,
   visible: true,
 }
 export default Scroll
