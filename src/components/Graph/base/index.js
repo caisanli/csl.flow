@@ -25,74 +25,74 @@ import Triangle from './Triangle';
 
 export default [{
     title: '文本',
-    Comp: Text
+    comp: Text
 },{
     title: '备注',
-    Comp: Remark
+    comp: Remark
 },{
     title: '圆形',
-    Comp: Circle
+    comp: Circle
 },{
     title: '矩形',
-    Comp: Rect
+    comp: Rect
 },{
     title: '圆角矩形',
-    Comp: RectRadius
+    comp: RectRadius
 },{
     title: '三角形',
-    Comp: Triangle
+    comp: Triangle
 },{
     title: '菱形',
-    Comp: Diamond
+    comp: Diamond
 },{
     title: '五边形',
-    Comp: Pentagonal
+    comp: Pentagonal
 },{
     title: '六边形',
-    Comp: Hexagon
+    comp: Hexagon
 },{
     title: '八边形',
-    Comp: Octagon
+    comp: Octagon
 },{
     title: '五角星',
-    Comp: Start
+    comp: Start
 },{
     title: '锥形',
-    Comp: Cone
+    comp: Cone
 },{
     title: '扇形',
-    Comp: Sector
+    comp: Sector
 },{
     title: '十字形',
-    Comp: Cross
+    comp: Cross
 },{
     title: '云',
-    Comp: Cloud
+    comp: Cloud
 },{
     title: '气泡',
-    Comp: Talk
+    comp: Talk
 },{
     title: '左括号',
-    Comp: BracketLeft
+    comp: BracketLeft
 },{
     title: '右括号',
-    Comp: BracketRight
+    comp: BracketRight
 },{
     title: 'APQC',
-    Comp: Apqc
+    comp: Apqc
 }, {
     title: '下箭头',
-    Comp: ArrowBottom
+    comp: ArrowBottom
 }, {
     title: '上箭头',
-    Comp: ArrowTop
+    comp: ArrowTop
 }, {
     title: '左箭头',
-    Comp: ArrowLeft
+    comp: ArrowLeft
 }, {
     title: '右箭头',
-    Comp: ArrowRight
+    comp: ArrowRight
 }, {
     title: '左返回箭头',
-    Comp: BackArrowLeft
+    comp: BackArrowLeft
 }]
