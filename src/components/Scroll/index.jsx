@@ -25,6 +25,7 @@ class Scroll extends React.Component {
     this._onYMouseMove = this._onYMouseMove.bind(this)
     // 绑定变量
     this.$content = React.createRef()
+    this.$horizontalThumb = React.createRef()
     // 事件处理时的参数
     this.eventOption = {
       verticalOffset: 0,
@@ -68,7 +69,6 @@ class Scroll extends React.Component {
   }
   _events() {
     // 事件列表
-    const self = this
     this.eventOption.boxHeight = this.$content.current.offsetHeight
     this.eventOption.boxWidth =
       this.$content.current.offsetWidth + this.scrollBarWidth
@@ -78,7 +78,7 @@ class Scroll extends React.Component {
     }
     // IE10 => 'MutationEvent'
     const observer = new (MutationObserver || MutationEvent)(() => {
-      self._setThumbWidthHeight()
+      this._setThumbWidthHeight()
     })
     observer.observe(this.$content.current, config)
     window.addEventListener('resize', this._onResize.bind(this))
@@ -123,11 +123,11 @@ class Scroll extends React.Component {
     let endY = e.pageY
     let top = endY - this.eventOption.startY + this.eventOption.verticalOffset
     top = (top * this.$content.current.scrollHeight) / this.eventOption.boxHeight
-    self.$content.scrollTop = top
+    this.$content.current.scrollTop = top
   }
   _onXMouseDown(e) {
     e.preventDefault()
-    this.eventOption.verticalOffset = this.eventOption.tx
+    this.eventOption.horizontalOffset = this.eventOption.tx
     this.eventOption.isHorizontalDown = true
     this.eventOption.startX = e.pageX
   }
@@ -139,15 +139,16 @@ class Scroll extends React.Component {
       endX - this.eventOption.startX + this.eventOption.horizontalOffset
     let scrollWidth = this.$content.current.scrollWidth
     left = (left * this.$content.current.scrollWidth) / this.eventOption.boxWidth
-    this.$content.scrollLeft = left
+    this.$content.current.scrollLeft = left
     let scale = left / scrollWidth
     let x = scale * this.eventOption.boxWidth
+    let xw = this.state.xw;
     x =
       x < 0
         ? 0
-        : this.eventOption.boxWidth > this.$horizontalThumb.offsetWidth + x
+        : this.eventOption.boxWidth > xw + x
         ? x
-        : this.eventOption.boxWidth - this.$horizontalThumb.offsetWidth
+        : this.eventOption.boxWidth - xw
     this.eventOption.tx = x
     this.setState({
       xl: x,
@@ -172,11 +173,14 @@ class Scroll extends React.Component {
       heightScale = 0
       right = 0
     }
+    console.log('clientHeight', this.$content.current.clientHeight)
+    console.log('scrollHeight：', this.$content.current.scrollHeight)
+    console.log('heightScale：', heightScale);
     this.setState({mr: right})
     if (this.props.y) this.setState({ yh: heightScale })
     if (this.props.x) {
       let widthScale =
-        (this.$content.clientWidth * 100) / this.$content.scrollWidth
+        (this.$content.current.clientWidth * 100) / this.$content.current.scrollWidth
       if (widthScale >= 100) widthScale = 0
       this.setState({ xw: widthScale })
     }
@@ -206,9 +210,10 @@ class Scroll extends React.Component {
       <div className={[style.scrollBox, !visible ? style.hoverThumb : ''].join(' ')}>
         {/* 竖向滚动条 */}
         {
-            x && <div className={style.scrollVerticalBarBox}>
+            y && <div className={style.scrollVerticalBarBox}>
                     <div className={style.scrollVerticalBar}>
                         <div
+                        onMouseDown={this._onYMouseDown}
                         style={{
                             transform: 'translateY(' + yt + 'px)',
                             height: yh + '%',
@@ -220,9 +225,10 @@ class Scroll extends React.Component {
         }
         {/* 横向滚动条 */}
         {
-            y && <div className={style.scrollHorizontalBarBox}>
+            x && <div className={style.scrollHorizontalBarBox}>
                     <div className={style.scrollHorizontalBar}>
                     <div
+                        onMouseDown={this._onXMouseDown}
                         style={{ 
                             transform: 'translateX(' + xl + 'px)', 
                             width: xw + '%' 
@@ -237,7 +243,7 @@ class Scroll extends React.Component {
         <div style={{ height: '100%' }}>
           <div 
                 className={style.scrollContent} 
-                style={{marginRight: mr + 'px', overflowX: x ? 'auto' : 'hidden', overflowY: y ? 'auto': 'hidden'}} 
+                style={{overflowX: x ? 'auto' : 'hidden', overflowY: y ? 'auto': 'hidden'}} 
                 onScroll={this._onScroll} ref={this.$content}>
             { this.props.children }
           </div>
