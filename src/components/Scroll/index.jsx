@@ -45,7 +45,8 @@ class Scroll extends React.Component {
     this.scrollBarWidth = this._getBarWidth()
     this._events()
     this._setThumbWidthHeight()
-    this._setScrollCenter()
+    if(this.props.center)
+        this._setScrollCenter()
   }
   componentWillUnmount() {
     // 销毁之前
@@ -108,15 +109,15 @@ class Scroll extends React.Component {
     this._onScroll()
   }
   _onScroll() { // 监听滚动事件
-    console.log('滚动了')
-    let heightScale = this.$content.current.scrollTop / this.$content.current.scrollHeight;
-    let widthScale = this.$content.current.scrollLeft / this.$content.current.scrollWidth;
+    let { scrollTop, scrollLeft, scrollHeight, scrollWidth } = this.$content.current;
+    let heightScale = scrollTop / scrollHeight;
+    let widthScale = scrollLeft / scrollWidth;
     let top = heightScale * this.eventOption.boxHeight
     let left = widthScale * this.eventOption.boxWidth
     this.eventOption.ty = top
     this.eventOption.tx = left
     if(this.props.scroll)
-        this.props.scroll(left, top);
+        this.props.scroll(scrollLeft, scrollTop);
     this.setState({
       yt: top,
       xl: left
