@@ -29,15 +29,24 @@ export default class Editor extends React.Component {
         this._onMouseMove = this._onMouseMove.bind(this);
         this._onMouseUp = this._onMouseUp.bind(this);
         this._onScroll = this._onScroll.bind(this);
+        // 方法
+        this._computedPoint = this._computedPoint.bind(this);
         // 事件标识
         this.eventOption = {
             isDown: false,
-            startX: 0,
+            startX: 0, // 开始
             startY: 0,
             scrollTop: 0,
             scrollLeft: 0,
             offsetTop: 0,
-            offsetLeft: 0
+            offsetLeft: 0,
+            distanceTop: (this.boxHeight - this.height) / 2,
+            distanceLeft: (this.boxWidth - this.width) / 2,
+            drawLeft: 0,
+            isDrawLeft: false,
+            drawTop: 0,
+            isDrawTop: false,
+            isMoving: false
         }
     }
     _getOffset(elem) {
@@ -50,43 +59,70 @@ export default class Editor extends React.Component {
           left += parent.offsetLeft
           parent = parent.offsetParent
         }
-        console.log('left：', left)
-        console.log('top：', top)
+        console.log('offsetLeft：', left)
+        console.log('offsetTop：', top)
         return {top, left}
     }
     _onMouseDown(e) {
-        let {pageX, pageY, clientX} = e;
-        let {offsetLeft, offsetTop, scrollLeft, scrollTop} = this.eventOption;
+        let { pageX, pageY } = e;
         this.eventOption.isDown = true;
-        this.eventOption.startX = pageX;
-        this.eventOption.startY = pageY;
-        console.log('clientX：', clientX)
-        console.log('pageX：', pageX)
-        console.log('left：', pageX - offsetLeft + scrollLeft)
-        console.log('top：', pageY - offsetTop + scrollTop)
+        let { top, left } = this._computedPoint(pageX, pageY);
+        this.eventOption.startX = left;
+        this.eventOption.startY = top;
         this.setState({
-            drawLeft: offsetLeft - pageX  + scrollLeft,
-            drawTop: offsetTop - pageY + scrollTop
+            drawLeft: left,
+            drawTop: top
         })
     }
     _onMouseMove(e) {
         let {isDown, startX, startY} = this.eventOption;
         if(!isDown) return ;
         let { pageX, pageY } = e;
-        let width = Math.abs(pageX - startX);
-        let height = Math.abs(pageY - startY);
-        this.setState({
-            drawWidth: width,
-            drawHeight: height
-        })
+        let { top, left } = this._computedPoint(pageX, pageY);
+        let width = left - startX;
+        let height = top - startY;
+        let { drawLeft, drawTop } = this.state;
+        if(width < 0) {
+            if(!this.eventOption.isDrawLeft) {
+                this.eventOption.isDrawLeft = true;
+                this.eventOption.drawLeft = drawLeft;
+            }
+            this.setState({drawLeft: this.eventOption.drawLeft + width, drawWidth: Math.abs(width)});
+        } else {
+            if(this.eventOption.isDrawLeft) {
+                this.setState({ drawLeft: this.eventOption.drawLeft });
+                this.eventOption.isDrawLeft = false;
+            }   
+            this.setState({drawWidth: width});
+        }
+        if(height < 0) {
+            if(!this.eventOption.isDrawTop) {
+                this.eventOption.isDrawTop = true;
+                this.eventOption.drawTop = drawTop;
+            }
+            this.setState({drawTop: this.eventOption.drawTop + height, drawHeight: Math.abs(height)});
+        } else {
+            if(this.eventOption.isDrawTop) {
+                this.setState({ drawTop: this.eventOption.drawTop });
+                this.eventOption.isDrawTop = false;
+            }
+            this.setState({drawHeight: height});
+        }
     }
     _onMouseUp() {
-        if(this.eventOption.isDown)
+        if(this.eventOption.isDown) {
             this.eventOption.isDown = false;
+            // this.eventOption.isDrawTop = false;
+            // this.eventOption.isDrawLeft = false;
+            // this.setState({
+            //     drawHeight: 0,
+            //     drawWidth: 0,
+            //     drawTop: 0,
+            //     drawLeft: 0
+            // })
+        }
     }
     _onScroll(left, top) {
-        console.log('left：', left)
-        console.log('top：', top)
         this.eventOption.scrollTop = top;
         this.eventOption.scrollLeft = left;
     }
@@ -95,10 +131,16 @@ export default class Editor extends React.Component {
         body.addEventListener('mousemove', this._onMouseMove)
         body.addEventListener('mouseup', this._onMouseUp)
     }
+    _computedPoint(x, y) { // 计算坐标位置
+        let { offsetLeft, offsetTop, scrollLeft, scrollTop, distanceLeft, distanceTop } = this.eventOption;
+        return {
+            top: y - offsetTop - (distanceTop - scrollTop),
+            left: x - offsetLeft - (distanceLeft - scrollLeft)  
+        };
+    }
     componentDidMount() {
         this._event()
-        let offset = this._getOffset(this.warpRef.current);
-        console.log(offset)
+        let offset = this._getOffset(this.scrollRef.current.$content.current);
         this.eventOption.offsetLeft = offset.left;
         this.eventOption.offsetTop = offset.top;
     }
@@ -111,7 +153,7 @@ export default class Editor extends React.Component {
     render() {
         let width = this.width + 'px';
         let height = this.height + 'px';
-        let {drawHeight, drawWidth, drawTop, drawLeft} = this.state;
+        let { drawHeight, drawWidth, drawTop, drawLeft } = this.state;
         return (
             <div className={style.editorBox} >
                 <Scroll ref={this.scrollRef} center scroll={this._onScroll}>
