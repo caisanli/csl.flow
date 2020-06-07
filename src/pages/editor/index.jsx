@@ -27,9 +27,25 @@ export default class EditorBox extends React.Component {
         }
         // ref
         this.asideRef = React.createRef();
+        
         // 绑定方法
         this.onMouseEnter = this.onMouseEnter.bind(this);
         this.onMouseLeave = this.onMouseLeave.bind(this);
+        this.onMouseDown = this.onMouseDown.bind(this);
+        this.onMouseMove = this.onMouseMove.bind(this);
+        this.onMouseUp = this.onMouseUp.bind(this);
+        this.onDragStart = this.onDragStart.bind(this);
+        this.onDragEnter = this.onDragEnter.bind(this);
+        this.onDraw = this.onDraw.bind(this);
+    }
+    onMouseDown(e) {
+        // console.log(e)
+    }
+    onMouseMove(e) {
+
+    }
+    onMouseUp() {
+
     }
     onMouseEnter(e, graph) {
         this.setState({
@@ -38,10 +54,20 @@ export default class EditorBox extends React.Component {
             detailGraph: graph
         });
     }
+    onDragStart(e) {
+        console.log(e)
+    }
+    onDragEnter(e) {
+        console.log(e);
+    }
     onMouseLeave() {
         this.setState({
             detailVisible: false
         })
+    }
+    // 监听画框
+    onDraw(data) {
+        // console.log(data);
     }
     render() {
         return (
@@ -60,10 +86,13 @@ export default class EditorBox extends React.Component {
                             <Panel header={'基础图形'} key={'1'}>
                                 {
                                     Bases.map(
-                                        (b, i) => <Graph enter={(e) => this.onMouseEnter(e, b)} 
-                                                            leave={this.onMouseLeave} 
-                                                            key={i} 
-                                                            comp={b.comp} />
+                                        (b, i) => <Graph enter={e => this.onMouseEnter(e, b)} 
+                                                        drag = {e => console.log(e)}
+                                                        dargStart={e => this.onDragStart(e, b)}
+                                                        leave={this.onMouseLeave} 
+                                                        down={e => this.onMouseDown(e, b)}
+                                                        key={i} 
+                                                        comp={b.comp} />
                                     )
                                 }
                             </Panel>
@@ -77,8 +106,10 @@ export default class EditorBox extends React.Component {
                     </Scroll>
                 </div>
                 {/* 编辑区域 */}
-                <div className={style.editorWarp}>
-                    <Editor />
+                <div className={style.editorContainer}>
+                    <Editor draw={this.onDraw}>
+                        <div onDragEnter={this.onDragEnter} className={style.editorWarp}></div>
+                    </Editor>
                 </div>
                 {/* 浮动工具栏 */}
                 <div className={style.editorRightAside}></div>
@@ -89,10 +120,17 @@ export default class EditorBox extends React.Component {
 }
 // 图形缩略图
 function Graph(props) {
-    let { enter, leave, comp } = props;
+    let { enter, leave, comp, down, dargStart, drag } = props;
     let Comp = comp;
     return (
-        <div className={style.graph} onMouseEnter={enter} onMouseLeave={leave}>
+        <div draggable={true}
+            className={style.graph} 
+            onDrag={e => {console.log(e); e.stopPropagation(); e.preventDefault()}}
+            onDragStart={e => {console.log(e); e.stopPropagation(); e.preventDefault()}}
+            onDragEnd={e => console.log(e)}
+            onMouseEnter={enter} 
+            onMouseLeave={leave} 
+            onMouseDown={down}>
             <Comp width={40} height={40} strokeWidth={30} />
         </div>
     )
