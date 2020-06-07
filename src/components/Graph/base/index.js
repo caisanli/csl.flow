@@ -25,74 +25,98 @@ import Triangle from './Triangle';
 
 export default [{
     title: '文本',
+    name: 'text',
     comp: Text
 },{
     title: '备注',
-    comp: Remark
+    comp: Remark,
+    name: 'remark'
 },{
     title: '圆形',
-    comp: Circle
+    comp: Circle,
+    name: 'circle'
 },{
     title: '矩形',
-    comp: Rect
+    comp: Rect,
+    name: 'rect'
 },{
     title: '圆角矩形',
-    comp: RectRadius
+    comp: RectRadius,
+    name: 'rectRadius'
 },{
     title: '三角形',
-    comp: Triangle
+    comp: Triangle,
+    name: 'triangle'
 },{
     title: '菱形',
-    comp: Diamond
+    comp: Diamond,
+    name: 'diamond'
 },{
     title: '五边形',
-    comp: Pentagonal
+    comp: Pentagonal,
+    name: 'pentagonal'
 },{
     title: '六边形',
-    comp: Hexagon
+    comp: Hexagon,
+    name: 'hexagon'
 },{
     title: '八边形',
-    comp: Octagon
+    comp: Octagon,
+    name: 'octagon'
 },{
     title: '五角星',
-    comp: Start
+    comp: Start,
+    name: 'start'
 },{
     title: '锥形',
-    comp: Cone
+    comp: Cone,
+    name: 'cone'
 },{
     title: '扇形',
-    comp: Sector
+    comp: Sector,
+    name: 'sector'
 },{
     title: '十字形',
-    comp: Cross
+    comp: Cross,
+    name: 'cross'
 },{
     title: '云',
-    comp: Cloud
+    comp: Cloud,
+    name: 'cloud'
 },{
     title: '气泡',
-    comp: Talk
+    comp: Talk,
+    name: 'talk'
 },{
     title: '左括号',
-    comp: BracketLeft
+    comp: BracketLeft,
+    name: 'bracketLeft'
 },{
     title: '右括号',
-    comp: BracketRight
+    comp: BracketRight,
+    name: 'bracketRight'
 },{
     title: 'APQC',
-    comp: Apqc
+    comp: Apqc,
+    name: 'apqc'
 }, {
     title: '下箭头',
-    comp: ArrowBottom
+    comp: ArrowBottom,
+    name: 'arrowBottom'
 }, {
     title: '上箭头',
-    comp: ArrowTop
+    comp: ArrowTop,
+    name: 'arrowTop'
 }, {
     title: '左箭头',
-    comp: ArrowLeft
+    comp: ArrowLeft,
+    name: 'arrowLeft'
 }, {
     title: '右箭头',
-    comp: ArrowRight
+    comp: ArrowRight,
+    name: 'arrowRight'
 }, {
     title: '左返回箭头',
-    comp: BackArrowLeft
+    comp: BackArrowLeft,
+    name: 'backArrowLeft'
 }]
