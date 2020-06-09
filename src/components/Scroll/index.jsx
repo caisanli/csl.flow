@@ -124,35 +124,33 @@ class Scroll extends React.Component {
     })
   }
   _onMouseup(e) {
-    e.preventDefault()
     if (this.eventOption.isVerticalDown) this.eventOption.isVerticalDown = false
     if (this.eventOption.isHorizontalDown)
       this.eventOption.isHorizontalDown = false
   }
   _onYMouseDown(e) {
-    e.preventDefault()
     this.eventOption.verticalOffset = this.eventOption.ty
     this.eventOption.isVerticalDown = true
     this.eventOption.startY = e.pageY
     this.eventOption.boxHeight = this.$content.current.offsetHeight
   }
   _onYMouseMove(e) {
-    e.preventDefault()
     if (!this.eventOption.isVerticalDown) return
+    e.preventDefault()
     let endY = e.pageY
     let top = endY - this.eventOption.startY + this.eventOption.verticalOffset
     top = (top * this.$content.current.scrollHeight) / this.eventOption.boxHeight
     this.$content.current.scrollTop = top
   }
   _onXMouseDown(e) {
-    e.preventDefault()
     this.eventOption.horizontalOffset = this.eventOption.tx
     this.eventOption.isHorizontalDown = true
     this.eventOption.startX = e.pageX
   }
   _onXMouseMove(e) {
-    e.preventDefault()
-    if (!this.eventOption.isHorizontalDown) return
+    
+    if (!this.eventOption.isHorizontalDown) return;
+    e.preventDefault()  
     let endX = e.pageX
     let left =
       endX - this.eventOption.startX + this.eventOption.horizontalOffset
