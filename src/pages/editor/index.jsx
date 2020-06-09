@@ -7,8 +7,9 @@ import Scroll from '@comp/Scroll';
 import { Collapse, Panel } from "@comp/Collapse";
 import Editor from "@comp/Editor";
 // 图形组件
-import Bases from '@comp/Graph/base';
-
+import bases from '@comp/Graph/base';
+// 
+import Thumbnail from '@comp/Graph/Thumbnail';
 // import Text from '@comp/Graph/base/Text';
 /**
  * 整体布局：
@@ -22,7 +23,7 @@ export default class EditorBox extends React.Component {
         super(props);
         this.state = {
             detailY: 0,
-            isDetail: false,
+            detailVisible: false,
             detailGraph: null
         }
         // ref
@@ -35,8 +36,18 @@ export default class EditorBox extends React.Component {
         this.onMouseMove = this.onMouseMove.bind(this);
         this.onMouseUp = this.onMouseUp.bind(this);
         this.onDragStart = this.onDragStart.bind(this);
+        this.onDragEnd = this.onDragEnd.bind(this);
         this.onDragEnter = this.onDragEnter.bind(this);
+        this.onDrag = this.onDrag.bind(this);
+        this.onDrop = this.onDrop.bind(this);
+        this.onDragOver = this.onDragOver.bind(this);
         this.onDraw = this.onDraw.bind(this);
+    }
+    componentDidMount() {
+        // document.addEventListener('drop', this.onDrop);
+    }
+    componentWillUnmount() {
+        // document.removeEventListener('drop', this.onDrop);
     }
     onMouseDown(e) {
         // console.log(e)
@@ -47,18 +58,32 @@ export default class EditorBox extends React.Component {
     onMouseUp() {
 
     }
-    onMouseEnter(e, graph) {
+    onMouseEnter(graph, e) {
         this.setState({
             detailY: e.pageY,
             detailVisible: true,
             detailGraph: graph
         });
     }
-    onDragStart(e) {
-        console.log(e)
+    onDragStart(g, e) {
+        this.setState({detailVisible: false})
+        e.dataTransfer.setData('text', null);
+    }
+    onDrag(g, e) {
+        
+    }
+    onDragEnd() {
+        console.log('拖拽结束');
+    }
+    // 加上防止onDrop失效
+    onDragOver(e) {
+        e.preventDefault();
     }
     onDragEnter(e) {
-        console.log(e);
+        console.log('进来了。。。');
+    }
+    onDrop(g, e) {
+        console.log('放下了..')
     }
     onMouseLeave() {
         this.setState({
@@ -84,17 +109,12 @@ export default class EditorBox extends React.Component {
                     <Scroll>
                         <Collapse defaultActiveKeys={['1']}>
                             <Panel header={'基础图形'} key={'1'}>
-                                {
-                                    Bases.map(
-                                        (b, i) => <Graph enter={e => this.onMouseEnter(e, b)} 
-                                                        drag = {e => console.log(e)}
-                                                        dargStart={e => this.onDragStart(e, b)}
-                                                        leave={this.onMouseLeave} 
-                                                        down={e => this.onMouseDown(e, b)}
-                                                        key={i} 
-                                                        comp={b.comp} />
-                                    )
-                                }
+                                <Thumbnail graphs={bases}
+                                            enter={this.onMouseEnter} 
+                                            leave={this.onMouseLeave}
+                                            drag={this.onDrag}
+                                            dragEnd={this.onDragEnd}
+                                            dragStart={this.onDragStart}/>
                             </Panel>
                             <Panel header={'FlowChart流程图'} key={'2'}>
                                 <p>这是内容01</p>
@@ -106,9 +126,12 @@ export default class EditorBox extends React.Component {
                     </Scroll>
                 </div>
                 {/* 编辑区域 */}
-                <div className={style.editorContainer}>
+                <div className={style.editorContainer} >
                     <Editor draw={this.onDraw}>
-                        <div onDragEnter={this.onDragEnter} className={style.editorWarp}></div>
+                        <div onDragEnter={this.onDragEnter} 
+                            onDragOver={this.onDragOver}
+                            onDrop={this.onDrop} 
+                            className={style.editorWarp}></div>
                     </Editor>
                 </div>
                 {/* 浮动工具栏 */}
@@ -117,23 +140,6 @@ export default class EditorBox extends React.Component {
             </div>
         )
     }
-}
-// 图形缩略图
-function Graph(props) {
-    let { enter, leave, comp, down, dargStart, drag } = props;
-    let Comp = comp;
-    return (
-        <div draggable={true}
-            className={style.graph} 
-            onDrag={e => {console.log(e); e.stopPropagation(); e.preventDefault()}}
-            onDragStart={e => {console.log(e); e.stopPropagation(); e.preventDefault()}}
-            onDragEnd={e => console.log(e)}
-            onMouseEnter={enter} 
-            onMouseLeave={leave} 
-            onMouseDown={down}>
-            <Comp width={40} height={40} strokeWidth={30} />
-        </div>
-    )
 }
 
 // 图形详情
