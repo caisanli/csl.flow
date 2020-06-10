@@ -6,12 +6,13 @@ import style from './index.module.less';
 export default class Transform extends React.Component {
     constructor(props) {
         super(props);
+        console.log(props)
         // state
         this.state = {
             width: 0, 
             height: 0,
-            left: 0,
-            top: 0,
+            left: props.left,
+            top: props.top,
             rotate: 0 
         }
         // 事件
@@ -62,8 +63,10 @@ export default class Transform extends React.Component {
     }
     render() {
         let { width, height, rotate, left, top } = this.state;
+        let Comp = this.props.comp;
         return (
-            <div className={style.transformBox} style={{width, height, transform: `translate(${left}px,${top}px);rotate(${rotate}deg);`}}>
+            <div className={style.transformBox} 
+                style={{width, height, transform: `translate(${left}px,${top}px) rotate(${rotate}deg)`}}>
                 <div className={style.transformBody}>
                     {/* 操作按钮 */}
                     <div className={style.transformTools}>
@@ -73,6 +76,7 @@ export default class Transform extends React.Component {
                         <span onMouseDown={this._onMouseDown} data-type="lb" className={[style.transformTool, style.lb]}></span>
                         <span onMouseDown={this._onMouseDown} data-type="rb" className={[style.transformTool, style.rb]}></span>
                     </div>
+                    <Comp />
                     {this.props.children}
                 </div>
             </div>

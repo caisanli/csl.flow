@@ -10,7 +10,7 @@ import Editor from "@comp/Editor";
 import bases from '@comp/Graph/base';
 import Detail from '@comp/Graph/Detail';
 import Move from '@comp/Graph/Move';
-import Thumbnail from '@/components/Graph/Thumbnail';
+import Thumbnail from '@comp/Graph/Thumbnail';
 // 工具
 import { getOffset } from '@utils/index';
 // import Text from '@comp/Graph/base/Text';
@@ -30,7 +30,9 @@ export default class EditorBox extends React.Component {
             detailGraph: null,
             moveX: 0,
             moveY: 0,
-            moveVisible: false
+            moveGraph: null,
+            moveVisible: false,
+            graphs: [], // 已添加图形
         }
         // ref
         this.asideRef = React.createRef();
@@ -44,13 +46,14 @@ export default class EditorBox extends React.Component {
         this.onMouseMove = this.onMouseMove.bind(this);
         this.onMouseUp = this.onMouseUp.bind(this);
         this.onDraw = this.onDraw.bind(this);
+
+        this.addGraph = this.addGraph.bind(this);
         // 属性
         this.eventOption = {
             moveDown: false,
-            moveGraph: null,
             offsetTop: 0,
             offsetLeft: 0
-        }
+        };
     }
     componentDidMount() {
         document.addEventListener('mousemove', this.onMouseMove);
@@ -62,7 +65,9 @@ export default class EditorBox extends React.Component {
     }
     onMouseDown(g) {
         this.eventOption.moveDown = true;
-        this.eventOption.moveGraph = g;
+        this.setState({
+            moveGraph: g
+        })
         let elem = this.contentRef.current;
         let { top, left } = getOffset(elem);
         this.eventOption.offsetLeft = left;
@@ -87,9 +92,17 @@ export default class EditorBox extends React.Component {
         }
     }
     onMouseUp(e) {
-        if(this.eventOption.moveDown)
+        if(this.eventOption.moveDown) {
             this.eventOption.moveDown = false;
-        console.log(e);
+            let {pageX, pageY} = e;
+            let { moveGraph } = this.state;
+            this.addGraph(moveGraph, pageX, pageY);
+        }        
+    }
+    addGraph(graph, x, y) {
+        let { graphs } = this.state;
+        graphs.push(Object.assign({}, graph, {x, y}));
+        this.setState({ graphs });
     }
     onMouseEnter(graph, e) {
         this.setState({
@@ -101,15 +114,14 @@ export default class EditorBox extends React.Component {
     onMouseLeave() {
         this.setState({
             detailVisible: false
-        })
+        });
     }
     // 监听画框
     onDraw(data) {
         // console.log(data);
     }
     render() {
-        let { detailY, detailVisible, detailGraph, moveX, moveY, moveVisible } = this.state;
-        let { moveGraph } = this.eventOption;
+        let { detailY, detailVisible, detailGraph, moveX, moveY, moveVisible, moveGraph, graphs } = this.state;
         return (
             <div className={style.editorBox}>
               {/* 工具栏 */}
@@ -140,9 +152,7 @@ export default class EditorBox extends React.Component {
                 </div>
                 {/* 编辑区域 */}
                 <div className={style.editorContainer} >
-                    <Editor draw={this.onDraw}>
-                        <div className={style.editorWarp}></div>
-                    </Editor>
+                    <Editor graphs={graphs} draw={this.onDraw} />
                 </div>
                 {/* 浮动工具栏 */}
                 <div className={style.editorRightAside}></div>

@@ -6,6 +6,7 @@ import React from 'react';
 // 组件
 import Scroll from '@comp/Scroll';
 import Grid from '@comp/Grid';
+import Transform from '@comp/Transform';
 // 样式
 import style from './index.module.less';
 export default class Editor extends React.Component {
@@ -34,6 +35,8 @@ export default class Editor extends React.Component {
         this._onScroll = this._onScroll.bind(this);
         // 方法
         this._computedPoint = this._computedPoint.bind(this);
+        let distanceLeft = (this.boxWidth - this.width) / 2;
+        let distanceTop = (this.boxHeight - this.height) / 2;
         // 事件标识
         this.eventOption = {
             isDown: false,
@@ -43,13 +46,14 @@ export default class Editor extends React.Component {
             scrollLeft: 0, // 当前scrollLeft
             offsetTop: 0, // 容器offsetTop
             offsetLeft: 0, // 容器offsetLeft
-            distanceTop: (this.boxHeight - this.height) / 2, // 编辑区域离容器的top
-            distanceLeft: (this.boxWidth - this.width) / 2, // 编辑区域离容器的left
+            distanceTop , // 编辑区域离容器的top
+            distanceLeft , // 编辑区域离容器的left
             drawLeft: 0, // 画框时当宽度为负数时 记录一次框的left
             isDrawLeft: false, // 宽度是否为负数
             drawTop: 0, // 画框时当宽度为负数时 记录一次框的top
             isDrawTop: false // 高度是否为负数
         }
+        props.distanceChange && props.distanceChange(distanceLeft, distanceTop);
     }
     // 获取offset
     _getOffset(elem) {
@@ -167,6 +171,7 @@ export default class Editor extends React.Component {
         let width = this.width + 'px';
         let height = this.height + 'px';
         let { drawHeight, drawWidth, drawTop, drawLeft } = this.state;
+        let { graphs } = this.props;
         return (
             <div className={style.editorBox} >
                 <Scroll ref={this.scrollRef} center scroll={this._onScroll}>
@@ -178,7 +183,14 @@ export default class Editor extends React.Component {
                             </div>
                             {/* 画框 */}
                             {<div className={style.drawBox} style={{width: drawWidth, height: drawHeight, left: drawLeft, top: drawTop}} />}
-                            {this.props.children}
+                            {
+                                graphs.map((g, i) => {
+                                    let {x, y, ...other} = g;
+                                    let position = this._computedPoint(x, y);
+                                    console.log('position：', position);
+                                    return (<Transform key={i} {...position} {...other}/>)
+                                })
+                            }
                         </div>
                     </div>
                 </Scroll>
