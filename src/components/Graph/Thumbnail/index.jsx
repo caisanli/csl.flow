@@ -1,9 +1,9 @@
 import React from 'react';
 // 样式
-import style from './Thumbnail.module.less';
+import style from './index.module.less';
 
 export default function(props) {
-    let {enter, leave, dragStart, drag, dragEnd} = props;
+    let {enter, leave, mouseDown} = props;
     return (
         <div >
             {
@@ -12,10 +12,7 @@ export default function(props) {
                     return (
                     <div key={i}
                         className={style.graph} 
-                        draggable={true}
-                        onDrag={e => drag && drag(g, e)}
-                        onDragStart={e => dragStart && dragStart(g, e)}
-                        onDragEnd={dragEnd}
+                        onMouseDown={e => mouseDown && mouseDown(g, e)}
                         onMouseEnter={e => enter && enter(g, e)} 
                         onMouseLeave={e => leave && leave(g, e)} >
                         <Comp width={40} height={40} strokeWidth={30} />
