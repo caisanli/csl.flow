@@ -11,7 +11,8 @@
           "safari": 11.1
         },
         // 根据代码逻辑中用到的ES6+语法进行方法的导入，而不是全部导入
-        "useBuiltIns": "usage"
+        "useBuiltIns": "usage",
+        "corejs": 3
       }
     ],
     "@babel/preset-react"
