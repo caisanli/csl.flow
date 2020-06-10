@@ -8,8 +8,11 @@ import { Collapse, Panel } from "@comp/Collapse";
 import Editor from "@comp/Editor";
 // 图形组件
 import bases from '@comp/Graph/base';
-// 
-import Thumbnail from '@comp/Graph/Thumbnail';
+import Detail from '@comp/Graph/Detail';
+import Move from '@comp/Graph/Move';
+import Thumbnail from '@/components/Graph/Thumbnail';
+// 工具
+import { getOffset } from '@utils/index';
 // import Text from '@comp/Graph/base/Text';
 /**
  * 整体布局：
@@ -24,39 +27,69 @@ export default class EditorBox extends React.Component {
         this.state = {
             detailY: 0,
             detailVisible: false,
-            detailGraph: null
+            detailGraph: null,
+            moveX: 0,
+            moveY: 0,
+            moveVisible: false
         }
         // ref
         this.asideRef = React.createRef();
-        
+        this.contentRef = React.createRef();
+        this.moveRef = React.createRef();
         // 绑定方法
         this.onMouseEnter = this.onMouseEnter.bind(this);
         this.onMouseLeave = this.onMouseLeave.bind(this);
+
         this.onMouseDown = this.onMouseDown.bind(this);
         this.onMouseMove = this.onMouseMove.bind(this);
         this.onMouseUp = this.onMouseUp.bind(this);
-        this.onDragStart = this.onDragStart.bind(this);
-        this.onDragEnd = this.onDragEnd.bind(this);
-        this.onDragEnter = this.onDragEnter.bind(this);
-        this.onDrag = this.onDrag.bind(this);
-        this.onDrop = this.onDrop.bind(this);
-        this.onDragOver = this.onDragOver.bind(this);
         this.onDraw = this.onDraw.bind(this);
+        // 属性
+        this.eventOption = {
+            moveDown: false,
+            moveGraph: null,
+            offsetTop: 0,
+            offsetLeft: 0
+        }
     }
     componentDidMount() {
-        // document.addEventListener('drop', this.onDrop);
+        document.addEventListener('mousemove', this.onMouseMove);
+        document.addEventListener('mouseup', this.onMouseUp);
     }
     componentWillUnmount() {
-        // document.removeEventListener('drop', this.onDrop);
+        document.removeEventListener('mousemove', this.onMouseMove);
+        document.removeEventListener('mouseup', this.onMouseUp);
     }
-    onMouseDown(e) {
-        // console.log(e)
+    onMouseDown(g) {
+        this.eventOption.moveDown = true;
+        this.eventOption.moveGraph = g;
+        let elem = this.contentRef.current;
+        let { top, left } = getOffset(elem);
+        this.eventOption.offsetLeft = left;
+        this.eventOption.offsetTop = top;
     }
     onMouseMove(e) {
-
+        if(!this.eventOption.moveDown)
+            return ;
+        e.preventDefault()
+        let { offsetTop, offsetLeft } = this.eventOption;
+        let {pageY, pageX} = e;
+        this.setState({moveVisible: true})
+        let moveElem = this.moveRef.current;
+        if(moveElem) {
+            let { offsetWidth, offsetHeight } = moveElem;
+            let left = (pageX - offsetLeft) - (offsetWidth / 2);
+            let top = (pageY - offsetTop) - (offsetHeight / 2);
+            this.setState({
+                moveX: left,
+                moveY: top,
+            })
+        }
     }
-    onMouseUp() {
-
+    onMouseUp(e) {
+        if(this.eventOption.moveDown)
+            this.eventOption.moveDown = false;
+        console.log(e);
     }
     onMouseEnter(graph, e) {
         this.setState({
@@ -64,26 +97,6 @@ export default class EditorBox extends React.Component {
             detailVisible: true,
             detailGraph: graph
         });
-    }
-    onDragStart(g, e) {
-        this.setState({detailVisible: false})
-        e.dataTransfer.setData('text', null);
-    }
-    onDrag(g, e) {
-        
-    }
-    onDragEnd() {
-        console.log('拖拽结束');
-    }
-    // 加上防止onDrop失效
-    onDragOver(e) {
-        e.preventDefault();
-    }
-    onDragEnter(e) {
-        console.log('进来了。。。');
-    }
-    onDrop(g, e) {
-        console.log('放下了..')
     }
     onMouseLeave() {
         this.setState({
@@ -95,6 +108,8 @@ export default class EditorBox extends React.Component {
         // console.log(data);
     }
     render() {
+        let { detailY, detailVisible, detailGraph, moveX, moveY, moveVisible } = this.state;
+        let { moveGraph } = this.eventOption;
         return (
             <div className={style.editorBox}>
               {/* 工具栏 */}
@@ -102,19 +117,17 @@ export default class EditorBox extends React.Component {
                 <ToolBar />
               </div>
               {/* 容器 */}
-              <div className={style.editorContent}>
+              <div className={style.editorContent} ref={this.contentRef}>
                 {/* 图形选择栏 */}
                 <div className={style.editorLeftAside} ref={this.asideRef}>
-                    <GraphDetail y={this.state.detailY} graph={this.state.detailGraph} visible={this.state.detailVisible}/>
+                    <Detail y={detailY} graph={detailGraph} visible={detailVisible}/>
                     <Scroll>
                         <Collapse defaultActiveKeys={['1']}>
                             <Panel header={'基础图形'} key={'1'}>
                                 <Thumbnail graphs={bases}
                                             enter={this.onMouseEnter} 
                                             leave={this.onMouseLeave}
-                                            drag={this.onDrag}
-                                            dragEnd={this.onDragEnd}
-                                            dragStart={this.onDragStart}/>
+                                            mouseDown={this.onMouseDown}/>
                             </Panel>
                             <Panel header={'FlowChart流程图'} key={'2'}>
                                 <p>这是内容01</p>
@@ -128,43 +141,18 @@ export default class EditorBox extends React.Component {
                 {/* 编辑区域 */}
                 <div className={style.editorContainer} >
                     <Editor draw={this.onDraw}>
-                        <div onDragEnter={this.onDragEnter} 
-                            onDragOver={this.onDragOver}
-                            onDrop={this.onDrop} 
-                            className={style.editorWarp}></div>
+                        <div className={style.editorWarp}></div>
                     </Editor>
                 </div>
                 {/* 浮动工具栏 */}
                 <div className={style.editorRightAside}></div>
+                {/* 移动时的图形 */}
+                <Move ref={this.moveRef} y={moveY} x={moveX} graph={moveGraph} visible={moveVisible} />
               </div>
+              
             </div>
         )
     }
 }
 
-// 图形详情
-function GraphDetail(props) {
-    let { y, visible, graph } = props;
-    if(!visible) return null;
-    let Comp = graph.comp;
-    let title = graph.title;
-    let top = getDetailTop(y);
-    return (
-        <div className={style.graphDetailBox} style={{top: top + 'px'}}>
-            <div className={style.graphDetailContent}>
-                <div className={style.graphDetailSvg}>
-                    <Comp width={120} height={90} strokeWidth={15} stroke={'#244462'}/>
-                </div>
-                <p className={style.graphDetailTitle}>{title}</p>
-            </div>
-        </div>
-    )
-}
-// 获取图形详情top值
-function getDetailTop(y) {
-    let bh = document.body.offsetHeight;
-    let eh = 142;
-    let top = y - eh / 2;
-    top = top + eh / 2 > bh ? bh - eh : top < 0 ? 0 : top;
-    return top;
-}
+
