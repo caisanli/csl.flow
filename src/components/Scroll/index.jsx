@@ -16,6 +16,7 @@ class Scroll extends React.Component {
     // 绑定函数
     this._events = this._events.bind(this)
     this._onScroll = this._onScroll.bind(this)
+    this._onResize = this._onResize.bind(this)
     this._getBarWidth = this._getBarWidth.bind(this)
     this._onMouseup = this._onMouseup.bind(this)
     this._setThumbWidthHeight = this._setThumbWidthHeight.bind(this)
