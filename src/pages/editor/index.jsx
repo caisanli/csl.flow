@@ -32,6 +32,7 @@ export default class EditorBox extends React.Component {
             moveY: 0,
             moveGraph: null,
             moveVisible: false,
+            graphActive: 0, // 
             graphs: [], // 已添加图形
         }
         // ref
@@ -93,6 +94,7 @@ export default class EditorBox extends React.Component {
     }
     onMouseUp(e) {
         if(this.eventOption.moveDown) {
+            this.setState({moveVisible: false})
             this.eventOption.moveDown = false;
             let {pageX, pageY} = e;
             let { moveGraph } = this.state;
@@ -101,8 +103,9 @@ export default class EditorBox extends React.Component {
     }
     addGraph(graph, x, y) {
         let { graphs } = this.state;
-        graphs.push(Object.assign({}, graph, {x, y}));
-        this.setState({ graphs });
+        let id = Date.now();
+        graphs.push(Object.assign({}, graph, {x, y, id} ));
+        this.setState({ graphs, graphActive: id });
     }
     onMouseEnter(graph, e) {
         this.setState({
@@ -121,7 +124,7 @@ export default class EditorBox extends React.Component {
         // console.log(data);
     }
     render() {
-        let { detailY, detailVisible, detailGraph, moveX, moveY, moveVisible, moveGraph, graphs } = this.state;
+        let { detailY, detailVisible, detailGraph, moveX, moveY, moveVisible, moveGraph, graphs, graphActive } = this.state;
         return (
             <div className={style.editorBox}>
               {/* 工具栏 */}
@@ -152,7 +155,7 @@ export default class EditorBox extends React.Component {
                 </div>
                 {/* 编辑区域 */}
                 <div className={style.editorContainer} >
-                    <Editor graphs={graphs} draw={this.onDraw} />
+                    <Editor graphs={graphs} active={graphActive} draw={this.onDraw} />
                 </div>
                 {/* 浮动工具栏 */}
                 <div className={style.editorRightAside}></div>
