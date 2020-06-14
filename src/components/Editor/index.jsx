@@ -33,6 +33,8 @@ export default class Editor extends React.Component {
         this._onMouseMove = this._onMouseMove.bind(this);
         this._onMouseUp = this._onMouseUp.bind(this);
         this._onScroll = this._onScroll.bind(this);
+        this._onTransformDown = this._onTransformDown.bind(this);
+        this._onTransformMove = this._onTransformMove.bind(this);
         // 方法
         this._computedPoint = this._computedPoint.bind(this);
         let distanceLeft = (this.boxWidth - this.width) / 2;
@@ -155,6 +157,21 @@ export default class Editor extends React.Component {
             left: x - offsetLeft - (distanceLeft - scrollLeft)  
         };
     }
+    // 监听Transform组件的mousedown事件
+    _onTransformDown(left, top, e) {
+        let {pageX, pageY} = e;
+        let { offsetLeft, offsetTop, scrollLeft, scrollTop, distanceLeft, distanceTop } = this.eventOption;
+        let y = offsetTop + (distanceTop - scrollTop) + top;
+        let x = offsetLeft + (distanceLeft - scrollLeft) + left;
+        let position = this._computedPoint(pageX, pageY);
+        return {x, y, startX: position.left, startY: position.top}
+    }
+    // 监听Transform组件的mousemove事件
+    _onTransformMove(e) {
+        let {pageX, pageY} = e;
+        let position = this._computedPoint(pageX, pageY);
+        return {x: position.left, y: position.top}
+    }
     componentDidMount() {
         this._event()
         let offset = this._getOffset(this.scrollRef.current.$content.current);
@@ -171,7 +188,7 @@ export default class Editor extends React.Component {
         let width = this.width + 'px';
         let height = this.height + 'px';
         let { drawHeight, drawWidth, drawTop, drawLeft } = this.state;
-        let { graphs } = this.props;
+        let { graphs, active } = this.props;
         return (
             <div className={style.editorBox} >
                 <Scroll ref={this.scrollRef} center scroll={this._onScroll}>
@@ -187,8 +204,8 @@ export default class Editor extends React.Component {
                                 graphs.map((g, i) => {
                                     let {x, y, ...other} = g;
                                     let position = this._computedPoint(x, y);
-                                    console.log('position：', position);
-                                    return (<Transform key={i} {...position} {...other}/>)
+                                    let props = Object.assign({}, other, position, {x, y});                                    
+                                    return (<Transform active={active === g.id} down={this._onTransformDown} move={this._onTransformMove} key={g.id} {...props} />)
                                 })
                             }
                         </div>
