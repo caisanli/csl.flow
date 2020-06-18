@@ -7,6 +7,7 @@ import React from 'react';
 import Scroll from '@comp/Scroll';
 import Grid from '@comp/Grid';
 import Transform from '@comp/Transform';
+import AlignLine from '@comp/AlignLine';
 // 样式
 import style from './index.module.less';
 export default class Editor extends React.Component {
@@ -17,7 +18,9 @@ export default class Editor extends React.Component {
             drawWidth: 0, // 框的宽度
             drawHeight: 0, // 框的高度
             drawLeft: 0, // 框的left
-            drawTop: 0 // 框的top
+            drawTop: 0, // 框的top
+            alignLines: [], // 水平线
+            temporary: {}, // 临时图形
         }
         // ref
         this.warpRef = React.createRef()
@@ -27,7 +30,7 @@ export default class Editor extends React.Component {
         this.boxHeight = 4000; // 容器高度
         this.width = 1000; // 编辑区域宽度
         this.height = 900; // 编辑区域高度
-        
+        this.positions = []; // 记录图形坐标
         // 事件
         this._onMouseDown = this._onMouseDown.bind(this);
         this._onMouseMove = this._onMouseMove.bind(this);
@@ -35,6 +38,10 @@ export default class Editor extends React.Component {
         this._onScroll = this._onScroll.bind(this);
         this._onTransformDown = this._onTransformDown.bind(this);
         this._onTransformMove = this._onTransformMove.bind(this);
+        this._onPosition = this._onPosition.bind(this);
+        this._onEnd = this._onEnd.bind(this);
+        this._onClick = this._onClick.bind(this);
+        this._onClickBox = this._onClickBox.bind(this);
         // 方法
         this._computedPoint = this._computedPoint.bind(this);
         let distanceLeft = (this.boxWidth - this.width) / 2;
@@ -71,6 +78,8 @@ export default class Editor extends React.Component {
     }
     // 画框开始
     _onMouseDown(e) {
+        if(this.props.change)
+            this.props.change();
         let { pageX, pageY } = e;
         this.eventOption.isDown = true;
         let { top, left } = this._computedPoint(pageX, pageY);
@@ -121,8 +130,23 @@ export default class Editor extends React.Component {
             }
             this.setState({drawHeight: height});
         }
+        let obj = {newDrawLeft, newDrawTop, width: Math.abs(width), height: Math.abs(height)};
+        this._selecting(obj)
         if(this.props.draw) 
-            this.props.draw({newDrawLeft, newDrawTop, width: Math.abs(width), height: Math.abs(height)});
+            this.props.draw(obj);
+    }
+    _selecting(obj) {
+        let selects = this.positions.filter(p => {
+            if(
+                p.left > obj.newDrawLeft
+                && p.top > obj.newDrawTop
+                && p.left + p.width < obj.newDrawLeft + obj.width 
+                && p.top + p.height < obj.newDrawTop + obj.height
+            )
+                return true;
+            return false
+        })
+        console.log(selects)
     }
     // 画框结束
     _onMouseUp() {
@@ -166,6 +190,74 @@ export default class Editor extends React.Component {
         let position = this._computedPoint(pageX, pageY);
         return {x, y, startX: position.left, startY: position.top}
     }
+    // 监听坐标
+    _onPosition(obj) {
+        let index = -1;
+        let is = this.positions.some((g, i) => {
+            index = i;
+            return g.id === obj.id;
+        });
+        if(is)
+            this.positions.splice(index, 1, obj);
+        else
+            this.positions.push(obj);
+        if(this.positions.length > 1) {
+            this._setAlignment(obj);
+        }
+    }
+    // 点击容器
+    _onClickBox() {
+        if(this.props.change)
+            this.props.change();
+    }
+    // 监听点击
+    _onClick(g, e) {
+        e.stopPropagation();
+        if(this.props.change)
+            this.props.change(g);
+    }
+    // 监听移动结束
+    _onEnd() {
+        this.setState({
+            alignLines: []
+        })
+    }
+    // 设置对齐线
+    _setAlignment(obj) {
+        let alignArr = [];
+        let {width, height, top, left, id} = obj;
+        this.positions.forEach(p => {
+            if(id === p.id) return ;
+            let newObj = {id, top, left};
+            if(top === p.top || top === (p.top + p.height)) {
+                newObj.alignType = 'top'
+                alignArr.push(newObj)
+            } else if((top + height) === p.top) {
+                newObj.alignType = 'top'
+                newObj.top = p.top;
+                alignArr.push(newObj)
+            } else if(left === p.left || left === (p.left + p.width)) {
+                newObj.alignType = 'left'
+                alignArr.push(newObj)
+            } else if((left + width) === p.left) {
+                newObj.alignType = 'left'
+                newObj.left = p.left;
+                alignArr.push(newObj)
+            } else if(top + height / 2 === p.top + p.height / 2) {
+                newObj.alignType = 'top'
+                newObj.top = top + height / 2;
+                alignArr.push(newObj)
+            } else if(left + width / 2 === p.left + p.width / 2) {
+                newObj.alignType = 'left'
+                newObj.left = left + width / 2;
+                alignArr.push(newObj)
+            }
+        });
+        this.setState({
+            alignLines: alignArr
+        })
+        // console.log(alignArr);
+    }
     // 监听Transform组件的mousemove事件
     _onTransformMove(e) {
         let {pageX, pageY} = e;
@@ -187,10 +279,10 @@ export default class Editor extends React.Component {
     render() {
         let width = this.width + 'px';
         let height = this.height + 'px';
-        let { drawHeight, drawWidth, drawTop, drawLeft } = this.state;
+        let { drawHeight, drawWidth, drawTop, drawLeft, alignLines } = this.state;
         let { graphs, active } = this.props;
         return (
-            <div className={style.editorBox} >
+            <div className={style.editorBox} onClick={this._onClickBox}>
                 <Scroll ref={this.scrollRef} center scroll={this._onScroll}>
                     <div className={style.editorContainer}>
                         <div ref={this.warpRef} onMouseDown={this._onMouseDown} className={style.editorWarp} style={{width, height}}>
@@ -198,14 +290,33 @@ export default class Editor extends React.Component {
                             <div className={style.editorBg}>
                                 <Grid width={1000} height={900} />
                             </div>
+                            {/* 水平线 */}
+                            {
+                                alignLines.map((l, i) => (
+                                    <AlignLine width={this.boxWidth} 
+                                                height={this.boxHeight} 
+                                                disLeft={this.eventOption.distanceLeft}
+                                                disTop={this.eventOption.distanceTop}
+                                                key={i} 
+                                                {...l} />
+                                ))
+                            }
                             {/* 画框 */}
                             {<div className={style.drawBox} style={{width: drawWidth, height: drawHeight, left: drawLeft, top: drawTop}} />}
+
+                            {/* 已有的图形列表 */}
                             {
-                                graphs.map((g, i) => {
+                                graphs.map(g => {
                                     let {x, y, ...other} = g;
                                     let position = this._computedPoint(x, y);
                                     let props = Object.assign({}, other, position, {x, y});                                    
-                                    return (<Transform active={active === g.id} down={this._onTransformDown} move={this._onTransformMove} key={g.id} {...props} />)
+                                    return (<Transform change={this._onPosition} 
+                                                        click={e => this._onClick(g, e)}
+                                                        end={this._onEnd} 
+                                                        active={active === g.id} 
+                                                        down={this._onTransformDown} 
+                                                        move={this._onTransformMove} 
+                                                        key={g.id} {...props} />)
                                 })
                             }
                         </div>
