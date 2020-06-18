@@ -256,9 +256,9 @@ class Scroll extends React.Component {
         }
         
         {/* 内容 */}
-        <div style={{ height: '100%' }}>
+        <div className={style.scrollContent}>
           <div 
-                className={style.scrollContent} 
+                className={style.scrollWarp} 
                 style={{overflowX: x ? 'auto' : 'hidden', overflowY: y ? 'auto': 'hidden'}} 
                 onScroll={this._onScroll} ref={this.$content}>
             { this.props.children }
