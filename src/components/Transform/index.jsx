@@ -15,6 +15,8 @@ export default class Transform extends React.Component {
             top: props.top - baseWH / 2,
             rotate: 0 
         }
+        if(props.change)
+            props.change(Object.assign({}, this.state, {id: props.id}))
         // 事件
         this._event = this._event.bind(this);
         this._cleanEvent = this._cleanEvent.bind(this);
@@ -24,13 +26,14 @@ export default class Transform extends React.Component {
         // 方法
         this._atan2 = this._atan2.bind(this);
         // 属性
+        this.isFirst = true;
         this.eventOption = {
             isDown: false,
             type: '', // 操作类型
             startX: 0,
             startY: 0,
-            startW: 0, // 起始宽度
-            startH: 0, // 起始高度
+            startW: baseWH, // 起始宽度
+            startH: baseWH, // 起始高度
             startTop: 0, // 起始top
             startLeft: 0, // 起始left
             x: props.x, // 记录当前x坐标
@@ -60,9 +63,11 @@ export default class Transform extends React.Component {
     _onMouseMove(e) {
         e.stopPropagation();
         e.preventDefault();
-        
         let {isDown, type} = this.eventOption;
-        if(!isDown) return;
+        if(this.isFirst)
+            type = 'move';
+        else 
+            if(!isDown) return ;
         switch(type) {
             case 'rotate':
             this._rotateMouseMove(e);
@@ -78,11 +83,12 @@ export default class Transform extends React.Component {
     _moveMouseMove(e) {
         let {startX, startY, startLeft, startTop} = this.eventOption;
         let moveFn = this.props.move;
+        //console.log(e)
         if(!moveFn) return ;
         let {x, y} = moveFn(e);
         let left = x - startX + startLeft;
         let top = y - startY + startTop;
-        this.setState({top, left});
+        this.setState({top, left}, this._change);
     }
     // 拉伸
     _sizeMouseMove(e) {
@@ -114,8 +120,9 @@ export default class Transform extends React.Component {
                 break;
         }
         if(width <= 0 || height <= 0) return ;
-        this.setState({ width, height, left, top });
+        this.setState({ width, height, left, top }, this._change);
     }
+
     // 旋转
     _rotateMouseMove(e) {
         let {pageX, pageY} = e;
@@ -131,9 +138,18 @@ export default class Transform extends React.Component {
         degree = -(degree - 90); 
         this.setState({rotate: degree})
     }
+    _change() {
+        if(this.props.change)
+            this.props.change(Object.assign({}, this.state, {id: this.props.id}))
+    }
     _onMouseUp() {
-        if(this.eventOption.isDown)
+        this.isFirst = false;
+        if(this.eventOption.isDown) {
+            if(this.props.end)
+                this.props.end();
             this.eventOption.isDown = false;
+        }
+            
     }
     componentDidMount() {
         this._event();
@@ -143,11 +159,12 @@ export default class Transform extends React.Component {
     }
     render() {
         let { width, height, rotate, left, top } = this.state;
-        let { active, comp } = this.props;
+        let { active, comp, click } = this.props;
         let Comp = comp;
         return (
             <div className={[style.transformBox, active ? style.active:''].join(' ')} 
-                style={{width, height, transform: `translate(${left}px,${top}px) rotate(${rotate}deg)`}}>
+                style={{width, height, transform: `translate(${left}px,${top}px) rotate(${rotate}deg)`}}
+                onClick={click}>
                 <div className={style.transformBody}>
                     {/* 操作按钮 */}
                     <div className={style.transformTools} onMouseDown={this._onMouseDown} data-type="move">
