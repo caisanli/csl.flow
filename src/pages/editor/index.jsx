@@ -28,6 +28,7 @@ export default class EditorBox extends React.Component {
             detailY: 0,
             detailVisible: false,
             detailGraph: null,
+            temporary: null, // 临时图形移动中的
             moveX: 0,
             moveY: 0,
             moveGraph: null,
@@ -42,18 +43,20 @@ export default class EditorBox extends React.Component {
         // 绑定方法
         this.onMouseEnter = this.onMouseEnter.bind(this);
         this.onMouseLeave = this.onMouseLeave.bind(this);
-
         this.onMouseDown = this.onMouseDown.bind(this);
         this.onMouseMove = this.onMouseMove.bind(this);
         this.onMouseUp = this.onMouseUp.bind(this);
         this.onDraw = this.onDraw.bind(this);
-
+        this.onChange = this.onChange.bind(this);
         this.addGraph = this.addGraph.bind(this);
         // 属性
+        this.temporary = null; // 记个临时的图形
         this.eventOption = {
             moveDown: false,
+            asideWidth: 0,
             offsetTop: 0,
-            offsetLeft: 0
+            offsetLeft: 0,
+            isOutSide: false
         };
     }
     componentDidMount() {
@@ -73,12 +76,13 @@ export default class EditorBox extends React.Component {
         let { top, left } = getOffset(elem);
         this.eventOption.offsetLeft = left;
         this.eventOption.offsetTop = top;
+        this.eventOption.asideWidth = this.asideRef.current.offsetWidth;
     }
     onMouseMove(e) {
         if(!this.eventOption.moveDown)
             return ;
         e.preventDefault()
-        let { offsetTop, offsetLeft } = this.eventOption;
+        let { offsetTop, offsetLeft, asideWidth } = this.eventOption;
         let {pageY, pageX} = e;
         this.setState({moveVisible: true})
         let moveElem = this.moveRef.current;
@@ -86,6 +90,15 @@ export default class EditorBox extends React.Component {
             let { offsetWidth, offsetHeight } = moveElem;
             let left = (pageX - offsetLeft) - (offsetWidth / 2);
             let top = (pageY - offsetTop) - (offsetHeight / 2);
+            if(left + 20 >= asideWidth) {
+                if(this.temporary) return ;
+                console.log('开始添加了')
+                this.temporary = Date.now();
+                this.eventOption.isOutSide = true;
+                this.addGraph(this.state.moveGraph, pageX, pageY, this.temporary);
+            } else {
+                this.eventOption.isOutSide = false;
+            }
             this.setState({
                 moveX: left,
                 moveY: top,
@@ -93,17 +106,23 @@ export default class EditorBox extends React.Component {
         }
     }
     onMouseUp(e) {
-        if(this.eventOption.moveDown) {
-            this.setState({moveVisible: false})
-            this.eventOption.moveDown = false;
-            let {pageX, pageY} = e;
-            let { moveGraph } = this.state;
-            this.addGraph(moveGraph, pageX, pageY);
-        }        
+        if(!this.eventOption.moveDown) return;
+
+        this.setState({moveVisible: false})
+        this.eventOption.moveDown = false;
+        if(this.eventOption.isOutSide) {
+            this.eventOption.isOutSide = false;
+            this.temporary = null;
+        } else {
+            let graphs = this.state.graphs.filter(g => g.id !== this.temporary);
+            this.setState({
+                graphs
+            })
+            this.temporary = null;
+        }      
     }
-    addGraph(graph, x, y) {
+    addGraph(graph, x, y, id = Date.now()) {
         let { graphs } = this.state;
-        let id = Date.now();
         graphs.push(Object.assign({}, graph, {x, y, id} ));
         this.setState({ graphs, graphActive: id });
     }
@@ -119,12 +138,17 @@ export default class EditorBox extends React.Component {
             detailVisible: false
         });
     }
+    onChange(g) {
+        this.setState({
+            graphActive: g ? g.id : null
+        })
+    }
     // 监听画框
     onDraw(data) {
         // console.log(data);
     }
     render() {
-        let { detailY, detailVisible, detailGraph, moveX, moveY, moveVisible, moveGraph, graphs, graphActive } = this.state;
+        let { detailY, detailVisible, detailGraph, moveX, moveY, moveVisible, moveGraph, graphs, graphActive, temporary } = this.state;
         return (
             <div className={style.editorBox}>
               {/* 工具栏 */}
@@ -151,16 +175,17 @@ export default class EditorBox extends React.Component {
                                 <p>这是内容01</p>
                             </Panel>
                         </Collapse>
+                         {/* 移动时的图形 */}
+                        <Move ref={this.moveRef} y={moveY} x={moveX} graph={moveGraph} visible={moveVisible} />
                     </Scroll>
                 </div>
                 {/* 编辑区域 */}
                 <div className={style.editorContainer} >
-                    <Editor graphs={graphs} active={graphActive} draw={this.onDraw} />
+                    <Editor graphs={graphs} active={graphActive} temporary={temporary} change={this.onChange} draw={this.onDraw} />
                 </div>
                 {/* 浮动工具栏 */}
                 <div className={style.editorRightAside}></div>
-                {/* 移动时的图形 */}
-                <Move ref={this.moveRef} y={moveY} x={moveX} graph={moveGraph} visible={moveVisible} />
+               
               </div>
               
             </div>
