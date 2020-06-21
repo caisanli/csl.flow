@@ -1,5 +1,5 @@
 // 编辑页面
-import React, {useRef} from 'react';
+import React from 'react';
 import style from "./index.module.less";
 // 组件
 import ToolBar from '@comp/ToolBar';
@@ -28,7 +28,6 @@ export default class EditorBox extends React.Component {
             detailY: 0,
             detailVisible: false,
             detailGraph: null,
-            temporary: null, // 临时图形移动中的
             moveX: 0,
             moveY: 0,
             moveGraph: null,
@@ -47,6 +46,7 @@ export default class EditorBox extends React.Component {
         this.onMouseMove = this.onMouseMove.bind(this);
         this.onMouseUp = this.onMouseUp.bind(this);
         this.onDraw = this.onDraw.bind(this);
+        this.onSelectChange = this.onSelectChange.bind(this);
         this.onChange = this.onChange.bind(this);
         this.addGraph = this.addGraph.bind(this);
         // 属性
@@ -92,7 +92,6 @@ export default class EditorBox extends React.Component {
             let top = (pageY - offsetTop) - (offsetHeight / 2);
             if(left + 20 >= asideWidth) {
                 if(this.temporary) return ;
-                console.log('开始添加了')
                 this.temporary = Date.now();
                 this.eventOption.isOutSide = true;
                 this.addGraph(this.state.moveGraph, pageX, pageY, this.temporary);
@@ -143,12 +142,27 @@ export default class EditorBox extends React.Component {
             graphActive: g ? g.id : null
         })
     }
+    onSelectChange(obj, positions) {
+        let graphs = this.state.graphs.map(g => {
+            let p = positions.find(p => p.id === g.id)
+            if(!p) return g;
+            g.left = p.left;
+            g.top = p.top;
+            return g;
+        });
+        console.log(graphs)
+        this.setState({
+            graphs
+        })
+        // console.log(selected);
+        //console.log(obj);
+    }
     // 监听画框
     onDraw(data) {
         // console.log(data);
     }
     render() {
-        let { detailY, detailVisible, detailGraph, moveX, moveY, moveVisible, moveGraph, graphs, graphActive, temporary } = this.state;
+        let { detailY, detailVisible, detailGraph, moveX, moveY, moveVisible, moveGraph, graphs, graphActive } = this.state;
         return (
             <div className={style.editorBox}>
               {/* 工具栏 */}
@@ -181,7 +195,11 @@ export default class EditorBox extends React.Component {
                 </div>
                 {/* 编辑区域 */}
                 <div className={style.editorContainer} >
-                    <Editor graphs={graphs} active={graphActive} temporary={temporary} change={this.onChange} draw={this.onDraw} />
+                    <Editor graphs={graphs} 
+                            selectChange={this.onSelectChange}
+                            active={graphActive} 
+                            change={this.onChange} 
+                            draw={this.onDraw} />
                 </div>
                 {/* 浮动工具栏 */}
                 <div className={style.editorRightAside}></div>
