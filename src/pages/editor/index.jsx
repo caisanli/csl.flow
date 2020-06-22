@@ -148,6 +148,7 @@ export default class EditorBox extends React.Component {
             if(!p) return g;
             g.left = p.left;
             g.top = p.top;
+            g.rotate = p.rotate;
             return g;
         });
         console.log(graphs)

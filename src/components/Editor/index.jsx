@@ -231,7 +231,6 @@ export default class Editor extends React.Component {
         let {pageX, pageY} = e;
         let {x, y} = this._getPagePosition(left, top);
         let position = this._computedPoint(pageX, pageY);
-        console.log('positions：', this.positions)
         this.selectPositions = deepClone(this.positions);
         return {x, y, startX: position.left, startY: position.top}
     }
@@ -245,13 +244,12 @@ export default class Editor extends React.Component {
     // 监听框选的框的图形位置大小角度变化
     _onSelectPosition(obj) {
         if(this.props.selectChange) {
-            console.log('obj：', obj)
-            console.log(this.selectPositions)
             let positions = deepClone(this.selectPositions).map(p => {
                 let sel = this.selected.find(s => p.id === s.id);
                 if(sel) {
                     p.left = p.left + obj.offsetLeft;
                     p.top = p.top + obj.offsetTop;
+                    p.rotate = p.rotate + obj.offsetRotate;
                 }
                 return p;
             });
@@ -400,6 +398,7 @@ export default class Editor extends React.Component {
                                         props = Object.assign({}, other, position, {x, y});      
                                     } else {
                                         props = g;
+                                        props.selected = !!this.selected.find(s => s.id === g.id);
                                     }
                                                                   
                                     return (<Transform change={this._onPosition} 

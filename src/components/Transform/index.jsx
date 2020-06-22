@@ -7,6 +7,7 @@ export default class Transform extends React.Component {
     constructor(props) {
         super(props);
         let select = props.select;
+        console.log('selected：', props.selected)
         const baseWidth = props.width || 140;
         const baseHeight = props.height || 140;
         console.log('生成图形：', props)
@@ -71,6 +72,10 @@ export default class Transform extends React.Component {
         this.eventOption.startH = this.state.height;
         this.eventOption.startLeft = this.state.left;
         this.eventOption.startTop = this.state.top;
+        this.eventOption.startRotate = this.state.rotate;
+        this.offset.left = 0;
+        this.offset.top = 0;
+        this.offset.rotate = 0;
     }
     _onMouseMove(e) {
         e.stopPropagation();
@@ -135,7 +140,6 @@ export default class Transform extends React.Component {
         if(width <= 0 || height <= 0) return ;
         this.setState({ width, height, left, top }, this._change);
     }
-
     // 旋转
     _rotateMouseMove(e) {
         let {pageX, pageY} = e;
@@ -149,18 +153,19 @@ export default class Transform extends React.Component {
     _atan2(y, x) {
         let degree = Math.atan2(y, x) / (Math.PI / 180);
         degree = -(degree - 90); 
-        this.setState({rotate: degree})
+        this.offset.rotate = degree - this.eventOption.startRotate;
+        this.setState({rotate: degree}, this._change)
     }
     _change() {
         if(this.props.change) {
             let offsetLeft = this.offset.left;
             let offsetTop = this.offset.top;
-            // console.log(this.offset)
+            let offsetRotate = this.offset.rotate;
+            let type = this.eventOption.type;
             this.props.change(
                 Object.assign(
-                    {}, 
+                    { id: this.props.id, select: this.props.select, offsetTop, offsetLeft, offsetRotate, toolType: type },
                     this.state,
-                    {id: this.props.id, select: this.props.select, offsetTop, offsetLeft}
                 )
             )
         }
@@ -174,11 +179,10 @@ export default class Transform extends React.Component {
         }
     }
     componentDidUpdate(prevProps) {
-        let {left, top} = this.props;
-        if(left && top && (prevProps.left !== left || prevProps.top !== top)) {
-            console.log('prevLeft：', prevProps.left)
-            console.log('left：', left)
-            this.setState({left, top}, this._change)
+        let {left, top, rotate} = this.props;
+        if(left && top && (prevProps.left !== left || prevProps.top !== top || prevProps.rotate !== rotate)) {
+            console.log(this.props);
+            this.setState({left, top, rotate}, this._change)
         }
     }
     componentDidMount() {
@@ -189,11 +193,11 @@ export default class Transform extends React.Component {
     }
     render() {
         let { width, height, rotate, left, top } = this.state;
-        let { active, comp, click } = this.props;
+        let { active, comp, click, selected } = this.props;
         let Comp = comp;
         return (
             <div className={[style.transformBox, active ? style.active : ''].join(' ')} 
-                style={{width, height, transform: `translate(${left}px,${top}px) rotate(${rotate}deg)`}}
+                style={{width, height, transform: `translate(${left}px,${top}px) rotate(${rotate}deg)`, transformOrigin: selected ? '100% 100%': '50% 50%'}}
                 onClick={click}>
                 <div className={style.transformBody}>
                     {/* 操作按钮 */}
