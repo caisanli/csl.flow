@@ -24,6 +24,7 @@ import { getOffset } from '@utils/index';
 export default class EditorBox extends React.Component {
     constructor(props) {
         super(props);
+        let width = 4000, height = 4000, warpHeight = 1200, warpWidth = 1500;
         this.state = {
             detailY: 0,
             detailVisible: false,
@@ -34,11 +35,16 @@ export default class EditorBox extends React.Component {
             moveVisible: false,
             graphActive: 0, // 
             graphs: [], // 已添加图形
+            width ,
+            height ,
+            warpWidth ,
+            warpHeight
         }
         // ref
         this.asideRef = React.createRef();
         this.contentRef = React.createRef();
         this.moveRef = React.createRef();
+        this.editorRef = React.createRef();
         // 绑定方法
         this.onMouseEnter = this.onMouseEnter.bind(this);
         this.onMouseLeave = this.onMouseLeave.bind(this);
@@ -48,7 +54,10 @@ export default class EditorBox extends React.Component {
         this.onDraw = this.onDraw.bind(this);
         this.onSelectChange = this.onSelectChange.bind(this);
         this.onChange = this.onChange.bind(this);
-        this.addGraph = this.addGraph.bind(this);
+        this.onScroll = this.onScroll.bind(this);
+        this.getRelativePoint = this.getRelativePoint.bind(this);
+        this.getPagePosition = this.getPagePosition.bind(this);
+        // this.addGraph = this.addGraph.bind(this);
         // 属性
         this.temporary = null; // 记个临时的图形
         this.eventOption = {
@@ -56,10 +65,49 @@ export default class EditorBox extends React.Component {
             asideWidth: 0,
             offsetTop: 0,
             offsetLeft: 0,
-            isOutSide: false
+            isOutSide: false,
+        };
+        
+        this.editorOption = {
+            scrollTop: 0, // 当前scrollTop
+            scrollLeft: 0, // 当前scrollLeft
+            offsetTop: 0, // 容器offsetTop
+            offsetLeft: 0, // 容器offsetLeft
+            distanceTop: (height - warpHeight) / 2 , // 编辑区域离容器的top
+            distanceLeft: (width - warpWidth) / 2 // 编辑区域离容器的left
+        }
+    }
+    // 获取offset
+    getOffset(elem) {
+        let top = elem.offsetTop
+        let left = elem.offsetLeft
+        let parent = elem.offsetParent
+        while (parent) {
+          top += parent.offsetTop
+          left += parent.offsetLeft
+          parent = parent.offsetParent
+        }
+        return {top, left}
+    }
+    // 计算相对坐标位置
+    getRelativePoint(x, y) { 
+        let { offsetLeft, offsetTop, scrollLeft, scrollTop, distanceLeft, distanceTop } = this.editorOption;
+        return {
+            top: y - offsetTop - (distanceTop - scrollTop),
+            left: x - offsetLeft - (distanceLeft - scrollLeft)  
         };
     }
+    // 根据left top获取x y坐标
+    getPagePosition(left, top) {
+        let { offsetLeft, offsetTop, scrollLeft, scrollTop, distanceLeft, distanceTop } = this.editorOption;
+        let y = offsetTop + (distanceTop - scrollTop) + top;
+        let x = offsetLeft + (distanceLeft - scrollLeft) + left;
+        return {x, y}
+    }
     componentDidMount() {
+        let offset = this.getOffset(this.editorRef.current);
+        this.editorOption.offsetLeft = offset.left;
+        this.editorOption.offsetTop = offset.top;
         document.addEventListener('mousemove', this.onMouseMove);
         document.addEventListener('mouseup', this.onMouseUp);
     }
@@ -104,9 +152,8 @@ export default class EditorBox extends React.Component {
             })
         }
     }
-    onMouseUp(e) {
+    onMouseUp() {
         if(!this.eventOption.moveDown) return;
-
         this.setState({moveVisible: false})
         this.eventOption.moveDown = false;
         if(this.eventOption.isOutSide) {
@@ -122,7 +169,8 @@ export default class EditorBox extends React.Component {
     }
     addGraph(graph, x, y, id = Date.now()) {
         let { graphs } = this.state;
-        graphs.push(Object.assign({}, graph, {x, y, id} ));
+        let position = this.getRelativePoint(x, y);
+        graphs.push(Object.assign({}, graph, { x, y, id }, { ...position } ));
         this.setState({ graphs, graphActive: id });
     }
     onMouseEnter(graph, e) {
@@ -149,21 +197,24 @@ export default class EditorBox extends React.Component {
             g.left = p.left;
             g.top = p.top;
             g.rotate = p.rotate;
+            g.width = p.width;
+            g.height = p.height;
             return g;
         });
-        console.log(graphs)
         this.setState({
             graphs
         })
-        // console.log(selected);
-        //console.log(obj);
     }
     // 监听画框
     onDraw(data) {
         // console.log(data);
     }
+    onScroll(left, top) {
+        this.editorOption.scrollTop = top;
+        this.editorOption.scrollLeft = left;
+    }
     render() {
-        let { detailY, detailVisible, detailGraph, moveX, moveY, moveVisible, moveGraph, graphs, graphActive } = this.state;
+        let { detailY, detailVisible, detailGraph, moveX, moveY, moveVisible, moveGraph, graphs, graphActive, width, height, warpHeight, warpWidth } = this.state;
         return (
             <div className={style.editorBox}>
               {/* 工具栏 */}
@@ -195,18 +246,23 @@ export default class EditorBox extends React.Component {
                     </Scroll>
                 </div>
                 {/* 编辑区域 */}
-                <div className={style.editorContainer} >
-                    <Editor graphs={graphs} 
+                <div className={style.editorContainer} ref={this.editorRef}>
+                    <Editor width={width}
+                            height={height}
+                            warpWidth={warpWidth}
+                            warpHeight={warpHeight}
+                            graphs={graphs} 
                             selectChange={this.onSelectChange}
+                            getPagePosition={this.getPagePosition}
+                            getRelativePoint={this.getRelativePoint}
+                            scroll={this.onScroll}
                             active={graphActive} 
                             change={this.onChange} 
                             draw={this.onDraw} />
                 </div>
                 {/* 浮动工具栏 */}
                 <div className={style.editorRightAside}></div>
-               
               </div>
-              
             </div>
         )
     }
