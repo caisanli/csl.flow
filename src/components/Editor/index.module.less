@@ -8,8 +8,6 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        width: 4000px;
-        height: 4000px;
     }
     &-warp {
         position: relative;
@@ -32,6 +30,24 @@
         left: 0;
         z-index: 0;
     }
-    
+    &-graph-warp {
+        display: table;
+        position: absolute;
+        top: 0;
+        left: 10px;
+        width: calc(100% - 20px);
+        height: 100%;
+        z-index: 999;
+        
+        & > div {
+            display: table-cell; 
+            height: 100%;
+            width: 100%;
+            vertical-align:middle;
+            &:focus {
+                outline-color: #2196F3;
+            }
+        }
+    }
     // padding: 1200px;
 }
