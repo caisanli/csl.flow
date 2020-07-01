@@ -1,6 +1,9 @@
 .transform {
     &-box {
         position: absolute;
+        &.select {
+            z-index: 9999999;
+        }
         &.active {
             .transform-tool {
                 display: inline-block;
