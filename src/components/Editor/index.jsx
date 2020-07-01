@@ -17,6 +17,7 @@ export default class Editor extends React.Component {
         super(props);
         // state
         this.state = {
+            isDraw: false,
             drawWidth: 0, // 框的宽度
             drawHeight: 0, // 框的高度
             drawLeft: 0, // 框的left
@@ -32,19 +33,13 @@ export default class Editor extends React.Component {
         }
         // ref
         this.warpRef = React.createRef()
-        this.scrollRef = React.createRef();
         // 属性
-        this.boxWidth = 4000; // 容器宽度
-        this.boxHeight = 4000; // 容器高度
-        this.width = 1000; // 编辑区域宽度
-        this.height = 900; // 编辑区域高度
         this.positions = []; // 记录图形坐标
         this.selectPositions = [];
         // 事件
         this._onMouseDown = this._onMouseDown.bind(this);
         this._onMouseMove = this._onMouseMove.bind(this);
         this._onMouseUp = this._onMouseUp.bind(this);
-        this._onScroll = this._onScroll.bind(this);
         this._onTransformDown = this._onTransformDown.bind(this);
         this._onTransformMove = this._onTransformMove.bind(this);
         this._onPosition = this._onPosition.bind(this);
@@ -53,9 +48,7 @@ export default class Editor extends React.Component {
         this._onClick = this._onClick.bind(this);
         this._onClickBox = this._onClickBox.bind(this);
         // 方法
-        this._computedPoint = this._computedPoint.bind(this);
-        let distanceLeft = (this.boxWidth - this.width) / 2;
-        let distanceTop = (this.boxHeight - this.height) / 2;
+
         // 属性
         this.selected = []; // 已框选中
         // 事件标识
@@ -63,30 +56,11 @@ export default class Editor extends React.Component {
             isDown: false,
             startX: 0, // 相对开始点 X
             startY: 0, // 相对开始点 Y
-            scrollTop: 0, // 当前scrollTop
-            scrollLeft: 0, // 当前scrollLeft
-            offsetTop: 0, // 容器offsetTop
-            offsetLeft: 0, // 容器offsetLeft
-            distanceTop , // 编辑区域离容器的top
-            distanceLeft , // 编辑区域离容器的left
             drawLeft: 0, // 画框时当宽度为负数时 记录一次框的left
             isDrawLeft: false, // 宽度是否为负数
             drawTop: 0, // 画框时当宽度为负数时 记录一次框的top
             isDrawTop: false // 高度是否为负数
         }
-        props.distanceChange && props.distanceChange(distanceLeft, distanceTop);
-    }
-    // 获取offset
-    _getOffset(elem) {
-        let top = elem.offsetTop
-        let left = elem.offsetLeft
-        let parent = elem.offsetParent
-        while (parent) {
-          top += parent.offsetTop
-          left += parent.offsetLeft
-          parent = parent.offsetParent
-        }
-        return {top, left}
     }
     // 画框开始
     _onMouseDown(e) {
@@ -94,12 +68,14 @@ export default class Editor extends React.Component {
             this.props.change();        
         let { pageX, pageY } = e;
         this.eventOption.isDown = true;
-        let { top, left } = this._computedPoint(pageX, pageY);
+        this.selected = [];
+        let { top, left } = this.props.getRelativePoint(pageX, pageY);
         this.eventOption.startX = left;
         this.eventOption.startY = top;
         this.setState({
             drawLeft: left,
-            drawTop: top
+            drawTop: top,
+            isDraw: true
         })
     }
     // 画框中
@@ -107,7 +83,7 @@ export default class Editor extends React.Component {
         let {isDown, startX, startY} = this.eventOption;
         if(!isDown) return ;
         let { pageX, pageY } = e;
-        let { top, left } = this._computedPoint(pageX, pageY);
+        let { top, left } = this.props.getRelativePoint(pageX, pageY);
         let width = left - startX;
         let height = top - startY;
         let { drawLeft, drawTop } = this.state;
@@ -170,14 +146,18 @@ export default class Editor extends React.Component {
             drawHeight: 0,
             drawWidth: 0,
             drawTop: 0,
-            drawLeft: 0
+            drawLeft: 0,
+            isDraw: false
         })
-        if(this.selected.length > 1) 
-            this._drawSelectedBox()
+        if(this.selected.length > 1) {
+            setTimeout(() => {
+                this._drawSelectedBox();
+            }, 0)
+        }
     }
     // 框选后画一个大框
     _drawSelectedBox() {
-        let minTop = 0, minLeft = 0, maxTH = 0, maxLW = 0
+        let minTop = 0, minLeft = 0, maxTH = 0, maxLW = 0;
         this.selected.forEach((s, i) => {
             let {left, top, width, height} = s;
             if(i === 0) {
@@ -196,7 +176,7 @@ export default class Editor extends React.Component {
             if(maxLW < left + width)
                 maxLW = left + width;
         });
-        let {x, y} = this._getPagePosition(minLeft, minTop);
+        let {x, y} = this.props.getPagePosition(minLeft, minTop);
         this.setState({
             selectHeight: maxTH - minTop,
             selectWidth: maxLW - minLeft,
@@ -207,39 +187,19 @@ export default class Editor extends React.Component {
             selectActive: true
         })
     }
-    // 监听滚动
-    _onScroll(left, top) {
-        this.eventOption.scrollTop = top;
-        this.eventOption.scrollLeft = left;
-    }
     // 绑定事件
     _event() {
         let body = document.body;
         body.addEventListener('mousemove', this._onMouseMove)
         body.addEventListener('mouseup', this._onMouseUp)
     }
-    // 计算相对坐标位置
-    _computedPoint(x, y) { 
-        let { offsetLeft, offsetTop, scrollLeft, scrollTop, distanceLeft, distanceTop } = this.eventOption;
-        return {
-            top: y - offsetTop - (distanceTop - scrollTop),
-            left: x - offsetLeft - (distanceLeft - scrollLeft)  
-        };
-    }
     // 监听Transform组件的mousedown事件
     _onTransformDown(left, top, e) {
         let {pageX, pageY} = e;
-        let {x, y} = this._getPagePosition(left, top);
-        let position = this._computedPoint(pageX, pageY);
+        let {x, y} = this.props.getPagePosition(left, top);
+        let position = this.props.getRelativePoint(pageX, pageY);
         this.selectPositions = deepClone(this.positions);
         return {x, y, startX: position.left, startY: position.top}
-    }
-    // 根据left top获取x y坐标
-    _getPagePosition(left, top) {
-        let { offsetLeft, offsetTop, scrollLeft, scrollTop, distanceLeft, distanceTop } = this.eventOption;
-        let y = offsetTop + (distanceTop - scrollTop) + top;
-        let x = offsetLeft + (distanceLeft - scrollLeft) + left;
-        return {x, y}
     }
     // 监听框选的框的图形位置大小角度变化
     _onSelectPosition(obj) {
@@ -250,6 +210,8 @@ export default class Editor extends React.Component {
                     p.left = p.left + obj.offsetLeft;
                     p.top = p.top + obj.offsetTop;
                     p.rotate = p.rotate + obj.offsetRotate;
+                    p.width = p.width + obj.offsetWidth;
+                    p.height = p.height + obj.offsetHeight;
                 }
                 return p;
             });
@@ -273,6 +235,11 @@ export default class Editor extends React.Component {
     }
     // 点击容器
     _onClickBox() {
+        if(this.state.selectActive) {
+            this.setState({
+                selectActive: false
+            })
+        }
         if(this.props.change)
             this.props.change();
     }
@@ -283,7 +250,8 @@ export default class Editor extends React.Component {
             this.props.change(g);
     }
     // 监听移动结束
-    _onEnd() {
+    _onEnd(e) {
+        e.stopPropagation();
         this.selectPositions = [];
         this.setState({
             alignLines: []
@@ -327,14 +295,11 @@ export default class Editor extends React.Component {
     // 监听Transform组件的mousemove事件
     _onTransformMove(e) {
         let {pageX, pageY} = e;
-        let position = this._computedPoint(pageX, pageY);
+        let position = this.props.getRelativePoint(pageX, pageY);
         return {x: position.left, y: position.top}
     }
     componentDidMount() {
-        this._event()
-        let offset = this._getOffset(this.scrollRef.current.$content.current);
-        this.eventOption.offsetLeft = offset.left;
-        this.eventOption.offsetTop = offset.top;
+        this._event();
     }
     componentWillUnmount() {
         let body = document.body;
@@ -343,26 +308,22 @@ export default class Editor extends React.Component {
         
     }
     render() {
-        let width = this.width + 'px';
-        let height = this.height + 'px';
-        let { drawHeight, drawWidth, drawTop, 
-                drawLeft, alignLines, selectHeight, 
-                selectWidth, selectTop, selectLeft, 
-                selectX, selectY,
-                selectActive 
+        let { drawHeight, drawWidth, drawTop, drawLeft, alignLines, selectHeight, 
+                selectWidth, selectTop, selectLeft, selectX, selectY, selectActive,
+                isDraw 
             } = this.state;
-        let { graphs, active } = this.props;
+        let { graphs, active, scroll, width, height, warpWidth, warpHeight } = this.props;
         return (
             <div className={style.editorBox} onClick={this._onClickBox}>
-                <Scroll ref={this.scrollRef} center scroll={this._onScroll}>
-                    <div className={style.editorContainer}>
+                <Scroll center scroll={scroll}>
+                    <div className={style.editorContainer} style={{width: width + 'px', height: height + 'px'}}>
                         <div ref={this.warpRef} 
                             onMouseDown={this._onMouseDown} 
                             className={style.editorWarp} 
-                            style={{width, height}}>
+                            style={{width: warpWidth + 'px', height: warpHeight + 'px'}}>
                            {/* 网格背景 */}
                             <div className={style.editorBg}>
-                                <Grid width={1000} height={900} />
+                                <Grid width={warpWidth} height={warpHeight} />
                             </div>
                             {/* 水平线 */}
                             {
@@ -376,13 +337,14 @@ export default class Editor extends React.Component {
                                 ))
                             }
                             {/* 画框 */}
-                            {<div className={style.drawBox} 
+                            {isDraw && <div className={style.drawBox} 
                                     style={{width: drawWidth, height: drawHeight, left: drawLeft, top: drawTop}} />}
                             {/* 框选后的画框 */}
                             { selectActive && <Transform down={this._onTransformDown} 
                                         change={this._onSelectPosition}
                                         move={this._onTransformMove}
                                         end={this._onEnd}
+                                        click={e => e.stopPropagation()}
                                         select={true} width={selectWidth} height={selectHeight} 
                                         left={selectLeft} top={selectTop} 
                                         x={selectX} y={selectY}
@@ -390,24 +352,19 @@ export default class Editor extends React.Component {
                             {/* 已有的图形列表 */}
                             {
                                 graphs.map(g => {
-                                    let {x, y, ...other} = g;
-                                    let props = {};
-                                    
-                                    if(!selectActive) {
-                                        let position = this._computedPoint(x, y);
-                                        props = Object.assign({}, other, position, {x, y});      
-                                    } else {
-                                        props = g;
-                                        props.selected = !!this.selected.find(s => s.id === g.id);
-                                    }
-                                                                  
+                                    if(selectActive) 
+                                        g.selected = !!this.selected.find(s => s.id === g.id);
                                     return (<Transform change={this._onPosition} 
                                                         click={e => this._onClick(g, e)}
                                                         end={this._onEnd} 
                                                         active={active === g.id} 
                                                         down={this._onTransformDown} 
                                                         move={this._onTransformMove} 
-                                                        key={g.id} {...props} />)
+                                                        key={g.id} {...g}>
+                                                <div className={style.editorGraphWarp} >
+                                                    <div contentEditable></div>
+                                                </div>
+                                            </Transform>)
                                 })
                             }
                         </div>
