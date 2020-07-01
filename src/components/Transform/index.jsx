@@ -7,16 +7,14 @@ export default class Transform extends React.Component {
     constructor(props) {
         super(props);
         let select = props.select;
-        console.log('selected：', props.selected)
         const baseWidth = props.width || 140;
         const baseHeight = props.height || 140;
-        console.log('生成图形：', props)
         // state
         this.state = {
             width: baseWidth, 
             height: baseHeight,
-            left: select ? props.left : props.left ,//- baseWidth / 2,
-            top: select ? props.top : props.top, // - baseHeight / 2,
+            left: props.left ,//- baseWidth / 2,
+            top: props.top, // - baseHeight / 2,
             rotate: props.rotate || 0 
         }
         if(props.change)
@@ -31,6 +29,7 @@ export default class Transform extends React.Component {
         this._atan2 = this._atan2.bind(this);
         // 属性
         this.isFirst = select ? false : true;
+        this.boxRef = React.createRef();
         // 事件变量
         this.eventOption = {
             isDown: false,
@@ -76,6 +75,8 @@ export default class Transform extends React.Component {
         this.offset.left = 0;
         this.offset.top = 0;
         this.offset.rotate = 0;
+        this.offset.width = 0;
+        this.offset.height = 0;
     }
     _onMouseMove(e) {
         e.stopPropagation();
@@ -120,6 +121,7 @@ export default class Transform extends React.Component {
                 width = x + startW - startX;
                 height = startH + startY - y;
                 top = y - startY + startTop;
+                this.offset.top = y - startY;
                 break;
             case 'rb':
                 width = x + startW - startX;
@@ -130,13 +132,18 @@ export default class Transform extends React.Component {
                 left = x - startX + startLeft;  
                 height = startH + startY - y;
                 top = y - startY + startTop;
+                this.offset.left = x - startX;
+                this.offset.top = y - startY;
                 break;
             case 'lb':
                 width = startW + startX - x;
                 left = x - startX + startLeft;
                 height = y + startH - startY;
+                this.offset.left = x - startX;
                 break;
         }
+        this.offset.width = width - startW;
+        this.offset.height = height - startH;
         if(width <= 0 || height <= 0) return ;
         this.setState({ width, height, left, top }, this._change);
     }
@@ -161,28 +168,29 @@ export default class Transform extends React.Component {
             let offsetLeft = this.offset.left;
             let offsetTop = this.offset.top;
             let offsetRotate = this.offset.rotate;
+            let offsetWidth = this.offset.width;
+            let offsetHeight = this.offset.height;
             let type = this.eventOption.type;
             this.props.change(
                 Object.assign(
-                    { id: this.props.id, select: this.props.select, offsetTop, offsetLeft, offsetRotate, toolType: type },
+                    { id: this.props.id, select: this.props.select, offsetWidth, offsetHeight, offsetTop, offsetLeft, offsetRotate, toolType: type },
                     this.state,
                 )
             )
         }
     }
-    _onMouseUp() {
+    _onMouseUp(e) {
         this.isFirst = false;
         if(this.eventOption.isDown) {
             if(this.props.end)
-                this.props.end();
+                this.props.end(e);
             this.eventOption.isDown = false;
         }
     }
     componentDidUpdate(prevProps) {
-        let {left, top, rotate} = this.props;
-        if(left && top && (prevProps.left !== left || prevProps.top !== top || prevProps.rotate !== rotate)) {
-            console.log(this.props);
-            this.setState({left, top, rotate}, this._change)
+        let {left, top, rotate, width, height} = this.props;
+        if(left && top && width && height &&  (prevProps.left !== left || prevProps.top !== top || prevProps.rotate !== rotate || prevProps.width !== width || prevProps.height !== height)) {
+            this.setState({left, top, rotate, width, height}, this._change)
         }
     }
     componentDidMount() {
@@ -193,11 +201,11 @@ export default class Transform extends React.Component {
     }
     render() {
         let { width, height, rotate, left, top } = this.state;
-        let { active, comp, click, selected } = this.props;
+        let { active, comp, click, selected, select } = this.props;
         let Comp = comp;
         return (
-            <div className={[style.transformBox, active ? style.active : ''].join(' ')} 
-                style={{width, height, transform: `translate(${left}px,${top}px) rotate(${rotate}deg)`, transformOrigin: selected ? '100% 100%': '50% 50%'}}
+            <div ref={this.boxRef} className={[style.transformBox, active ? style.active : '', select ? style.select : ''].join(' ')} 
+                style={{width, height, transform: `translate(${left}px,${top}px) rotate(${rotate}deg)`, transformOrigin: selected ? '50% 50%': '50% 50%'}}
                 onClick={click}>
                 <div className={style.transformBody}>
                     {/* 操作按钮 */}
