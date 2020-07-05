@@ -33,7 +33,9 @@ export default class EditorBox extends React.Component {
             moveY: 0,
             moveGraph: null,
             moveVisible: false,
+            mouseup: false,
             graphActive: 0, // 
+            graphEditing: 0,
             graphs: [], // 已添加图形
             width ,
             height ,
@@ -53,8 +55,10 @@ export default class EditorBox extends React.Component {
         this.onMouseUp = this.onMouseUp.bind(this);
         this.onDraw = this.onDraw.bind(this);
         this.onSelectChange = this.onSelectChange.bind(this);
-        this.onChange = this.onChange.bind(this);
+        this.onClickGraph = this.onClickGraph.bind(this);
+        this.onDoubleClickGraph = this.onDoubleClickGraph.bind(this);
         this.onScroll = this.onScroll.bind(this);
+        this.onDelete = this.onDelete.bind(this);
         this.getRelativePoint = this.getRelativePoint.bind(this);
         this.getPagePosition = this.getPagePosition.bind(this);
         // this.addGraph = this.addGraph.bind(this);
@@ -134,25 +138,27 @@ export default class EditorBox extends React.Component {
         let {pageY, pageX} = e;
         this.setState({moveVisible: true})
         let moveElem = this.moveRef.current;
-        if(moveElem) {
-            let { offsetWidth, offsetHeight } = moveElem;
-            let left = (pageX - offsetLeft) - (offsetWidth / 2);
-            let top = (pageY - offsetTop) - (offsetHeight / 2);
-            if(left + 20 >= asideWidth) {
-                if(this.temporary) return ;
-                this.temporary = Date.now();
-                this.eventOption.isOutSide = true;
-                this.addGraph(this.state.moveGraph, pageX, pageY, this.temporary);
-            } else {
-                this.eventOption.isOutSide = false;
-            }
-            this.setState({
-                moveX: left,
-                moveY: top,
-            })
+        if(!moveElem) return;
+        
+        let { offsetWidth, offsetHeight } = moveElem;
+        let left = (pageX - offsetLeft) - (offsetWidth / 2);
+        let top = (pageY - offsetTop) - (offsetHeight / 2);
+        if(left + 20 >= asideWidth) {
+            if(this.temporary) return ;
+            this.temporary = Date.now();
+            this.eventOption.isOutSide = true;
+            this.addGraph(this.state.moveGraph, pageX, pageY, this.temporary);
+        } else {
+            this.eventOption.isOutSide = false;
         }
+        this.setState({
+            moveX: left,
+            moveY: top,
+        })
+        
     }
     onMouseUp() {
+        this.setState({mouseup: true})
         if(!this.eventOption.moveDown) return;
         this.setState({moveVisible: false})
         this.eventOption.moveDown = false;
@@ -161,17 +167,18 @@ export default class EditorBox extends React.Component {
             this.temporary = null;
         } else {
             let graphs = this.state.graphs.filter(g => g.id !== this.temporary);
-            this.setState({
-                graphs
-            })
+            this.setState({ graphs })
             this.temporary = null;
-        }      
+        } 
+        setTimeout(() => {
+            this.setState({mouseup: false})
+        }, 100)     
     }
     addGraph(graph, x, y, id = Date.now()) {
         let { graphs } = this.state;
         let position = this.getRelativePoint(x, y);
         graphs.push(Object.assign({}, graph, { x, y, id }, { ...position } ));
-        this.setState({ graphs, graphActive: id });
+        this.setState({ graphs, graphActive: id, graphEditing: id });
     }
     onMouseEnter(graph, e) {
         this.setState({
@@ -185,9 +192,15 @@ export default class EditorBox extends React.Component {
             detailVisible: false
         });
     }
-    onChange(g) {
+    onClickGraph(g) {
         this.setState({
-            graphActive: g ? g.id : null
+            graphActive: g ? g.id : null,
+            graphEditing: null
+        })
+    }
+    onDoubleClickGraph(g) {
+        this.setState({
+            graphEditing: g ? g.id : null
         })
     }
     onSelectChange(obj, positions) {
@@ -205,6 +218,10 @@ export default class EditorBox extends React.Component {
             graphs
         })
     }
+    onDelete(id) {
+        let graphs = this.state.graphs.filter(g => g.id !== id);
+        this.setState({ graphs, active: null, editing: null })
+    }
     // 监听画框
     onDraw(data) {
         // console.log(data);
@@ -214,7 +231,11 @@ export default class EditorBox extends React.Component {
         this.editorOption.scrollLeft = left;
     }
     render() {
-        let { detailY, detailVisible, detailGraph, moveX, moveY, moveVisible, moveGraph, graphs, graphActive, width, height, warpHeight, warpWidth } = this.state;
+        let { detailY, detailVisible, detailGraph, 
+                moveX, moveY, moveVisible, moveGraph, 
+                graphs, graphActive, width, height, warpHeight, warpWidth,
+                graphEditing, mouseup
+            } = this.state;
         return (
             <div className={style.editorBox}>
               {/* 工具栏 */}
@@ -252,12 +273,16 @@ export default class EditorBox extends React.Component {
                             warpWidth={warpWidth}
                             warpHeight={warpHeight}
                             graphs={graphs} 
+                            mouseup={mouseup}
                             selectChange={this.onSelectChange}
                             getPagePosition={this.getPagePosition}
                             getRelativePoint={this.getRelativePoint}
                             scroll={this.onScroll}
                             active={graphActive} 
-                            change={this.onChange} 
+                            editing={graphEditing}
+                            delete={this.onDelete}
+                            graphClick={this.onClickGraph} 
+                            graphDoubleClick={this.onDoubleClickGraph}
                             draw={this.onDraw} />
                 </div>
                 {/* 浮动工具栏 */}
