@@ -392,22 +392,24 @@ export default class Editor extends React.Component {
                                 graphs.map(g => {
                                     if(selectActive) 
                                         g.selected = !!this.selected.find(s => s.id === g.id);
+                                    let Comp = g.comp;
                                     return (<Transform change={this._onPosition} 
-                                                        click={e => {
-                                                            this._onClick(g, e)}
-                                                        }
-                                                        doubleClick={e => {
-                                                            this._onDoubleClick(g, e)}
-                                                        }
+                                                        click={e => this._onClick(g, e)}
+                                                        doubleClick={e => this._onDoubleClick(g, e)}
                                                         end={this._onEnd} 
                                                         active={active === g.id} 
                                                         down={this._onTransformDown} 
                                                         move={this._onTransformMove} 
-                                                        key={g.id} {...g}>
-                                                <div onClick={e => e.stopPropagation()} className={[style.editorGraphWarp, editing === g.id ? style.editing : ''].join(' ')} >
-                                                    <div id={`editor-graph-warp-editor-${g.id}`} className={style.editorGraphWarpEditor} contentEditable></div>
-                                                </div>
-                                            </Transform>)
+                                                        key={g.id} {...g}
+                                                        children={(w, h) => (
+                                                            <>
+                                                                {Comp && <Comp width={w} height={h}/>}
+                                                                <div onClick={e => e.stopPropagation()} className={[style.editorGraphWarp, editing === g.id ? style.editing : ''].join(' ')} >
+                                                                    <div id={`editor-graph-warp-editor-${g.id}`} className={style.editorGraphWarpEditor} contentEditable></div>
+                                                                </div>
+                                                            </>
+                                                        )} />
+                                            )
                                 })
                             }
                         </div>
