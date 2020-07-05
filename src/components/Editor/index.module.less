@@ -37,17 +37,23 @@
         left: 10px;
         width: calc(100% - 20px);
         height: 100%;
-        z-index: 999;
-        
-        & > div {
+        z-index: 0;
+        &.editing {
+            z-index: 9999;
+            & > div {
+                outline: #2196F3 auto 1px;
+            }
+        }
+        &_editor {
             display: table-cell; 
             height: 100%;
             width: 100%;
+            padding: 0 2px;
             vertical-align:middle;
+            word-break: break-all;
             &:focus {
                 outline-color: #2196F3;
             }
         }
     }
-    // padding: 1200px;
 }

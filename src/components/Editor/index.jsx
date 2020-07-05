@@ -7,6 +7,7 @@ import React from 'react';
 import Scroll from '@comp/Scroll';
 import Grid from '@comp/Grid';
 import Transform from '@comp/Transform';
+// import Transform from './Graph';
 import AlignLine from '@comp/AlignLine';
 // 工具
 import { deepClone } from '@utils';
@@ -40,13 +41,14 @@ export default class Editor extends React.Component {
         this._onMouseDown = this._onMouseDown.bind(this);
         this._onMouseMove = this._onMouseMove.bind(this);
         this._onMouseUp = this._onMouseUp.bind(this);
+        this._onKeyUp = this._onKeyUp.bind(this);
         this._onTransformDown = this._onTransformDown.bind(this);
         this._onTransformMove = this._onTransformMove.bind(this);
         this._onPosition = this._onPosition.bind(this);
         this._onSelectPosition = this._onSelectPosition.bind(this);
         this._onEnd = this._onEnd.bind(this);
         this._onClick = this._onClick.bind(this);
-        this._onClickBox = this._onClickBox.bind(this);
+        this._onClickBody = this._onClickBody.bind(this);
         // 方法
 
         // 属性
@@ -64,8 +66,8 @@ export default class Editor extends React.Component {
     }
     // 画框开始
     _onMouseDown(e) {
-        if(this.props.change)
-            this.props.change();        
+        if(this._onClickBody)
+            this._onClickBody(e);        
         let { pageX, pageY } = e;
         this.eventOption.isDown = true;
         this.selected = [];
@@ -80,6 +82,7 @@ export default class Editor extends React.Component {
     }
     // 画框中
     _onMouseMove(e) {
+        e.stopPropagation();
         let {isDown, startX, startY} = this.eventOption;
         if(!isDown) return ;
         let { pageX, pageY } = e;
@@ -189,12 +192,20 @@ export default class Editor extends React.Component {
     }
     // 绑定事件
     _event() {
-        let body = document.body;
-        body.addEventListener('mousemove', this._onMouseMove)
-        body.addEventListener('mouseup', this._onMouseUp)
+        document.addEventListener('mousemove', this._onMouseMove)
+        document.addEventListener('mouseup', this._onMouseUp)
+        document.addEventListener('click', this._onClickBody)
+        document.addEventListener('keyup', this._onKeyUp)
+    }
+    _onKeyUp(e) {
+        let {active, editing} = this.props;
+        if(e.keyCode === 8 && active && !editing) {
+            this.props.delete(this.props.active);
+        }
     }
     // 监听Transform组件的mousedown事件
     _onTransformDown(left, top, e) {
+        e.stopPropagation();
         let {pageX, pageY} = e;
         let {x, y} = this.props.getPagePosition(left, top);
         let position = this.props.getRelativePoint(pageX, pageY);
@@ -234,24 +245,45 @@ export default class Editor extends React.Component {
         }
     }
     // 点击容器
-    _onClickBox() {
+    _onClickBody(e) {
+        let className = e.target.className;
+        if(typeof className === 'string') {
+            let classNames = ['src-components-Transform-index-module__transform', 
+                                'src-pages-editor-index-module__editor-content', 
+                                'src-components-Editor-index-module__editor--graph-warp_editor',
+                                'src-components-Editor-index-module__editor--graph-warp']
+            for(let i = 0; i < classNames.length; i++) {
+                let is = className.includes(classNames[i]);
+                if( is || (this.props.mouseup && is)) {
+                    return ;
+                }
+            }
+        }
         if(this.state.selectActive) {
             this.setState({
                 selectActive: false
             })
         }
-        if(this.props.change)
-            this.props.change();
+        if(this.props.graphClick)
+            this.props.graphClick();
+    }
+    // 双击图形
+    _onDoubleClick(g, e) {
+        if(this.props.graphDoubleClick) {
+            this.props.graphDoubleClick(g);
+            let elem = document.getElementById(`editor-graph-warp-editor-${g.id}`);
+            elem.focus()
+            // elem.click()
+        }
+            
     }
     // 监听点击
     _onClick(g, e) {
-        e.stopPropagation();
-        if(this.props.change)
-            this.props.change(g);
+        if(this.props.graphClick)
+            this.props.graphClick(g);
     }
     // 监听移动结束
     _onEnd(e) {
-        e.stopPropagation();
         this.selectPositions = [];
         this.setState({
             alignLines: []
@@ -302,19 +334,25 @@ export default class Editor extends React.Component {
         this._event();
     }
     componentWillUnmount() {
-        let body = document.body;
-        body.removeEventListener('mousemove', this._onMouseMove)
-        body.removeEventListener('mouseup', this._onMouseUp)
-        
+        // let body = document.body;
+        document.removeEventListener('mousemove', this._onMouseMove)
+        document.removeEventListener('mouseup', this._onMouseUp)
+        document.removeEventListener('click', this._onClickBody)
+    }
+    componentDidUpdate(prevProps) {
+        if(this.props.editing !== prevProps.editing) {
+            let elem = document.getElementById(`editor-graph-warp-editor-${this.props.editing}`);
+            elem && elem.focus()
+        }
     }
     render() {
         let { drawHeight, drawWidth, drawTop, drawLeft, alignLines, selectHeight, 
                 selectWidth, selectTop, selectLeft, selectX, selectY, selectActive,
                 isDraw 
             } = this.state;
-        let { graphs, active, scroll, width, height, warpWidth, warpHeight } = this.props;
+        let { graphs, active, editing, scroll, width, height, warpWidth, warpHeight } = this.props;
         return (
-            <div className={style.editorBox} onClick={this._onClickBox}>
+            <div className={style.editorBox}>
                 <Scroll center scroll={scroll}>
                     <div className={style.editorContainer} style={{width: width + 'px', height: height + 'px'}}>
                         <div ref={this.warpRef} 
@@ -355,14 +393,19 @@ export default class Editor extends React.Component {
                                     if(selectActive) 
                                         g.selected = !!this.selected.find(s => s.id === g.id);
                                     return (<Transform change={this._onPosition} 
-                                                        click={e => this._onClick(g, e)}
+                                                        click={e => {
+                                                            this._onClick(g, e)}
+                                                        }
+                                                        doubleClick={e => {
+                                                            this._onDoubleClick(g, e)}
+                                                        }
                                                         end={this._onEnd} 
                                                         active={active === g.id} 
                                                         down={this._onTransformDown} 
                                                         move={this._onTransformMove} 
                                                         key={g.id} {...g}>
-                                                <div className={style.editorGraphWarp} >
-                                                    <div contentEditable></div>
+                                                <div onClick={e => e.stopPropagation()} className={[style.editorGraphWarp, editing === g.id ? style.editing : ''].join(' ')} >
+                                                    <div id={`editor-graph-warp-editor-${g.id}`} className={style.editorGraphWarpEditor} contentEditable></div>
                                                 </div>
                                             </Transform>)
                                 })
