@@ -202,8 +202,8 @@ export default class Transform extends React.Component {
     }
     render() {
         let { width, height, rotate, left, top } = this.state;
-        let { active, comp, click, selected, select, doubleClick } = this.props;
-        let Comp = comp;
+        let { active, click, selected, select, doubleClick } = this.props;
+        // let Comp = comp;
         return (
             <div ref={this.boxRef} 
                 className={[style.transformBox, active ? style.active : '', select ? style.select : ''].join(' ')} 
@@ -219,8 +219,8 @@ export default class Transform extends React.Component {
                         <span onMouseDown={this._onMouseDown} data-type="lb" className={[style.transformTool, style.lb].join(' ')}></span>
                         <span onMouseDown={this._onMouseDown} data-type="rb" className={[style.transformTool, style.rb].join(' ')}></span>
                     </div>
-                    { comp && <Comp width={width} height={height} />}
-                    {this.props.children}
+                    {/* { comp && <Comp width={width} height={height} />} */}
+                    {this.props.children(width, height)}
                 </div>
             </div>
         );
