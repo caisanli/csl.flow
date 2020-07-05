@@ -180,6 +180,7 @@ export default class Transform extends React.Component {
         }
     }
     _onMouseUp(e) {
+        e.stopPropagation();
         this.isFirst = false;
         if(this.eventOption.isDown) {
             if(this.props.end)
@@ -201,12 +202,14 @@ export default class Transform extends React.Component {
     }
     render() {
         let { width, height, rotate, left, top } = this.state;
-        let { active, comp, click, selected, select } = this.props;
+        let { active, comp, click, selected, select, doubleClick } = this.props;
         let Comp = comp;
         return (
-            <div ref={this.boxRef} className={[style.transformBox, active ? style.active : '', select ? style.select : ''].join(' ')} 
+            <div ref={this.boxRef} 
+                className={[style.transformBox, active ? style.active : '', select ? style.select : ''].join(' ')} 
                 style={{width, height, transform: `translate(${left}px,${top}px) rotate(${rotate}deg)`, transformOrigin: selected ? '50% 50%': '50% 50%'}}
-                onClick={click}>
+                onClick={ click }
+                onDoubleClick={ doubleClick }>
                 <div className={style.transformBody}>
                     {/* 操作按钮 */}
                     <div className={style.transformTools} onMouseDown={this._onMouseDown} data-type="move">
