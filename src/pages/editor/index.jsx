@@ -1,5 +1,9 @@
 // 编辑页面
 import React from 'react';
+import { connect } from 'react-redux';
+// actions
+import { setStep, addRecord } from '@/actions/handleRecord';
+// 样式
 import style from "./index.module.less";
 // 组件
 import ToolBar from '@comp/ToolBar';
@@ -12,7 +16,7 @@ import Detail from '@comp/Graph/Detail';
 import Move from '@comp/Graph/Move';
 import Thumbnail from '@comp/Graph/Thumbnail';
 // 工具
-import { getOffset } from '@utils/index';
+import { getOffset, deepClone } from '@utils/index';
 // import Text from '@comp/Graph/base/Text';
 /**
  * 整体布局：
@@ -21,7 +25,7 @@ import { getOffset } from '@utils/index';
  * 3、中间操作区域
  * 4、右侧小工具栏
  */
-export default class EditorBox extends React.Component {
+class EditorBox extends React.Component {
     constructor(props) {
         super(props);
         let width = 4000, height = 4000, warpHeight = 1200, warpWidth = 1500;
@@ -59,8 +63,10 @@ export default class EditorBox extends React.Component {
         this.onDoubleClickGraph = this.onDoubleClickGraph.bind(this);
         this.onScroll = this.onScroll.bind(this);
         this.onDelete = this.onDelete.bind(this);
+        this.onClickTool = this.onClickTool.bind(this);
         this.getRelativePoint = this.getRelativePoint.bind(this);
         this.getPagePosition = this.getPagePosition.bind(this);
+        this.onGraphChange = this.onGraphChange.bind(this);
         // this.addGraph = this.addGraph.bind(this);
         // 属性
         this.temporary = null; // 记个临时的图形
@@ -166,19 +172,40 @@ export default class EditorBox extends React.Component {
             this.eventOption.isOutSide = false;
             this.temporary = null;
         } else {
-            let graphs = this.state.graphs.filter(g => g.id !== this.temporary);
-            this.setState({ graphs })
+            this.deleteGraph(this.temporary);
             this.temporary = null;
         } 
         setTimeout(() => {
-            this.setState({mouseup: false})
+            this.setState({mouseup: false});
         }, 100)     
+    }
+    deleteGraph(id) {
+        let graphs = this.state.graphs.filter(g => g.id !== id);
+        this.setState({ graphs });
     }
     addGraph(graph, x, y, id = Date.now()) {
         let { graphs } = this.state;
         let position = this.getRelativePoint(x, y);
-        graphs.push(Object.assign({}, graph, { x, y, id }, { ...position } ));
+        graphs.push(Object.assign({}, graph, { x, y, id, first: true }, { ...position } ));
         this.setState({ graphs, graphActive: id, graphEditing: id });
+    }
+    // 监听图形改变
+    onGraphChange(data) {
+        this.setGraph(data);
+    }
+    // 设置某个图形
+    setGraph(data) {
+        let graphs = [...this.state.graphs];
+        let index = -1;
+        let g = graphs.find((g, i) => {
+            index = i;
+            return g.id === data.id;
+        });
+        if(!g) return ;
+        g.first = false;
+        let newGraph = Object.assign({}, g, data);
+        graphs.splice(index, 1, newGraph);
+        this.setState({ graphs })
     }
     onMouseEnter(graph, e) {
         this.setState({
@@ -192,12 +219,117 @@ export default class EditorBox extends React.Component {
             detailVisible: false
         });
     }
+    // 点击图形
     onClickGraph(g) {
         this.setState({
             graphActive: g ? g.id : null,
             graphEditing: null
         })
     }
+    // 点击工具栏
+    onClickTool({ value }) {
+        switch(value) {
+            case 'revoke': // 撤回
+                this.revoke();
+                break;
+            case 'recovery': // 恢复
+                this.recovery();
+                break;
+        }
+    }
+    // 恢复
+    recovery() {
+        let { handleStep, handleRecords } = this.props;
+        let record = null;
+        if(handleStep >= 0) {
+            alert('您不能再恢复了');
+            return ;
+        }
+        let newStep = handleStep + 1;
+        if(handleStep === -1) {
+            record = handleRecords.slice(handleStep)[0];
+        } else {
+            record = handleRecords.slice(handleStep, newStep)[0];
+        }
+        
+        if(!record) return ;
+        record = {...record};
+        switch(record.type) {
+            case 'add':
+                delete record.type;
+                console.log([...this.state.graphs, record])
+                this.setState({
+                    graphs: [...this.state.graphs, record]
+                })
+                break ;
+            case 'edit':
+                this.setGraph({
+                    id: record.id,
+                    left: record.left,
+                    top: record.top,
+                    width: record.width,
+                    height: record.height,
+                    rotate: record.rotate
+                });
+                break ;
+            case 'delete':
+                this.deleteGraph(record.id);
+                break ;
+        }
+        if(newStep === 0) {
+            alert('到头了...');
+        }
+        console.log('newStep：', newStep)
+        this.props.setStep(newStep);
+    }
+    // 撤回
+    revoke() {
+        let { handleStep, handleRecords } = this.props;
+        if(Math.abs(handleStep) >= handleRecords.length) {
+            alert('您不能再撤回了...');
+            return ;
+        }
+        let record = null;
+        let newStep = handleStep - 1;
+        
+        if(newStep === -1) {
+            record = handleRecords.slice(newStep)[0];
+        } else {
+            record = handleRecords.slice(newStep, handleStep)[0];
+        }
+        if(!record) return ;
+        record = {...record};
+        switch(record.type) {
+            case 'add':
+                this.deleteGraph(record.id);
+                break;
+            case 'edit':
+                this.setGraph({
+                    id: record.id,
+                    left: record.prevLeft,
+                    top: record.prevTop,
+                    width: record.prevWidth,
+                    height: record.prevHeight,
+                    rotate: record.prevRotate
+                });
+                break;
+            case 'delete':
+                delete record.type;
+                this.setState({
+                    graphs: [...this.state.graphs, record]
+                })
+                break;
+        }
+        console.log(newStep)
+        //if(this.props.)
+        if(Math.abs(newStep) === handleRecords.length) {
+            alert('到尽头了...');
+            // newStep = 0;
+        }
+        this.props.setStep(newStep);
+        console.log(record)
+    }
+    // 双击图形
     onDoubleClickGraph(g) {
         this.setState({
             graphEditing: g ? g.id : null
@@ -240,7 +372,7 @@ export default class EditorBox extends React.Component {
             <div className={style.editorBox}>
               {/* 工具栏 */}
               <div className={style.editorTools}>
-                <ToolBar />
+                <ToolBar click={this.onClickTool} />
               </div>
               {/* 容器 */}
               <div className={style.editorContent} ref={this.contentRef}>
@@ -283,6 +415,7 @@ export default class EditorBox extends React.Component {
                             delete={this.onDelete}
                             graphClick={this.onClickGraph} 
                             graphDoubleClick={this.onDoubleClickGraph}
+                            change={this.onGraphChange}
                             draw={this.onDraw} />
                 </div>
                 {/* 浮动工具栏 */}
@@ -293,4 +426,25 @@ export default class EditorBox extends React.Component {
     }
 }
 
+const mapStateToProps = state => {
+    return {
+        handleRecords: state.handleRecord.records,
+        handleStep: state.handleRecord.step
+    }
+}
 
+const mapDispatchToProps = dispatch => {
+    return {
+        setStep: step => {
+            dispatch(setStep(step))
+        },
+        addRecord: handle => {
+            dispatch(addRecord(handle))
+        }
+    }
+}
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(EditorBox)
