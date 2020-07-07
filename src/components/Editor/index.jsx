@@ -3,6 +3,9 @@
 
 // 编辑框
 import React from 'react';
+import { connect } from 'react-redux';
+// actions
+import { addRecord } from '@/actions/handleRecord';
 // 组件
 import Scroll from '@comp/Scroll';
 import Grid from '@comp/Grid';
@@ -13,7 +16,7 @@ import AlignLine from '@comp/AlignLine';
 import { deepClone } from '@utils';
 // 样式
 import style from './index.module.less';
-export default class Editor extends React.Component {
+class Editor extends React.Component {
     constructor(props) {
         super(props);
         // state
@@ -30,7 +33,7 @@ export default class Editor extends React.Component {
             selectTop: 0,
             selectX: 0,
             selectY: 0,
-            selectActive: false 
+            selectActive: false, // 是否在画框
         }
         // ref
         this.warpRef = React.createRef()
@@ -49,6 +52,7 @@ export default class Editor extends React.Component {
         this._onEnd = this._onEnd.bind(this);
         this._onClick = this._onClick.bind(this);
         this._onClickBody = this._onClickBody.bind(this);
+        this._onLoadGraph = this._onLoadGraph.bind(this);
         // 方法
 
         // 属性
@@ -200,7 +204,10 @@ export default class Editor extends React.Component {
     _onKeyUp(e) {
         let {active, editing} = this.props;
         if(e.keyCode === 8 && active && !editing) {
-            this.props.delete(this.props.active);
+            let id = this.props.active;
+            let handle = this.props.graphs.find(g => g.id === id);
+            this.props.addRecord({type: 'delete', ...handle});
+            this.props.delete(id);
         }
     }
     // 监听Transform组件的mousedown事件
@@ -268,26 +275,33 @@ export default class Editor extends React.Component {
             this.props.graphClick();
     }
     // 双击图形
-    _onDoubleClick(g, e) {
+    _onDoubleClick(g) {
         if(this.props.graphDoubleClick) {
             this.props.graphDoubleClick(g);
             let elem = document.getElementById(`editor-graph-warp-editor-${g.id}`);
             elem.focus()
-            // elem.click()
         }
-            
     }
     // 监听点击
-    _onClick(g, e) {
+    _onClick(g) {
         if(this.props.graphClick)
             this.props.graphClick(g);
     }
     // 监听移动结束
-    _onEnd(e) {
+    _onEnd(data, prevData) {
+        let handle = deepClone({type: 'edit'}, data, prevData);
+        this.props.addRecord(handle);
+        this.props.change && this.props.change(data);
         this.selectPositions = [];
         this.setState({
             alignLines: []
         })
+    }
+    // 监听第一次加入的图形加载完毕
+    _onLoadGraph(data) {
+        this.props.change && this.props.change(data);
+        let graph = this.props.graphs.find(g => g.id === data.id);
+        this.props.addRecord({type: 'add', ...graph});
     }
     // 设置对齐线
     _setAlignment(obj) {
@@ -334,7 +348,6 @@ export default class Editor extends React.Component {
         this._event();
     }
     componentWillUnmount() {
-        // let body = document.body;
         document.removeEventListener('mousemove', this._onMouseMove)
         document.removeEventListener('mouseup', this._onMouseUp)
         document.removeEventListener('click', this._onClickBody)
@@ -394,6 +407,7 @@ export default class Editor extends React.Component {
                                         g.selected = !!this.selected.find(s => s.id === g.id);
                                     let Comp = g.comp;
                                     return (<Transform change={this._onPosition} 
+                                                        load={this._onLoadGraph}
                                                         click={e => this._onClick(g, e)}
                                                         doubleClick={e => this._onDoubleClick(g, e)}
                                                         end={this._onEnd} 
@@ -405,6 +419,7 @@ export default class Editor extends React.Component {
                                                             <>
                                                                 {Comp && <Comp width={w} height={h}/>}
                                                                 <div onClick={e => e.stopPropagation()} className={[style.editorGraphWarp, editing === g.id ? style.editing : ''].join(' ')} >
+                                                                    {g.id}
                                                                     <div id={`editor-graph-warp-editor-${g.id}`} className={style.editorGraphWarpEditor} contentEditable></div>
                                                                 </div>
                                                             </>
@@ -419,3 +434,21 @@ export default class Editor extends React.Component {
         );
     }
 }
+
+const mapStateToProps = state => {
+    return {
+        
+    }
+}
+
+const mapDispatchToProps = dispatch => {
+    return {
+        addRecord: step => {
+            dispatch(addRecord(step))
+        }
+    }
+}
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Editor)

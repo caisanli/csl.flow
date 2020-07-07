@@ -6,7 +6,6 @@ import style from './index.module.less';
 export default class Transform extends React.Component {
     constructor(props) {
         super(props);
-        let select = props.select;
         const baseWidth = props.width || 140;
         const baseHeight = props.height || 140;
         // state
@@ -28,7 +27,7 @@ export default class Transform extends React.Component {
         // 方法
         this._atan2 = this._atan2.bind(this);
         // 属性
-        this.isFirst = select ? false : true;
+        this.isFirst = props.first;
         this.boxRef = React.createRef();
         // 事件变量
         this.eventOption = {
@@ -172,21 +171,44 @@ export default class Transform extends React.Component {
             let offsetHeight = this.offset.height;
             let type = this.eventOption.type;
             this.props.change(
-                Object.assign(
-                    { id: this.props.id, select: this.props.select, offsetWidth, offsetHeight, offsetTop, offsetLeft, offsetRotate, toolType: type },
+                Object.assign({ 
+                        id: this.props.id, 
+                        select: this.props.select, 
+                        offsetWidth, 
+                        offsetHeight, 
+                        offsetTop, 
+                        offsetLeft, 
+                        offsetRotate, 
+                        toolType: type 
+                    },
                     this.state,
                 )
             )
         }
     }
-    _onMouseUp(e) {
-        e.stopPropagation();
-        this.isFirst = false;
-        if(this.eventOption.isDown) {
-            if(this.props.end)
-                this.props.end(e);
-            this.eventOption.isDown = false;
+    _onMouseUp() {
+        let state = {id: this.props.id, ...this.state};
+        if(this.isFirst) {
+            this.props.load && this.props.load(state)
+            this.isFirst = false;
         }
+        if(this.eventOption.isDown) {
+            if(this.props.end) {
+                let { startW, startH, startLeft, startTop, startRotate } = this.eventOption;
+                let { width, height, left, top, rotate} = this.state;
+                if(startW !== width || startH !== height || startLeft !== left || startTop !== top || startRotate !== rotate) {
+                    this.props.end(state, { 
+                        prevLeft: startLeft,
+                        prevTop: startTop,
+                        prevWidth: startW,
+                        prevHeight: startH,
+                        prevRotate: startRotate
+                    });
+                }                
+            }
+            
+        }
+        this.eventOption.isDown = false;
     }
     componentDidUpdate(prevProps) {
         let {left, top, rotate, width, height} = this.props;
@@ -203,7 +225,6 @@ export default class Transform extends React.Component {
     render() {
         let { width, height, rotate, left, top } = this.state;
         let { active, click, selected, select, doubleClick } = this.props;
-        // let Comp = comp;
         return (
             <div ref={this.boxRef} 
                 className={[style.transformBox, active ? style.active : '', select ? style.select : ''].join(' ')} 
@@ -219,8 +240,7 @@ export default class Transform extends React.Component {
                         <span onMouseDown={this._onMouseDown} data-type="lb" className={[style.transformTool, style.lb].join(' ')}></span>
                         <span onMouseDown={this._onMouseDown} data-type="rb" className={[style.transformTool, style.rb].join(' ')}></span>
                     </div>
-                    {/* { comp && <Comp width={width} height={height} />} */}
-                    {this.props.children(width, height)}
+                    {this.props.children && this.props.children(width, height)}
                 </div>
             </div>
         );
