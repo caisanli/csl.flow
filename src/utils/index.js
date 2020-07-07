@@ -26,16 +26,34 @@ export function clone(obj) {
     }
     return newObj;
 }
-// 深拷贝
-export function deepClone(obj) {
-    if(typeof obj !== 'object') 
-        return obj;
-    const isArray = Array.isArray(obj);
-    let newObj = isArray ? [] : {};
-    for (const key in obj) {
-        if (obj.hasOwnProperty(key)) {
-            newObj[key] = deepClone(obj[key]);
-        }
+function _forEach(arr, callback) {
+    const len = arr.length;
+    let index = -1;
+    while(++index < len) {
+        callback(arr[index], index);
     }
-    return newObj;
+}
+function _deepClone(newTarget, target, map = new Map()) {
+    if(typeof target === 'object') {
+        const isArray = Array.isArray(target);
+        newTarget = isArray ? [] : newTarget;
+        if(map.get(target)) {
+             return map.get(target);
+        }
+        map.set(target, newTarget);
+        const keys = isArray ? null : Object.keys(target);
+        _forEach(keys || target, (val, key) => {
+            if(!isArray) 
+                key = val;
+            newTarget[key] = _deepClone(newTarget, target[key], map);
+        });
+        return newTarget;
+    } else  {
+        return target;
+    }
+}
+// 深拷贝
+export function deepClone(...args) {
+    let newObj = Object.assign(...args);
+    return JSON.parse(JSON.stringify(newObj));
 }
