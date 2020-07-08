@@ -419,7 +419,6 @@ class Editor extends React.Component {
                                                             <>
                                                                 {Comp && <Comp width={w} height={h}/>}
                                                                 <div onClick={e => e.stopPropagation()} className={[style.editorGraphWarp, editing === g.id ? style.editing : ''].join(' ')} >
-                                                                    {g.id}
                                                                     <div id={`editor-graph-warp-editor-${g.id}`} className={style.editorGraphWarpEditor} contentEditable></div>
                                                                 </div>
                                                             </>
