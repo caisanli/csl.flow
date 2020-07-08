@@ -6,6 +6,7 @@ import { BrowserRouter as Router } from "react-router-dom";
 // reducers
 import reducers from './reducers'
 // 通用样式
+import '@/assets/fonts/iconfont.less';
 import '@/assets/css/theme.less';
 import '@/assets/css/reset.less';
 import '@/assets/css/base.less';
