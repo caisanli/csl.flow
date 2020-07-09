@@ -1,13 +1,41 @@
 .dropdown {
     position: relative;
     display: inline-block;
+    height: 30px;
+    line-height: 30px;
+    border-radius: 3px;
+    z-index: 10;
     &_label {
-
+        display: flex;
+        padding-right: 5px;
+        &-text {
+            display: inline-block
+        }
+        &-icon {
+            display: inline-block;
+            width: 0;
+            height: 0;
+            border: 6px solid #62768b;
+            border-left-color: transparent;
+            border-right-color: transparent;
+            border-bottom-color: transparent;
+            margin-top: 12px;
+        }
+        &:hover, &.hover {
+            background-color: #d7dadf;
+        }
     }
     &_content {
         position: absolute;
         top: 0;
         left: 0;
         z-index: 3;
+    }
+    &_warp {
+        line-height: normal;
+        padding: 5px 10px;
+        border-radius: 3px;
+        background-color: #fff;
+        box-shadow: 0px 2px 10px 1px #c6ccd2;
     }
 }
