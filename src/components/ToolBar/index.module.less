@@ -14,12 +14,8 @@
         position: relative;
         height: @height;
         line-height: @height;
-        padding: 0 5px;
         cursor: pointer;
         transition: color 0.2s;
-        &:hover {
-            color: #607D8B;
-        }
         &.interval::after {
             content: "";
             display: inline-block;
@@ -36,5 +32,12 @@
             }
         }
 
+    }
+}
+
+.dropdown-button-item {
+    padding: 5px 0;
+    &:not(:last-child) {
+        border-bottom: 1px solid #d7dadf;
     }
 }
