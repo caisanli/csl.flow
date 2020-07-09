@@ -14,6 +14,19 @@ export function getOffset(elem) {
     }
     return { top, left }
 }
+/**
+ * 是否是父元素
+ * @param {*} arg 
+ */
+export function getParent(node, parentSelectors) {
+    let targetParent = document.querySelector(parentSelectors);
+    let parent = node.parentNode;
+    while(parent !== targetParent && parent !== null) {
+        parent = parent.parentNode;
+    }
+    console.log(parent);
+    return parent;
+}
 
 export function clone(obj) {
     if(typeof obj !== 'object') 
