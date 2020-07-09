@@ -227,7 +227,9 @@ class EditorBox extends React.Component {
         })
     }
     // 点击工具栏
-    onClickTool({ value }) {
+    onClickTool(type, value) {
+        console.log('type：', type)
+        console.log('value：', value)
         switch(value) {
             case 'revoke': // 撤回
                 this.revoke();
@@ -372,7 +374,7 @@ class EditorBox extends React.Component {
             <div className={style.editorBox}>
               {/* 工具栏 */}
               <div className={style.editorTools}>
-                <ToolBar click={this.onClickTool} />
+                <ToolBar onClick={this.onClickTool} />
               </div>
               {/* 容器 */}
               <div className={style.editorContent} ref={this.contentRef}>
