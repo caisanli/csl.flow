@@ -1,0 +1,70 @@
+.input-number {
+    display: inline-block;
+    height: 30px;
+    line-height: 30px;
+    &_content {
+        display: flex;
+        border-radius: 3px;
+        overflow: hidden;
+        background-color: #fff;
+    }
+    &:hover {
+        .input-number_input-box {
+            background-color: #fff;
+        }
+        .input-number_tool-box {
+            background-color: #e8e8e8;
+        }
+    }
+    &_input-box {
+        background-color: transparent;
+    }
+    &_input {
+        width: 20px;
+        border: none;
+        background-color: transparent;
+        vertical-align: middle;
+        &:focus {
+            outline: none;
+        }
+    }
+    &_unit {
+        padding: 0 2px;
+    }
+    &_tool-box {
+        display: flex;
+        width: 15px;
+        flex-direction: column;
+        background-color: transparent;
+    }
+    &_tool {
+        position: relative;
+        flex: 1;
+        &:hover {
+            background-color: #ddd;
+        }
+        .bordered {
+            width: 0;
+            height: 0;
+            position: absolute;
+            left: 3px;
+            border: 4px solid #244462;
+            border-left-color: transparent;
+            border-right-color: transparent;
+            z-index: 9;
+            top: 4px;
+        }
+        &.up::before {
+            content: '';
+            display: block;
+            .bordered;
+            border-top-color: transparent;
+        }
+        &.low::before {
+            content: '';
+            display: block;
+            .bordered;
+            border-bottom-color: transparent;
+        }
+    }
+}
