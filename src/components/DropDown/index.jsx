@@ -1,7 +1,7 @@
 import React, {useEffect, useState, useRef} from 'react';
 import PropTypes from 'prop-types';
 import style from './index.module.less';
-import { getParent } from "@/utils";
+import { getParent } from "@assets/js/utils";
 export default function DropDown(props) {
     const [visible, setVisible] = useState(false);
     const [top, setTop] = useState(0);
@@ -16,7 +16,7 @@ export default function DropDown(props) {
     }
     function clickBody(e) {
         let className = e.target.className;
-        if(className && (className.includes(style.dropdownWarp) || getParent(e.target, `.${style.dropdownWarp}`))) 
+        if((className || '').includes(style.dropdownWarp) || getParent(e.target, `.${style.dropdownWarp}`))
             return ;
         setVisible(false);
     }
