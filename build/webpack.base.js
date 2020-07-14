@@ -29,7 +29,7 @@ module.exports = {
             '@ast': resolve('./../src/assets'),
             '@pages': resolve('./../src/pages'),
             '@comp': resolve('./../src/components'),
-            '@utils': resolve('./../src/utils')
+            '@assets': resolve('./../src/assets')
         }
     },
     optimization: { // 代码分隔
