@@ -13,7 +13,7 @@ import Transform from '@comp/Transform';
 // import Transform from './Graph';
 import AlignLine from '@comp/AlignLine';
 // 工具
-import { deepClone } from '@utils';
+import { deepClone } from '@assets/js/utils';
 // 样式
 import style from './index.module.less';
 class Editor extends React.Component {
