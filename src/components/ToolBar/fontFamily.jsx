@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import Button from './button/index';
 import DropDown from '@/components/DropDown';
 // 样式
@@ -12,10 +12,9 @@ const fontFamily = [{name: 'serif', value: 'serif'},
 // 字体
 export default function FontFamily(props) {
     let dropdown = null;
-    console.log(props)
     function onClickItem(f) {
         dropdown.close();
-        props.onClick && props.onClick('revoke', f);
+        props.onClick && props.onClick(f);
     }
     function onRef(instance) {
         dropdown = instance;
@@ -23,7 +22,7 @@ export default function FontFamily(props) {
     return <DropDown onRef={onRef}
                     disabled={props.disabled}
                     icon="icon-zu" 
-                    text={<Button {...props}>{ '宋体' }</Button>}
+                    text={<Button disabled={props.disabled}>{ '宋体' }</Button>}
                     content={<div>
                         {fontFamily.map((f, i) => <div className={style.dropdownButtonItem} onClick={() => onClickItem(f)} key={i}>{f.name}</div>)}
                     </div>}/>

@@ -4,7 +4,11 @@ import React from 'react'
 import style from './index.module.less';
 // 导入功能按钮
 import tools from './tools';
-export default function ({ onClick }) {
+export default function (props) {
+    function onClick(...arg) {
+        console.log('click...')
+        props.onClick && props.onClick(...arg);
+    }
     return (
         <div className={style.toolBarBox}>
             {/* 常用功能 */}
@@ -14,7 +18,7 @@ export default function ({ onClick }) {
                     if(!Comp) return null;
                     return (<div key={i} 
                                 className={[style.tool, t.interval ? style.interval:''].join(' ')}>
-                                <Comp onClick={onClick} />
+                                <Comp onClick={data => onClick(t.value, data)} />
                             </div>)
                 })}
             </div>

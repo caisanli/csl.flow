@@ -5,7 +5,14 @@
     padding: 0 10px;
     cursor: pointer;
     border-radius: 3px;
-    &:hover {
+    &:hover, &.active {
         background-color: #d7dadf;
+    }
+    &.active {
+        box-shadow: 0 0 3px #ccc;
+    }
+    &_warp {
+        display: inline-block;
+        line-height: 1;
     }
 }

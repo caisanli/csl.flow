@@ -2,6 +2,12 @@ import Revoke from './revoke';
 import Recovery from './recovery';
 import Format from './format';
 import FontFamily from './fontFamily';
+import FontSize from './fontSize';
+import Bold from './bold';
+import Italics from './italics';
+import Underline from './underline';
+import FontColor from './fontColor';
+import Align from './align';
 export default [
     {
         "name": "撤销",
@@ -24,22 +30,28 @@ export default [
     }, {
         "name": "字号",
         "value": "fontSize",
+        "comp": FontSize,
         "interval": true
     }, {
         "name": "加粗",
+        "comp": Bold,
         "value": "bold"
     }, {
         "name": "斜体",
+        "comp": Italics,
         "value": "italics"
     }, {
         "name": "下划线",
+        "comp": Underline,
         "value": "underline"
     }, {
         "name": "字体颜色",
+        "comp": FontColor,
         "value": "fontColor"
     }, {
         "name": "对齐方式",
         "value": "align",
+        "comp": Align,
         "interval": true
     }, {
         "name": "填充",

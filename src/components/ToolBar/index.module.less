@@ -36,8 +36,37 @@
 }
 
 .dropdown-button-item {
+    white-space: nowrap;
     padding: 5px 0;
+    .iconfont {
+        font-size: 14px;
+        vertical-align: bottom;
+        margin-right: 5px;
+    }
     &:not(:last-child) {
         border-bottom: 1px solid #d7dadf;
     }
 }
+.divide {
+    width: 100%;
+    border-bottom: 1px solid #ccc;
+    margin: 5px 0;
+}
+.font-color {
+    display: inline-block;
+    position: relative;
+    &_bar {
+        height: 3px;
+        border-radius: 5px;
+        margin-top: 2px;
+    }
+    &_warp {
+        position: relative;
+    }
+    &_content {
+        position: absolute;
+        top: 35px;
+        left: 0;
+        z-index: 10;
+    }
+}   
