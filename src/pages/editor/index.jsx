@@ -16,7 +16,7 @@ import Detail from '@comp/Graph/Detail';
 import Move from '@comp/Graph/Move';
 import Thumbnail from '@comp/Graph/Thumbnail';
 // 工具
-import { getOffset, deepClone } from '@utils/index';
+import { getOffset } from '@assets/js/utils';
 // import Text from '@comp/Graph/base/Text';
 /**
  * 整体布局：
