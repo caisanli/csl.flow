@@ -3,6 +3,8 @@ import Button from './button/index'
 import DropDown from '@/components/DropDown';
 import { SketchPicker } from 'react-color';
 import style from './index.module.less';
+
+// 字体颜色
 export default function FontColor(props) {
     const [color, setColor] = useState('#fff');
     function onChange(val) {
@@ -17,7 +19,6 @@ export default function FontColor(props) {
     }
     return <DropDown onRef={onRef}
                     disabled={props.disabled}
-                    icon="icon-ziti" 
                     text={
                             <Button icon='icon-ziti'>
                                 <div style={{backgroundColor: color}} className={style.fontColorBar}></div>
