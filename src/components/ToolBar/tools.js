@@ -8,6 +8,11 @@ import Italics from './italics';
 import Underline from './underline';
 import FontColor from './fontColor';
 import Align from './align';
+import BackgroundColor from './backgroundColor';
+import BorderWidth from './borderWidth';
+import BorderStyle from './borderStyle';
+import Top from './top';
+import Bottom from './bottom';
 export default [
     {
         "name": "撤销",
@@ -55,17 +60,19 @@ export default [
         "interval": true
     }, {
         "name": "填充",
-        "value": "backgroundColor"
-    }, {
+        "value": "backgroundColor",
         "name": "线条颜色",
+        "comp": BackgroundColor,
         "value": "borderColor"
     }, {
         "name": "线宽",
-        "value": "borderSize"
+        "value": "borderSize",
+        "comp": BorderWidth
     }, {
         "name": "线条样式",
         "value": "borderStyle",
-        "interval": true
+        "interval": true,
+        "comp": BorderStyle
     }, {
         "name": "连线类型",
         "value": "connectType"
@@ -78,10 +85,12 @@ export default [
         "interval": true
     }, {
         "name": "置顶",
-        "value": "top"
+        "value": "top",
+        "comp": Top
     }, {
         "name": "置底",
-        "value": "bottom"
+        "value": "bottom",
+        "comp": Bottom
     }, {
         "name": "锁定",
         "value": "lock"
