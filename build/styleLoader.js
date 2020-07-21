@@ -4,26 +4,30 @@
 const path = require('path')
 // 拆分css
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const base = {
-    test: /\.(css|less)$/,
-    use: [
-        {
+
+module.exports = function (env) {
+    const base = {
+        test: /\.(css|less)$/,
+        use: [{
             loader: 'css-loader',
             options: {
                 modules: {
-                    localIdentName: '[path][name]__[local]--[hash:base64:5]', // 自定义html显示的className
+                    mode: (resourcePath) => {
+                        if(/src\/pages\//.test(resourcePath) || /src\/components\//.test(resourcePath))
+                            return 'local';
+                        return 'global';
+                    },
+                    localIdentName: env === 'dev' ? '[path][name]__[local]--[hash:base64:5]':'[hash:base64]', // 自定义html显示的className
                 },
                 sourceMap: true,
                 localsConvention: 'camelCase', // 将样式文件的 box-header 导入后 改为 boxHeader
             },
-        },
-        {
+        }, {
             loader: require.resolve('less-loader'), // compiles Less to LESS
             options: {
                 sourceMap: true,
             },
-        },
-        {
+        }, {
             loader: 'sass-resources-loader',
             options: {
                 resources: [
@@ -31,12 +35,10 @@ const base = {
                     path.resolve(__dirname, '../src/assets/css/theme.less'),
                 ],
             },
-        },
-    ],
-    exclude: /node_modules/,
-}
-
-module.exports = function (env) {
+        }]
+        // ,
+        // exclude: /node_modules/,
+    }
     if (env === 'dev') {
         base.use.unshift({ loader: 'style-loader' })
         return base
