@@ -5,12 +5,13 @@
   "author": "caisanli",
   "license": "MIT",
   "scripts": {
-    "start": "webpack-dev-server --config ./build/webpack.dev.js",
-    "build": "webpack --config ./build/webpack.prod.js"
+    "start": "webpack-dev-server --mode=development --config ./build/webpack.dev.js",
+    "build": "webpack --mode=production --config ./build/webpack.prod.js"
   },
   "dependencies": {
     "core-js": "^3.6.5",
     "lodash": "^4.17.15",
+    "rc-tooltip": "^4.2.1",
     "react": "^16.13.1",
     "react-color": "^2.18.1",
     "react-dom": "^16.13.1",
