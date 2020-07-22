@@ -302,6 +302,7 @@ class Editor extends React.Component {
         this.props.change && this.props.change(data);
         let graph = this.props.graphs.find(g => g.id === data.id);
         this.props.addRecord({type: 'add', ...graph});
+        this.props.change && this.props.change(data);
     }
     // 设置对齐线
     _setAlignment(obj) {
