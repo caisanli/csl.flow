@@ -7,17 +7,10 @@ import { setStep, addRecord } from '@/actions/handleRecord';
 import style from "./index.module.less";
 // 组件
 import ToolBar from '@comp/ToolBar';
-import Scroll from '@comp/Scroll';
-import { Collapse, Panel } from "@comp/Collapse";
 import Editor from "@comp/Editor";
-// 图形组件
-import bases from '@comp/Graph/base';
-import Detail from '@comp/Graph/Detail';
-import Move from '@comp/Graph/Move';
-import Thumbnail from '@comp/Graph/Thumbnail';
+import Aside from '@comp/Aside';
 // 工具
 import { getOffset } from '@assets/js/utils';
-// import Text from '@comp/Graph/base/Text';
 /**
  * 整体布局：
  * 1、上方工具栏
@@ -30,33 +23,19 @@ class EditorBox extends React.Component {
         super(props);
         let width = 4000, height = 4000, warpHeight = 1200, warpWidth = 1500;
         this.state = {
-            detailY: 0,
-            detailVisible: false,
-            detailGraph: null,
-            moveX: 0,
-            moveY: 0,
-            moveGraph: null,
-            moveVisible: false,
-            mouseup: false,
             graphActive: 0, // 
             graphEditing: 0,
             graphs: [], // 已添加图形
             width ,
             height ,
             warpWidth ,
-            warpHeight
+            warpHeight,
+            disabled: ['revoke', 'recovery'], // 禁用工具栏列表
         }
         // ref
-        this.asideRef = React.createRef();
         this.contentRef = React.createRef();
-        this.moveRef = React.createRef();
         this.editorRef = React.createRef();
         // 绑定方法
-        this.onMouseEnter = this.onMouseEnter.bind(this);
-        this.onMouseLeave = this.onMouseLeave.bind(this);
-        this.onMouseDown = this.onMouseDown.bind(this);
-        this.onMouseMove = this.onMouseMove.bind(this);
-        this.onMouseUp = this.onMouseUp.bind(this);
         this.onDraw = this.onDraw.bind(this);
         this.onSelectChange = this.onSelectChange.bind(this);
         this.onClickGraph = this.onClickGraph.bind(this);
@@ -67,17 +46,8 @@ class EditorBox extends React.Component {
         this.getRelativePoint = this.getRelativePoint.bind(this);
         this.getPagePosition = this.getPagePosition.bind(this);
         this.onGraphChange = this.onGraphChange.bind(this);
-        // this.addGraph = this.addGraph.bind(this);
+        this.addGraph = this.addGraph.bind(this);
         // 属性
-        this.temporary = null; // 记个临时的图形
-        this.eventOption = {
-            moveDown: false,
-            asideWidth: 0,
-            offsetTop: 0,
-            offsetLeft: 0,
-            isOutSide: false,
-        };
-        
         this.editorOption = {
             scrollTop: 0, // 当前scrollTop
             scrollLeft: 0, // 当前scrollLeft
@@ -86,18 +56,6 @@ class EditorBox extends React.Component {
             distanceTop: (height - warpHeight) / 2 , // 编辑区域离容器的top
             distanceLeft: (width - warpWidth) / 2 // 编辑区域离容器的left
         }
-    }
-    // 获取offset
-    getOffset(elem) {
-        let top = elem.offsetTop
-        let left = elem.offsetLeft
-        let parent = elem.offsetParent
-        while (parent) {
-          top += parent.offsetTop
-          left += parent.offsetLeft
-          parent = parent.offsetParent
-        }
-        return {top, left}
     }
     // 计算相对坐标位置
     getRelativePoint(x, y) { 
@@ -115,79 +73,21 @@ class EditorBox extends React.Component {
         return {x, y}
     }
     componentDidMount() {
-        let offset = this.getOffset(this.editorRef.current);
+        let offset = getOffset(this.editorRef.current);
         this.editorOption.offsetLeft = offset.left;
         this.editorOption.offsetTop = offset.top;
-        document.addEventListener('mousemove', this.onMouseMove);
-        document.addEventListener('mouseup', this.onMouseUp);
     }
-    componentWillUnmount() {
-        document.removeEventListener('mousemove', this.onMouseMove);
-        document.removeEventListener('mouseup', this.onMouseUp);
-    }
-    onMouseDown(g) {
-        this.eventOption.moveDown = true;
-        this.setState({
-            moveGraph: g
-        })
-        let elem = this.contentRef.current;
-        let { top, left } = getOffset(elem);
-        this.eventOption.offsetLeft = left;
-        this.eventOption.offsetTop = top;
-        this.eventOption.asideWidth = this.asideRef.current.offsetWidth;
-    }
-    onMouseMove(e) {
-        if(!this.eventOption.moveDown)
-            return ;
-        e.preventDefault()
-        let { offsetTop, offsetLeft, asideWidth } = this.eventOption;
-        let {pageY, pageX} = e;
-        this.setState({moveVisible: true})
-        let moveElem = this.moveRef.current;
-        if(!moveElem) return;
-        
-        let { offsetWidth, offsetHeight } = moveElem;
-        let left = (pageX - offsetLeft) - (offsetWidth / 2);
-        let top = (pageY - offsetTop) - (offsetHeight / 2);
-        if(left + 20 >= asideWidth) {
-            if(this.temporary) return ;
-            this.temporary = Date.now();
-            this.eventOption.isOutSide = true;
-            this.addGraph(this.state.moveGraph, pageX, pageY, this.temporary);
-        } else {
-            this.eventOption.isOutSide = false;
-        }
-        this.setState({
-            moveX: left,
-            moveY: top,
-        })
-        
-    }
-    onMouseUp() {
-        this.setState({mouseup: true})
-        if(!this.eventOption.moveDown) return;
-        this.setState({moveVisible: false})
-        this.eventOption.moveDown = false;
-        if(this.eventOption.isOutSide) {
-            this.eventOption.isOutSide = false;
-            this.temporary = null;
-        } else {
-            this.deleteGraph(this.temporary);
-            this.temporary = null;
-        } 
-        setTimeout(() => {
-            this.setState({mouseup: false});
-        }, 100)     
-    }
-    deleteGraph(id) {
-        let graphs = this.state.graphs.filter(g => g.id !== id);
-        this.setState({ graphs });
-    }
+    // 添加图形
     addGraph(graph, x, y, id = Date.now()) {
         let { graphs } = this.state;
         let position = this.getRelativePoint(x, y);
         graphs.push(Object.assign({}, graph, { x, y, id, first: true }, { ...position } ));
         this.setState({ graphs, graphActive: id, graphEditing: id });
+    }
+    // 删除图形
+    deleteGraph(id) {
+        let graphs = this.state.graphs.filter(g => g.id !== id);
+        this.setState({ graphs, active: null, editing: null })
     }
     // 监听图形改变
     onGraphChange(data) {
@@ -207,18 +107,6 @@ class EditorBox extends React.Component {
         graphs.splice(index, 1, newGraph);
         this.setState({ graphs })
     }
-    onMouseEnter(graph, e) {
-        this.setState({
-            detailY: e.pageY,
-            detailVisible: true,
-            detailGraph: graph
-        });
-    }
-    onMouseLeave() {
-        this.setState({
-            detailVisible: false
-        });
-    }
     // 点击图形
     onClickGraph(g) {
         this.setState({
@@ -230,7 +118,7 @@ class EditorBox extends React.Component {
     onClickTool(type, value) {
         console.log('type：', type)
         console.log('value：', value)
-        switch(value) {
+        switch(type) {
             case 'revoke': // 撤回
                 this.revoke();
                 break;
@@ -243,10 +131,6 @@ class EditorBox extends React.Component {
     recovery() {
         let { handleStep, handleRecords } = this.props;
         let record = null;
-        if(handleStep >= 0) {
-            alert('您不能再恢复了');
-            return ;
-        }
         let newStep = handleStep + 1;
         if(handleStep === -1) {
             record = handleRecords.slice(handleStep)[0];
@@ -255,6 +139,7 @@ class EditorBox extends React.Component {
         }
         
         if(!record) return ;
+        this.props.setStep(newStep);
         record = {...record};
         switch(record.type) {
             case 'add':
@@ -278,19 +163,10 @@ class EditorBox extends React.Component {
                 this.deleteGraph(record.id);
                 break ;
         }
-        if(newStep === 0) {
-            alert('到头了...');
-        }
-        console.log('newStep：', newStep)
-        this.props.setStep(newStep);
     }
     // 撤回
     revoke() {
         let { handleStep, handleRecords } = this.props;
-        if(Math.abs(handleStep) >= handleRecords.length) {
-            alert('您不能再撤回了...');
-            return ;
-        }
         let record = null;
         let newStep = handleStep - 1;
         
@@ -300,6 +176,7 @@ class EditorBox extends React.Component {
             record = handleRecords.slice(newStep, handleStep)[0];
         }
         if(!record) return ;
+        this.props.setStep(newStep);
         record = {...record};
         switch(record.type) {
             case 'add':
@@ -322,14 +199,6 @@ class EditorBox extends React.Component {
                 })
                 break;
         }
-        console.log(newStep)
-        //if(this.props.)
-        if(Math.abs(newStep) === handleRecords.length) {
-            alert('到尽头了...');
-            // newStep = 0;
-        }
-        this.props.setStep(newStep);
-        console.log(record)
     }
     // 双击图形
     onDoubleClickGraph(g) {
@@ -352,9 +221,9 @@ class EditorBox extends React.Component {
             graphs
         })
     }
+    // 监听删除图形
     onDelete(id) {
-        let graphs = this.state.graphs.filter(g => g.id !== id);
-        this.setState({ graphs, active: null, editing: null })
+        this.deleteGraph(id)
     }
     // 监听画框
     onDraw(data) {
@@ -364,41 +233,43 @@ class EditorBox extends React.Component {
         this.editorOption.scrollTop = top;
         this.editorOption.scrollLeft = left;
     }
+    shouldComponentUpdate(nextProps) {
+        if(
+            nextProps.handleRecords.length !== this.props.handleRecords.length 
+            || nextProps.handleStep !== this.props.handleStep
+        ) {
+            let disabled = this.state.disabled;
+            if(Math.abs(nextProps.handleStep) >= nextProps.handleRecords.length) {
+                !disabled.includes('revoke') && disabled.push('revoke')                
+            } else {
+                disabled = disabled.filter(d => d !== 'revoke')
+            }
+            if(nextProps.handleStep >= 0) {
+                !disabled.includes('recovery') && disabled.push('recovery')
+            } else {
+                disabled = disabled.filter(d => d !== 'recovery')
+            }
+            this.setState({
+                disabled
+            })
+        }
+        return true;
+    }
     render() {
-        let { detailY, detailVisible, detailGraph, 
-                moveX, moveY, moveVisible, moveGraph, 
-                graphs, graphActive, width, height, warpHeight, warpWidth,
-                graphEditing, mouseup
+        let { graphs, graphActive, width, height, warpHeight, warpWidth,
+                graphEditing, mouseup, disabled
             } = this.state;
         return (
             <div className={style.editorBox}>
               {/* 工具栏 */}
               <div className={style.editorTools}>
-                <ToolBar onClick={this.onClickTool} />
+                <ToolBar disabled={disabled} onClick={this.onClickTool} />
               </div>
               {/* 容器 */}
               <div className={style.editorContent} ref={this.contentRef}>
                 {/* 图形选择栏 */}
-                <div className={style.editorLeftAside} ref={this.asideRef}>
-                    <Detail y={detailY} graph={detailGraph} visible={detailVisible}/>
-                    <Scroll>
-                        <Collapse defaultActiveKeys={['1']}>
-                            <Panel header={'基础图形'} key={'1'}>
-                                <Thumbnail graphs={bases}
-                                            enter={this.onMouseEnter} 
-                                            leave={this.onMouseLeave}
-                                            mouseDown={this.onMouseDown}/>
-                            </Panel>
-                            <Panel header={'FlowChart流程图'} key={'2'}>
-                                <p>这是内容01</p>
-                            </Panel>
-                            <Panel header={'EVC企业价值链'} key={'3'}>
-                                <p>这是内容01</p>
-                            </Panel>
-                        </Collapse>
-                         {/* 移动时的图形 */}
-                        <Move ref={this.moveRef} y={moveY} x={moveX} graph={moveGraph} visible={moveVisible} />
-                    </Scroll>
+                <div className={style.editorLeftAside}>
+                    <Aside onDelete={this.onDelete} onAdd={this.addGraph} />
                 </div>
                 {/* 编辑区域 */}
                 <div className={style.editorContainer} ref={this.editorRef}>
