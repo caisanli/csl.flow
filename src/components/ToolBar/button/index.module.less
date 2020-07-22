@@ -5,11 +5,15 @@
     padding: 0 10px;
     cursor: pointer;
     border-radius: 3px;
-    &:hover, &.active {
+    &:hover:not(.disabled), &.active:not(.disabled) {
         background-color: #d7dadf;
     }
-    &.active {
+    &.active:not(.disabled) {
         box-shadow: 0 0 3px #ccc;
+    }
+    &.disabled {
+        color: #e8e8e8;
+        cursor: no-drop;
     }
     &_warp {
         display: inline-block;

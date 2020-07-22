@@ -31,7 +31,7 @@ export default function DropDown(props) {
     })
     return (
         <div className={style.dropdown} ref={boxRef}>
-            <div className={[style.dropdownLabel, visible ? style.hover : ''].join(' ')} onClick={onClick}>
+            <div className={[style.dropdownLabel, visible ? style.hover : '', props.disabled ? style.disabled : ''].join(' ')} onClick={onClick}>
                 <div className={style.dropdownLabelText}>
                     { props.text }
                 </div>
