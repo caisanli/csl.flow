@@ -17,89 +17,110 @@ export default [
     {
         "name": "撤销",
         "comp": Revoke,
-        "value": "revoke"
+        "value": "revoke",
+        "disabled": false
     }, {
         "name": "恢复",
         "comp": Recovery,
-        "value": "recovery"
+        "value": "recovery",
+        "disabled": false
     }, {
         "name": "格式刷",
         "value": "format",
         "comp": Format,
-        "interval": true
+        "interval": true,
+        "disabled": false
     }, {
         "name": "字体",
         "comp": FontFamily,
         "value": "fontFamily",
-        "interval": true
+        "interval": true,
+        "disabled": false
     }, {
         "name": "字号",
         "value": "fontSize",
         "comp": FontSize,
-        "interval": true
+        "interval": true,
+        "disabled": false
     }, {
         "name": "加粗",
         "comp": Bold,
-        "value": "bold"
+        "value": "bold",
+        "disabled": false
     }, {
         "name": "斜体",
         "comp": Italics,
-        "value": "italics"
+        "value": "italics",
+        "disabled": false
     }, {
         "name": "下划线",
         "comp": Underline,
-        "value": "underline"
+        "value": "underline",
+        "disabled": false
     }, {
         "name": "字体颜色",
         "comp": FontColor,
-        "value": "fontColor"
+        "value": "fontColor",
+        "disabled": false
     }, {
         "name": "对齐方式",
         "value": "align",
         "comp": Align,
-        "interval": true
+        "interval": true,
+        "disabled": false
     }, {
         "name": "填充",
         "value": "backgroundColor",
         "name": "线条颜色",
         "comp": BackgroundColor,
-        "value": "borderColor"
+        "value": "borderColor",
+        "disabled": false
     }, {
         "name": "线宽",
         "value": "borderSize",
-        "comp": BorderWidth
+        "comp": BorderWidth,
+        "disabled": false
     }, {
         "name": "线条样式",
         "value": "borderStyle",
         "interval": true,
-        "comp": BorderStyle
+        "comp": BorderStyle,
+        "disabled": false
     }, {
         "name": "连线类型",
-        "value": "connectType"
+        "value": "connectType",
+        "disabled": false
     }, {
         "name": "起点",
-        "value": "connectStart"
+        "value": "connectStart",
+        "disabled": false
     }, {
         "name": "终点",
         "value": "connectEnd",
-        "interval": true
+        "interval": true,
+        "disabled": false
     }, {
         "name": "置顶",
         "value": "top",
-        "comp": Top
+        "comp": Top,
+        "disabled": false
     }, {
         "name": "置底",
         "value": "bottom",
-        "comp": Bottom
+        "comp": Bottom,
+        "disabled": false
     }, {
         "name": "锁定",
-        "value": "lock"
+        "value": "lock",
+        "disabled": false
     }, {
         "name": "解锁",
         "value": "unlock",
-        "interval": true
+        "interval": true,
+        "disabled": false
     }, {
         "name": "插入链接",
-        "value": "link"
+        "value": "link",
+        "disabled": false
     }
 ]
