@@ -73,7 +73,6 @@ export default [
         "value": "backgroundColor",
         "name": "线条颜色",
         "comp": BackgroundColor,
-        "value": "borderColor",
         "disabled": false
     }, {
         "name": "线宽",

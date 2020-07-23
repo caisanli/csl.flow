@@ -4,14 +4,14 @@ import DropDown from '@/components/DropDown'
 // 样式
 import style from './index.module.less'
 // 宽度列表
-const borderStyles = [{value: 'solid'}, {value: 'dashed'}, {value: 'dotted'}]
+const borderStyles = [{value: '', name: 'solid'}, {value: '10,10', name: 'dashed'}, {value: '5,5', name: 'dotted'}]
 
 // 线样式
 export default function BorderStyle (props) {
     let dropdown = null
     function onClickItem (f) {
         dropdown.close()
-        props.onClick && props.onClick(f)
+        props.onClick && props.onClick({value: f.value})
     }
     function onRef (instance) {
         dropdown = instance
@@ -30,7 +30,7 @@ export default function BorderStyle (props) {
                             onClick={() => onClickItem(f)}
                             key={i}
                         >
-                            <div style={{'borderStyle': f.value}} className={style.borderStyle}></div>
+                            <div style={{'borderStyle': f.name}} className={style.borderStyle}></div>
                         </div>
                     ))}
                 </>

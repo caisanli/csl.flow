@@ -20,7 +20,7 @@ export default function FontColor(props) {
     return <DropDown onRef={onRef}
                     disabled={props.disabled}
                     text={
-                            <Button icon='icon-ziti'>
+                            <Button disabled={props.disabled} icon='icon-ziti'>
                                 <div style={{backgroundColor: color}} className={style.fontColorBar}></div>
                             </Button>
                         }

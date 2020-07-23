@@ -15,11 +15,15 @@ export default function InputNumber(props) {
         }
     }
     function plus() {   
+        if(props.disabled)
+            return ;
         let value  = (defaultValue || 0) + 1;
         setDefaultValue(value)
         props.onChange && props.onChange(value)
     }
     function minute() {
+        if(props.disabled)
+            return ;
         let value  = (defaultValue || 0) - 1;
         setDefaultValue(value)
         props.onChange && props.onChange(value)
@@ -28,11 +32,12 @@ export default function InputNumber(props) {
         setDefaultValue(props.value || '')
     }, [props.value])
     return (
-        <div className={style.inputNumber}>
+        <div className={[style.inputNumber, props.disabled ? style.disabled : ''].join(' ')}>
             <div className={style.inputNumberContent}>
                 <div className={style.inputNumberInputBox}>
                     <input className={style.inputNumberInput} 
                             type="text" 
+                            disabled={props.disabled}
                             value={defaultValue} 
                             placeholder={props.placeholder} 
                             onChange={onChange}/>

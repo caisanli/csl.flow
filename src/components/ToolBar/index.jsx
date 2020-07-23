@@ -5,7 +5,6 @@ import ToolTip from 'rc-tooltip';
 // 样式
 import '@assets/css/rc-tooltip.css';
 import style from './index.module.less';
-console.log(style)
 // 导入功能按钮
 import tools from './tools';
 
@@ -28,7 +27,7 @@ export default function ToolBar (props) {
                     return (<div key={i} 
                                 className={[style.tool, t.interval ? style.interval:''].join(' ')}>
                                 <ToolTip id={t.value} placement="top" trigger={['hover']} overlay={<span>{t.name}</span>}>
-                                    <Comp disabled={t.disabled} onClick={data => onClick(t.value, data)} />
+                                    <Comp value={props.styleObj[t.value]} disabled={t.disabled} onClick={data => onClick(t.value, data)} />
                                 </ToolTip>
                             </div>)
                 })}
@@ -39,5 +38,6 @@ export default function ToolBar (props) {
     );
 }
 ToolBar.propTypes = {
-    disabled: PropTypes.arrayOf(PropTypes.string).isRequired
+    disabled: PropTypes.arrayOf(PropTypes.string).isRequired,
+    styleObj: PropTypes.object.isRequired
 }
