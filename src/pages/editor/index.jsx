@@ -11,6 +11,9 @@ import Editor from "@comp/Editor";
 import Aside from '@comp/Aside';
 // 工具
 import { getOffset } from '@assets/js/utils';
+// 图形
+import graphObj, { defaultStyle } from '@assets/js/graph';
+console.log(defaultStyle)
 /**
  * 整体布局：
  * 1、上方工具栏
@@ -18,6 +21,13 @@ import { getOffset } from '@assets/js/utils';
  * 3、中间操作区域
  * 4、右侧小工具栏
  */
+/**
+ * 未完成：写个合并对象交集方法 用于style的合并
+ */
+ const graphDisabled = ['fontFamily', 'fontSize', 'bold', 'italics', 'underline', 'fontColor', 
+ 'align', 'backgroundColor', 'borderSize', 'borderStyle', 'top', 'bottom', 'link'];
+ const lockDisabled = ['lock', 'unlock'];
+ const lineDisabled = ['connectType', 'connectStart', 'connectEnd']
 class EditorBox extends React.Component {
     constructor(props) {
         super(props);
@@ -25,12 +35,13 @@ class EditorBox extends React.Component {
         this.state = {
             graphActive: 0, // 
             graphEditing: 0,
+            styleObj: defaultStyle,
             graphs: [], // 已添加图形
             width ,
             height ,
             warpWidth ,
             warpHeight,
-            disabled: ['revoke', 'recovery'], // 禁用工具栏列表
+            disabled: ['revoke', 'recovery', 'format', ...graphDisabled, ...lockDisabled, ...lineDisabled], // 禁用工具栏列表
         }
         // ref
         this.contentRef = React.createRef();
@@ -81,13 +92,18 @@ class EditorBox extends React.Component {
     addGraph(graph, x, y, id = Date.now()) {
         let { graphs } = this.state;
         let position = this.getRelativePoint(x, y);
-        graphs.push(Object.assign({}, graph, { x, y, id, first: true }, { ...position } ));
-        this.setState({ graphs, graphActive: id, graphEditing: id });
+        let newGraph = Object.assign({}, graphObj, graph, { x, y, id }, { ...position })
+        console.log(newGraph)
+        graphs.push(newGraph);
+        let disabled = this.state.disabled;
+        disabled = disabled.filter(d => !graphDisabled.includes(d))
+        this.setState({ graphs, graphActive: id, graphEditing: id, disabled });
     }
     // 删除图形
     deleteGraph(id) {
         let graphs = this.state.graphs.filter(g => g.id !== id);
-        this.setState({ graphs, active: null, editing: null })
+        let disabled = [...new Set([...this.state.disabled, ...graphDisabled])]
+        this.setState({ graphs, active: null, editing: null, disabled })
     }
     // 监听图形改变
     onGraphChange(data) {
@@ -109,8 +125,17 @@ class EditorBox extends React.Component {
     }
     // 点击图形
     onClickGraph(g) {
+        let disabled = this.state.disabled, id = null;
+        let style = defaultStyle;
+        if(g) {
+            disabled = disabled.filter(d => !graphDisabled.includes(d))
+            id = g.id;
+        } else {
+            disabled = [...new Set([...disabled, ...graphDisabled])]
+        }
         this.setState({
-            graphActive: g ? g.id : null,
+            disabled,
+            graphActive: id,
             graphEditing: null
         })
     }
@@ -118,14 +143,23 @@ class EditorBox extends React.Component {
     onClickTool(type, value) {
         console.log('type：', type)
         console.log('value：', value)
+        let graph = this.state.graphs.find(g => g.id === this.state.graphActive);
         switch(type) {
             case 'revoke': // 撤回
                 this.revoke();
-                break;
+                return ;
             case 'recovery': // 恢复
                 this.recovery();
+                return ;
+            case 'bold': // 加粗
+                graph.bold = graph.bold === 'normal' ? 'bold' : 'normal';
                 break;
+            case 'fontFamily':
+                graph.fontFamily = value;
+                break;
+            // case ''
         }
+        this.setGraph(graph);
     }
     // 恢复
     recovery() {
@@ -257,13 +291,13 @@ class EditorBox extends React.Component {
     }
     render() {
         let { graphs, graphActive, width, height, warpHeight, warpWidth,
-                graphEditing, mouseup, disabled
+                graphEditing, mouseup, disabled, styleObj
             } = this.state;
         return (
             <div className={style.editorBox}>
               {/* 工具栏 */}
               <div className={style.editorTools}>
-                <ToolBar disabled={disabled} onClick={this.onClickTool} />
+                <ToolBar disabled={disabled} styleObj={styleObj} onClick={this.onClickTool} />
               </div>
               {/* 容器 */}
               <div className={style.editorContent} ref={this.contentRef}>
