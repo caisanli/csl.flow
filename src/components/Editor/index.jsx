@@ -47,7 +47,7 @@ class Editor extends React.Component {
         this._onKeyUp = this._onKeyUp.bind(this);
         this._onTransformDown = this._onTransformDown.bind(this);
         this._onTransformMove = this._onTransformMove.bind(this);
-        this._onPosition = this._onPosition.bind(this);
+        this._onChange = this._onChange.bind(this);
         this._onSelectPosition = this._onSelectPosition.bind(this);
         this._onEnd = this._onEnd.bind(this);
         this._onClick = this._onClick.bind(this);
@@ -198,7 +198,6 @@ class Editor extends React.Component {
     _event() {
         document.addEventListener('mousemove', this._onMouseMove)
         document.addEventListener('mouseup', this._onMouseUp)
-        document.addEventListener('click', this._onClickBody)
         document.addEventListener('keyup', this._onKeyUp)
     }
     _onKeyUp(e) {
@@ -237,7 +236,7 @@ class Editor extends React.Component {
         }
     }
     // 监听图形位置大小角度变化
-    _onPosition(obj) {
+    _onChange(obj) {
         let index = -1;
         let is = this.positions.some((g, i) => {
             index = i;
@@ -253,26 +252,13 @@ class Editor extends React.Component {
     }
     // 点击容器
     _onClickBody(e) {
-        let className = e.target.className;
-        if(typeof className === 'string') {
-            let classNames = ['src-components-Transform-index-module__transform', 
-                                'src-pages-editor-index-module__editor-content', 
-                                'src-components-Editor-index-module__editor--graph-warp_editor',
-                                'src-components-Editor-index-module__editor--graph-warp']
-            for(let i = 0; i < classNames.length; i++) {
-                let is = className.includes(classNames[i]);
-                if( is || (this.props.mouseup && is)) {
-                    return ;
-                }
-            }
-        }
         if(this.state.selectActive) {
             this.setState({
                 selectActive: false
             })
         }
         if(this.props.graphClick)
-            this.props.graphClick();
+            this.props.graphClick(null);
     }
     // 双击图形
     _onDoubleClick(g) {
@@ -283,7 +269,8 @@ class Editor extends React.Component {
         }
     }
     // 监听点击
-    _onClick(g) {
+    _onClick(g, e) {
+        e.stopPropagation()
         if(this.props.graphClick)
             this.props.graphClick(g);
     }
@@ -351,7 +338,6 @@ class Editor extends React.Component {
     componentWillUnmount() {
         document.removeEventListener('mousemove', this._onMouseMove)
         document.removeEventListener('mouseup', this._onMouseUp)
-        document.removeEventListener('click', this._onClickBody)
     }
     componentDidUpdate(prevProps) {
         if(this.props.editing !== prevProps.editing) {
@@ -368,7 +354,7 @@ class Editor extends React.Component {
         return (
             <div className={style.editorBox}>
                 <Scroll center scroll={scroll}>
-                    <div className={style.editorContainer} style={{width: width + 'px', height: height + 'px'}}>
+                    <div className={style.editorContainer} onClick={this._onClickBody} style={{width: width + 'px', height: height + 'px'}}>
                         <div ref={this.warpRef} 
                             onMouseDown={this._onMouseDown} 
                             className={style.editorWarp} 
@@ -407,7 +393,8 @@ class Editor extends React.Component {
                                     if(selectActive) 
                                         g.selected = !!this.selected.find(s => s.id === g.id);
                                     let Comp = g.comp;
-                                    return (<Transform change={this._onPosition} 
+                                    let aligns = g.align.split('-');
+                                    return (<Transform change={this._onChange} 
                                                         load={this._onLoadGraph}
                                                         click={e => this._onClick(g, e)}
                                                         doubleClick={e => this._onDoubleClick(g, e)}
@@ -418,9 +405,23 @@ class Editor extends React.Component {
                                                         key={g.id} {...g}
                                                         children={(w, h) => (
                                                             <>
-                                                                {Comp && <Comp width={w} height={h}/>}
-                                                                <div onClick={e => e.stopPropagation()} className={[style.editorGraphWarp, editing === g.id ? style.editing : ''].join(' ')} >
-                                                                    <div id={`editor-graph-warp-editor-${g.id}`} className={style.editorGraphWarpEditor} contentEditable></div>
+                                                                {Comp && <Comp width={w} height={h} fill={g.backgroundColor} strokeDasharray={g.borderStyle} strokeWidth={g.borderSize}/>}
+                                                                <div onClick={e => e.stopPropagation()} 
+                                                                        className={[style.editorGraphWarp, editing === g.id ? style.editing : ''].join(' ')} >
+                                                                    <div id={`editor-graph-warp-editor-${g.id}`} 
+                                                                            style={{
+                                                                                fontFamily: g.fontFamily,
+                                                                                fontSize: g.fontSize,
+                                                                                fontWeight: g.bold,
+                                                                                color: g.fontColor,
+                                                                                fontStyle: g.italics,
+                                                                                textDecoration: g.underline,
+                                                                                textAlign: aligns[0],
+                                                                                verticalAlign: aligns[1]
+                                                                            }}
+                                                                            className={style.editorGraphWarpEditor} 
+
+                                                                            contentEditable></div>
                                                                 </div>
                                                             </>
                                                         )} />
