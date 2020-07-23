@@ -24,7 +24,6 @@ export function getParent(node, parentSelectors) {
     while(parent !== targetParent && parent !== null) {
         parent = parent.parentNode;
     }
-    console.log(parent);
     return parent;
 }
 
