@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import style from './index.module.less';
 
 export default function InputNumber(props) {
-    const [defaultValue, setDefaultValue] = useState('');
+    const [defaultValue, setDefaultValue] = useState(0);
     function onChange(e) {
         let value = e.target.value;
         let numberValue = Number(value);
@@ -52,7 +52,7 @@ export default function InputNumber(props) {
     )
 }
 InputNumber.propTypes = {
-    value: PropTypes.string,
+    value: PropTypes.number,
     placeholder: PropTypes.string,
     onChange: PropTypes.func,
     unit: PropTypes.string

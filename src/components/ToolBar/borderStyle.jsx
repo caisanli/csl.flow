@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Button from './button/index'
 import DropDown from '@/components/DropDown'
 // 样式
@@ -7,15 +7,20 @@ import style from './index.module.less'
 const borderStyles = [{value: '', name: 'solid'}, {value: '10,10', name: 'dashed'}, {value: '5,5', name: 'dotted'}]
 
 // 线样式
-export default function BorderStyle (props) {
+export default function BorderStyle(props) {
+    const [borderStyle, setStyle] = useState(props.value);
     let dropdown = null
-    function onClickItem (f) {
-        dropdown.close()
-        props.onClick && props.onClick({value: f.value})
+    function onClickItem({value}) {
+        dropdown.close();
+        setStyle(value);
+        props.onClick && props.onClick(value);
     }
-    function onRef (instance) {
+    function onRef(instance) {
         dropdown = instance
     }
+    useEffect(() => {
+        setStyle(props.value)
+    }, [props.value])
     return (
         <DropDown
             onRef={onRef}
@@ -26,7 +31,7 @@ export default function BorderStyle (props) {
                 <>
                     {borderStyles.map((f, i) => (
                         <div
-                            className={style.dropdownButtonItem}
+                            className={[style.dropdownButtonItem, borderStyle === f.value ? style.active:''].join(' ')}
                             onClick={() => onClickItem(f)}
                             key={i}
                         >

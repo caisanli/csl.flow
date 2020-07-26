@@ -332,6 +332,10 @@ class Editor extends React.Component {
         let position = this.props.getRelativePoint(pageX, pageY);
         return {x: position.left, y: position.top}
     }
+    // 监听输入
+    _onEditorChange(e) {
+        // console.log(e.target.textContent)
+    }
     componentDidMount() {
         this._event();
     }
@@ -409,6 +413,8 @@ class Editor extends React.Component {
                                                                 <div onClick={e => e.stopPropagation()} 
                                                                         className={[style.editorGraphWarp, editing === g.id ? style.editing : ''].join(' ')} >
                                                                     <div id={`editor-graph-warp-editor-${g.id}`} 
+                                                                            onInput={this._onEditorChange}     
+                                                                            onMouseDown={e => e.stopPropagation()}                                                                      
                                                                             style={{
                                                                                 fontFamily: g.fontFamily,
                                                                                 fontSize: g.fontSize,
@@ -419,9 +425,11 @@ class Editor extends React.Component {
                                                                                 textAlign: aligns[0],
                                                                                 verticalAlign: aligns[1]
                                                                             }}
+                                                                            suppressContentEditableWarning
                                                                             className={style.editorGraphWarpEditor} 
-
-                                                                            contentEditable></div>
+                                                                            contentEditable={ editing === g.id ? true : false }>
+                                                                                { g.text }
+                                                                        </div>
                                                                 </div>
                                                             </>
                                                         )} />

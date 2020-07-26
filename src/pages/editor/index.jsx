@@ -10,10 +10,9 @@ import ToolBar from '@comp/ToolBar';
 import Editor from "@comp/Editor";
 import Aside from '@comp/Aside';
 // 工具
-import { getOffset } from '@assets/js/utils';
+import { getOffset, interObject, deepClone } from '@assets/js/utils';
 // 图形
 import graphObj, { defaultStyle } from '@assets/js/graph';
-console.log(defaultStyle)
 /**
  * 整体布局：
  * 1、上方工具栏
@@ -21,12 +20,8 @@ console.log(defaultStyle)
  * 3、中间操作区域
  * 4、右侧小工具栏
  */
-/**
- * 未完成：写个合并对象交集方法 用于style的合并
- */
  const graphDisabled = ['fontFamily', 'fontSize', 'bold', 'italics', 'underline', 'fontColor', 
- 'align', 'backgroundColor', 'borderSize', 'borderStyle', 'top', 'bottom', 'link'];
- const lockDisabled = ['lock', 'unlock'];
+ 'align', 'backgroundColor', 'borderSize', 'borderStyle', 'top', 'bottom', 'link', 'lock'];
  const lineDisabled = ['connectType', 'connectStart', 'connectEnd']
 class EditorBox extends React.Component {
     constructor(props) {
@@ -41,7 +36,7 @@ class EditorBox extends React.Component {
             height ,
             warpWidth ,
             warpHeight,
-            disabled: ['revoke', 'recovery', 'format', ...graphDisabled, ...lockDisabled, ...lineDisabled], // 禁用工具栏列表
+            disabled: ['revoke', 'recovery', 'format', ...graphDisabled, ...lineDisabled], // 禁用工具栏列表
         }
         // ref
         this.contentRef = React.createRef();
@@ -92,12 +87,12 @@ class EditorBox extends React.Component {
     addGraph(graph, x, y, id = Date.now()) {
         let { graphs } = this.state;
         let position = this.getRelativePoint(x, y);
-        let newGraph = Object.assign({}, graphObj, graph, { x, y, id }, { ...position })
-        console.log(newGraph)
+        let zIndex = graphs.length ? graphs[graphs.length - 1].zIndex + 1 : 1;
+        let newGraph = Object.assign({}, graphObj, graph, { x, y, id, zIndex }, { ...position })
         graphs.push(newGraph);
         let disabled = this.state.disabled;
         disabled = disabled.filter(d => !graphDisabled.includes(d))
-        this.setState({ graphs, graphActive: id, graphEditing: id, disabled });
+        this.setState({ graphs, graphActive: id, graphEditing: id, disabled, styleObj: deepClone(defaultStyle) });
     }
     // 删除图形
     deleteGraph(id) {
@@ -128,12 +123,14 @@ class EditorBox extends React.Component {
         let disabled = this.state.disabled, id = null;
         let style = defaultStyle;
         if(g) {
+            style = interObject(style, g);
             disabled = disabled.filter(d => !graphDisabled.includes(d))
             id = g.id;
         } else {
             disabled = [...new Set([...disabled, ...graphDisabled])]
         }
         this.setState({
+            styleObj: style,
             disabled,
             graphActive: id,
             graphEditing: null
@@ -143,7 +140,8 @@ class EditorBox extends React.Component {
     onClickTool(type, value) {
         console.log('type：', type)
         console.log('value：', value)
-        let graph = this.state.graphs.find(g => g.id === this.state.graphActive);
+        let graphs = this.state.graphs
+        let graph = graphs.find(g => g.id === this.state.graphActive);
         switch(type) {
             case 'revoke': // 撤回
                 this.revoke();
@@ -152,14 +150,63 @@ class EditorBox extends React.Component {
                 this.recovery();
                 return ;
             case 'bold': // 加粗
-                graph.bold = graph.bold === 'normal' ? 'bold' : 'normal';
+                graph.bold = value;
                 break;
-            case 'fontFamily':
+            case 'fontFamily': 
                 graph.fontFamily = value;
                 break;
-            // case ''
+            case 'fontSize':
+                graph.fontSize = value;
+                break;
+            case 'italics':
+                graph.italics = value;
+                break;
+            case 'underline':
+                graph.underline = value;
+                break;
+            case 'fontColor':
+                graph.fontColor = value;
+                break;
+            case 'align':
+                graph.align = value;
+                break;
+            case 'backgroundColor':
+                graph.backgroundColor = value;
+                break;
+            case 'borderSize':
+                graph.borderSize = value;
+                break;
+            case 'borderStyle':
+                graph.borderStyle = value;
+                break;
+            case 'top':
+                graph.zIndex = graphs.length ? graphs[graphs.length - 1].zIndex + 1 : graph.zIndex;
+                break;
+            case 'bottom':
+                this.setGraphToBottom(graph);
+                break;
+            case 'lock':
+                graph.lock = value;
+                break;
         }
+        let style = interObject(defaultStyle, graph);
+        this.setState({styleObj: style})
         this.setGraph(graph);
+    }
+    // 置底
+    setGraphToBottom(g) {
+        let graphs = this.state.graphs;
+        graphs = graphs.map((graph, i) => {
+            if(g.id !== graph.id) {
+                graph.zIndex = (i + 1) + 1;
+            } else {
+                graph.zIndex = 1;
+            }
+            return graph;
+        })
+        this.setState({
+            graphs
+        })
     }
     // 恢复
     recovery() {

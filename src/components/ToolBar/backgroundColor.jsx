@@ -6,17 +6,20 @@ import style from './index.module.less';
 
 // 背景颜色
 export default function BackgroundColor(props) {
-    const [color, setColor] = useState('#fff');
+    const [color, setColor] = useState(props.value);
     function onChange(val) {
         let color = val.hex;
         setColor(color);
-        props.onChange && props.onChange({value: color});
+        props.onClick && props.onClick(color);
     }
     
     let dropdown = null;
     function onRef(instance) {
         dropdown = instance;
     }
+    useEffect(() => {
+        setColor(props.value)
+    }, [props.value])
     return <DropDown onRef={onRef}
                     disabled={props.disabled}
                     text={

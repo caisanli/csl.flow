@@ -26,9 +26,10 @@ export default function ToolBar (props) {
                     if(!Comp) return null;
                     return (<div key={i} 
                                 className={[style.tool, t.interval ? style.interval:''].join(' ')}>
-                                <ToolTip id={t.value} placement="top" trigger={['hover']} overlay={<span>{t.name}</span>}>
                                     <Comp value={props.styleObj[t.value]} disabled={t.disabled} onClick={data => onClick(t.value, data)} />
-                                </ToolTip>
+                                {/* <ToolTip id={t.value} placement="top" trigger={['hover']} overlay={<span>{t.name}</span>}>
+                                    <Comp value={props.styleObj[t.value]} disabled={t.disabled} onClick={data => onClick(t.value, data)} />
+                                </ToolTip> */}
                             </div>)
                 })}
             </div>

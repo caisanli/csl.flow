@@ -1,16 +1,18 @@
 // 图形初始化
 export const defaultStyle = {
     fontFamily:  'serif', // 字体
-    fontSize: '16', // 文字大小
+    fontSize: 16, // 文字大小
     bold: 'normal', // 加粗
     italics: 'normal', // 斜体
     underline: 'none', // 下划线
     fontColor: '#303133', // 字体颜色
     align: 'left-middle', // 对齐方式 
-    backgroundColor: 'none', // 图形背景颜色
-    borderSize: '5', // 图形边框宽度
+    backgroundColor: '#fff', // 图形背景颜色
+    borderSize: 5, // 图形边框宽度
     borderStyle: '', // 图形边框样式
     lock: false, // 是否锁定
+    unlock: true, // 是否不锁定
+    zIndex: 1, // 
 }
 export default {
     name: '', // 值
@@ -25,5 +27,6 @@ export default {
     rotate: 0,
     id: null,
     first: true,
+    text: '', // 文字内容
     ...defaultStyle
 }

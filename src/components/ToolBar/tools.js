@@ -9,10 +9,11 @@ import Underline from './underline';
 import FontColor from './fontColor';
 import Align from './align';
 import BackgroundColor from './backgroundColor';
-import BorderWidth from './borderWidth';
+import BorderSize from './borderSize';
 import BorderStyle from './borderStyle';
 import Top from './top';
 import Bottom from './bottom';
+import Lock from './lock';
 export default [
     {
         "name": "撤销",
@@ -77,7 +78,7 @@ export default [
     }, {
         "name": "线宽",
         "value": "borderSize",
-        "comp": BorderWidth,
+        "comp": BorderSize,
         "disabled": false
     }, {
         "name": "线条样式",
@@ -107,14 +108,12 @@ export default [
         "name": "置底",
         "value": "bottom",
         "comp": Bottom,
+        "interval": true,
         "disabled": false
     }, {
         "name": "锁定",
         "value": "lock",
-        "disabled": false
-    }, {
-        "name": "解锁",
-        "value": "unlock",
+        "comp": Lock,
         "interval": true,
         "disabled": false
     }, {

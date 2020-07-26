@@ -69,3 +69,14 @@ export function deepClone(...args) {
     let newObj = Object.assign(...args);
     return JSON.parse(JSON.stringify(newObj));
 }
+
+// 取对象交集
+export function interObject(obj1, obj2) {
+    let obj = {};
+    for (const key in obj1) {
+        if (obj1.hasOwnProperty(key) && obj2.hasOwnProperty(key)) {
+            obj[key] = obj2[key] || obj1[key];
+        }
+    }
+    return obj;
+}

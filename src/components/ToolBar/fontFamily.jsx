@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import Button from './button/index';
 import DropDown from '@/components/DropDown';
 // 样式
@@ -16,11 +16,14 @@ export default function FontFamily(props) {
     function onClickItem(f) {
         dropdown.close();
         setValue(f.value);
-        props.onClick && props.onClick({value: f.value});
+        props.onClick && props.onClick(f.value);
     }
     function onRef(instance) {
         dropdown = instance;
     }
+    useEffect(() => {
+        setValue(props.value)
+    }, [props.value])
     return <DropDown onRef={onRef}
                     disabled={props.disabled}
                     icon="icon-zu" 
