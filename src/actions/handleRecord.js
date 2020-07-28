@@ -5,6 +5,13 @@ export function addRecord(handle) {
         handle
     }
 }
+// 删除记录
+export function spliceRecord(index) {
+    return {
+        type: 'SPLICE',
+        index
+    }
+}
 // 设置当前第几步
 export function setStep(step) {
     return {
