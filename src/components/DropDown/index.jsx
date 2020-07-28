@@ -15,10 +15,8 @@ export default function DropDown(props) {
         setVisible(false)
     }
     function clickBody(e) {
-        let className = e.target.className;
-        if((className || '').includes(style.dropdownWarp) || getParent(e.target, `.${style.dropdownWarp}`))
-            return ;
-        setVisible(false);
+        if(!getParent(e.target, `.${style.dropdownWarp}`))
+            setVisible(false);
     }
     useEffect(() => {
         let top = boxRef.current.offsetHeight + 3;

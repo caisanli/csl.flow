@@ -5,7 +5,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 // actions
-import { addRecord } from '@/actions/handleRecord';
+import { addRecord, setStep, spliceRecord } from '@/actions/handleRecord';
 // 组件
 import Scroll from '@comp/Scroll';
 import Grid from '@comp/Grid';
@@ -53,6 +53,9 @@ class Editor extends React.Component {
         this._onClick = this._onClick.bind(this);
         this._onClickBody = this._onClickBody.bind(this);
         this._onLoadGraph = this._onLoadGraph.bind(this);
+        this._onEditorChange = this._onEditorChange.bind(this)
+        this._onEditorBlur = this._onEditorBlur.bind(this)
+        this._onEditorFocus = this._onEditorFocus.bind(this)
         // 方法
 
         // 属性
@@ -72,23 +75,23 @@ class Editor extends React.Component {
     _onMouseDown(e) {
         if(this._onClickBody)
             this._onClickBody(e);        
-        let { pageX, pageY } = e;
-        this.eventOption.isDown = true;
-        this.selected = [];
-        let { top, left } = this.props.getRelativePoint(pageX, pageY);
-        this.eventOption.startX = left;
-        this.eventOption.startY = top;
-        this.setState({
-            drawLeft: left,
-            drawTop: top,
-            isDraw: true
-        })
+        // let { pageX, pageY } = e;
+        // this.eventOption.isDown = true;
+        // this.selected = [];
+        // let { top, left } = this.props.getRelativePoint(pageX, pageY);
+        // this.eventOption.startX = left;
+        // this.eventOption.startY = top;
+        // this.setState({
+        //     drawLeft: left,
+        //     drawTop: top,
+        //     isDraw: true
+        // })
     }
     // 画框中
     _onMouseMove(e) {
-        e.stopPropagation();
         let {isDown, startX, startY} = this.eventOption;
         if(!isDown) return ;
+        // e.stopPropagation();
         let { pageX, pageY } = e;
         let { top, left } = this.props.getRelativePoint(pageX, pageY);
         let width = left - startX;
@@ -251,7 +254,7 @@ class Editor extends React.Component {
         }
     }
     // 点击容器
-    _onClickBody(e) {
+    _onClickBody() {
         if(this.state.selectActive) {
             this.setState({
                 selectActive: false
@@ -261,7 +264,8 @@ class Editor extends React.Component {
             this.props.graphClick(null);
     }
     // 双击图形
-    _onDoubleClick(g) {
+    _onDoubleClick(g, e) {
+        e.stopPropagation()
         if(this.props.graphDoubleClick) {
             this.props.graphDoubleClick(g);
             let elem = document.getElementById(`editor-graph-warp-editor-${g.id}`);
@@ -288,7 +292,9 @@ class Editor extends React.Component {
     _onLoadGraph(data) {
         this.props.change && this.props.change(data);
         let graph = this.props.graphs.find(g => g.id === data.id);
+        this.props.handleStep < 0 && this.props.spliceRecord(this.props.handleStep);
         this.props.addRecord({type: 'add', ...graph});
+        this.props.setStep(0);
         this.props.change && this.props.change(data);
     }
     // 设置对齐线
@@ -334,7 +340,17 @@ class Editor extends React.Component {
     }
     // 监听输入
     _onEditorChange(e) {
-        // console.log(e.target.textContent)
+        
+    }
+    _onEditorBlur(e) {
+        let graph = this.props.graphs.find(g => g.id === this.props.active);
+        let content = e.target.textContent;
+        this.props.addRecord({type: 'edit', ...graph, text: content, prevText: graph.text });
+        graph.text = content;
+        this.props.change && this.props.change(graph);
+    }
+    _onEditorFocus() {
+        
     }
     componentDidMount() {
         this._event();
@@ -356,9 +372,13 @@ class Editor extends React.Component {
             } = this.state;
         let { graphs, active, editing, scroll, width, height, warpWidth, warpHeight } = this.props;
         return (
-            <div className={style.editorBox}>
+            <div className={style.editorBox} onContextMenu={e => {
+                e.preventDefault()
+            }}>
                 <Scroll center scroll={scroll}>
-                    <div className={style.editorContainer} onClick={this._onClickBody} style={{width: width + 'px', height: height + 'px'}}>
+                    <div className={style.editorContainer} 
+                        // onClick={this._onClickBody} 
+                        style={{width: width + 'px', height: height + 'px'}}>
                         <div ref={this.warpRef} 
                             onMouseDown={this._onMouseDown} 
                             className={style.editorWarp} 
@@ -389,6 +409,7 @@ class Editor extends React.Component {
                                         click={e => e.stopPropagation()}
                                         select={true} width={selectWidth} height={selectHeight} 
                                         left={selectLeft} top={selectTop} 
+                                        zIndex="9999999"
                                         x={selectX} y={selectY}
                                         active={selectActive} /> }
                             {/* 已有的图形列表 */}
@@ -410,10 +431,12 @@ class Editor extends React.Component {
                                                         children={(w, h) => (
                                                             <>
                                                                 {Comp && <Comp width={w} height={h} fill={g.backgroundColor} strokeDasharray={g.borderStyle} strokeWidth={g.borderSize}/>}
-                                                                <div onClick={e => e.stopPropagation()} 
-                                                                        className={[style.editorGraphWarp, editing === g.id ? style.editing : ''].join(' ')} >
+                                                                <div className={[style.editorGraphWarp, editing === g.id ? style.editing : ''].join(' ')} >
                                                                     <div id={`editor-graph-warp-editor-${g.id}`} 
-                                                                            onInput={this._onEditorChange}     
+                                                                            onInput={this._onEditorChange} 
+                                                                            onFocus={this._onEditorFocus}
+                                                                            onClick={e => e.stopPropagation()} 
+                                                                            onBlur={this._onEditorBlur}    
                                                                             onMouseDown={e => e.stopPropagation()}                                                                      
                                                                             style={{
                                                                                 fontFamily: g.fontFamily,
@@ -446,14 +469,20 @@ class Editor extends React.Component {
 
 const mapStateToProps = state => {
     return {
-        
+        handleStep: state.handleRecord.step
     }
 }
 
 const mapDispatchToProps = dispatch => {
     return {
-        addRecord: step => {
-            dispatch(addRecord(step))
+        addRecord: handle => {
+            dispatch(addRecord(handle))
+        },
+        spliceRecord: index => {
+            dispatch(spliceRecord(index))
+        },
+        setStep: step => {
+            dispatch(setStep(step))
         }
     }
 }

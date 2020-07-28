@@ -120,21 +120,23 @@ class EditorBox extends React.Component {
     }
     // 点击图形
     onClickGraph(g) {
-        let disabled = this.state.disabled, id = null;
-        let style = defaultStyle;
-        if(g) {
-            style = interObject(style, g);
-            disabled = disabled.filter(d => !graphDisabled.includes(d))
-            id = g.id;
-        } else {
-            disabled = [...new Set([...disabled, ...graphDisabled])]
-        }
-        this.setState({
-            styleObj: style,
-            disabled,
-            graphActive: id,
-            graphEditing: null
-        })
+        setTimeout(() => {
+            let disabled = this.state.disabled, id = null;
+            let style = defaultStyle;
+            if(g) {
+                style = interObject(style, g);
+                disabled = disabled.filter(d => !graphDisabled.includes(d))
+                id = g.id;
+            } else {
+                disabled = [...new Set([...disabled, ...graphDisabled])]
+            }
+            this.setState({
+                styleObj: style,
+                disabled,
+                graphActive: id,
+                graphEditing: null
+            })
+        }, 0)
     }
     // 点击工具栏
     onClickTool(type, value) {
@@ -142,6 +144,22 @@ class EditorBox extends React.Component {
         console.log('value：', value)
         let graphs = this.state.graphs
         let graph = graphs.find(g => g.id === this.state.graphActive);
+        let {align, backgroundColor, borderSize, borderStyle, bold, fontColor, fontFamily, fontSize, italics, lock, underline, unlock, zIndex} = interObject(defaultStyle, graph);
+        let prevGraphStyle = {
+            prevAlign: align,
+            prevBackgroundColor: backgroundColor,
+            prevBorderSize: borderSize,
+            prevBorderStyle: borderStyle,
+            prevBold: bold,
+            prevFontColor: fontColor,
+            prevFontFamily: fontFamily,
+            prevFontSize: fontSize,
+            prevItalics: italics,
+            prevLock: lock,
+            prevUnderline: underline,
+            prevUnlock: unlock,
+            prevZIndex: zIndex
+        }
         switch(type) {
             case 'revoke': // 撤回
                 this.revoke();
@@ -190,7 +208,8 @@ class EditorBox extends React.Component {
                 break;
         }
         let style = interObject(defaultStyle, graph);
-        this.setState({styleObj: style})
+        this.setState({styleObj: style});
+        this.props.addRecord({type: 'edit', ...graph, ...prevGraphStyle});
         this.setGraph(graph);
     }
     // 置底
@@ -224,8 +243,7 @@ class EditorBox extends React.Component {
         record = {...record};
         switch(record.type) {
             case 'add':
-                delete record.type;
-                console.log([...this.state.graphs, record])
+                // delete record.type;
                 this.setState({
                     graphs: [...this.state.graphs, record]
                 })
@@ -237,7 +255,21 @@ class EditorBox extends React.Component {
                     top: record.top,
                     width: record.width,
                     height: record.height,
-                    rotate: record.rotate
+                    rotate: record.rotate,
+                    align: record.align,
+                    backgroundColor: record.backgroundColor,
+                    bold: record.bold,
+                    borderSize: record.borderSize,
+                    borderStyle: record.borderStyle,
+                    fontColor: record.fontColor,
+                    fontFamily: record.fontFamily,
+                    fontSize: record.fontSize,
+                    italics: record.italics,
+                    lock: record.lock,
+                    underline: record.underline,
+                    unlock: record.unlock,
+                    zIndex: record.zIndex,
+                    text: record.text
                 });
                 break ;
             case 'delete':
@@ -266,11 +298,25 @@ class EditorBox extends React.Component {
             case 'edit':
                 this.setGraph({
                     id: record.id,
-                    left: record.prevLeft,
-                    top: record.prevTop,
-                    width: record.prevWidth,
-                    height: record.prevHeight,
-                    rotate: record.prevRotate
+                    left: record.prevLeft || record.left,
+                    top: record.prevTop || record.top,
+                    width: record.prevWidth || record.width,
+                    height: record.prevHeight || record.height,
+                    rotate: record.prevRotate || record.rotate,
+                    align: record.prevAlign || record.align,
+                    backgroundColor: record.prevBackgroundColor || record.backgroundColor,
+                    bold: record.prevBold || record.bold,
+                    borderSize: record.prevBorderSize || record.borderSize,
+                    borderStyle: record.prevBorderStyle || record.borderStyle,
+                    fontColor: record.prevFontColor || record.fontColor,
+                    fontFamily: record.prevFontFamily || record.fontFamily,
+                    fontSize: record.prevFontSize || record.fontSize,
+                    italics: record.prevItalics || record.italics,
+                    lock: record.prevLock || record.lock,
+                    underline: record.prevUnderline || record.underline,
+                    unlock: record.prevUnlock || record.unlock,
+                    zIndex: record.prevZIndex || record.zIndex,
+                    text: record.prevText || ''
                 });
                 break;
             case 'delete':
@@ -283,9 +329,11 @@ class EditorBox extends React.Component {
     }
     // 双击图形
     onDoubleClickGraph(g) {
-        this.setState({
-            graphEditing: g ? g.id : null
-        })
+        setTimeout(() => {
+            this.setState({
+                graphEditing: g ? g.id : null
+            })
+        }, 100);
     }
     onSelectChange(obj, positions) {
         let graphs = this.state.graphs.map(g => {
