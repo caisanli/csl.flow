@@ -52,30 +52,36 @@ export default class Transform extends React.Component {
         }
     }
     _onMouseDown(e) {
-        e.stopPropagation();
-        let elem = e.currentTarget;
-        let type = elem.getAttribute('data-type');
-        if(!type) return ;
-        let downFn = this.props.down;
-        let { left, top } = this.state;
-        if(!downFn) return ;
-        let {x, y, startX, startY} = downFn(left, top, e);
-        this.eventOption.x = x;
-        this.eventOption.y = y;
-        this.eventOption.startX = startX;
-        this.eventOption.startY = startY;
-        this.eventOption.isDown = true;
-        this.eventOption.type = type;
-        this.eventOption.startW = this.state.width;
-        this.eventOption.startH = this.state.height;
-        this.eventOption.startLeft = this.state.left;
-        this.eventOption.startTop = this.state.top;
-        this.eventOption.startRotate = this.state.rotate;
-        this.offset.left = 0;
-        this.offset.top = 0;
-        this.offset.rotate = 0;
-        this.offset.width = 0;
-        this.offset.height = 0;
+        if(!this.props.lock) {
+            e.stopPropagation();
+            let elem = e.currentTarget;
+            let type = elem.getAttribute('data-type');
+            if(!type) return ;
+            let downFn = this.props.down;
+            let { left, top } = this.state;
+            if(!downFn) return ;
+            let {x, y, startX, startY} = downFn(left, top, e);
+            this.eventOption.x = x;
+            this.eventOption.y = y;
+            this.eventOption.startX = startX;
+            this.eventOption.startY = startY;
+            this.eventOption.isDown = true;
+            this.eventOption.type = type;
+            this.eventOption.startW = this.state.width;
+            this.eventOption.startH = this.state.height;
+            this.eventOption.startLeft = this.state.left;
+            this.eventOption.startTop = this.state.top;
+            this.eventOption.startRotate = this.state.rotate;
+            this.offset.left = 0;
+            this.offset.top = 0;
+            this.offset.rotate = 0;
+            this.offset.width = 0;
+            this.offset.height = 0;
+        }
+
+        this.props.click(e)
+        
+        
     }
     _onMouseMove(e) {
         e.stopPropagation();
@@ -229,7 +235,7 @@ export default class Transform extends React.Component {
             <div ref={this.boxRef} 
                 className={[style.transformBox, active ? style.active : '', select ? style.select : ''].join(' ')} 
                 style={{width, height, zIndex, transform: `translate(${left}px,${top}px) rotate(${rotate}deg)`, transformOrigin: selected ? '50% 50%': '50% 50%'}}
-                onClick={ click }
+                // onClick={ e => { console.log('点击率...'); click(e) }}
                 onDoubleClick={ doubleClick }>
                 <div className={style.transformBody}>
                     {/* 操作按钮 */}

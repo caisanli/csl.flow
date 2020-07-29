@@ -21,7 +21,8 @@ import graphObj, { defaultStyle } from '@assets/js/graph';
  * 4、右侧小工具栏
  */
  const graphDisabled = ['fontFamily', 'fontSize', 'bold', 'italics', 'underline', 'fontColor', 
- 'align', 'backgroundColor', 'borderSize', 'borderStyle', 'top', 'bottom', 'link', 'lock'];
+ 'align', 'backgroundColor', 'borderSize', 'borderStyle', 'top', 'bottom', 'link'];
+ const lockDisabled = ['lock'];
  const lineDisabled = ['connectType', 'connectStart', 'connectEnd']
 class EditorBox extends React.Component {
     constructor(props) {
@@ -36,7 +37,7 @@ class EditorBox extends React.Component {
             height ,
             warpWidth ,
             warpHeight,
-            disabled: ['revoke', 'recovery', 'format', ...graphDisabled, ...lineDisabled], // 禁用工具栏列表
+            disabled: ['revoke', 'recovery', 'format', ...graphDisabled, ...lineDisabled, ...lockDisabled], // 禁用工具栏列表
         }
         // ref
         this.contentRef = React.createRef();
@@ -91,7 +92,7 @@ class EditorBox extends React.Component {
         let newGraph = Object.assign({}, graphObj, graph, { x, y, id, zIndex }, { ...position })
         graphs.push(newGraph);
         let disabled = this.state.disabled;
-        disabled = disabled.filter(d => !graphDisabled.includes(d))
+        disabled = disabled.filter(d => ![...graphDisabled, ...lockDisabled].includes(d))
         this.setState({ graphs, graphActive: id, graphEditing: id, disabled, styleObj: deepClone(defaultStyle) });
     }
     // 删除图形
@@ -121,14 +122,19 @@ class EditorBox extends React.Component {
     // 点击图形
     onClickGraph(g) {
         setTimeout(() => {
+            console.log(g)
             let disabled = this.state.disabled, id = null;
             let style = defaultStyle;
             if(g) {
                 style = interObject(style, g);
-                disabled = disabled.filter(d => !graphDisabled.includes(d))
+                if(g.lock) {
+                    disabled = [...new Set([...disabled.filter(d => !lockDisabled.includes(d)), ...graphDisabled])]
+                } else {
+                    disabled = disabled.filter(d => ![...graphDisabled, ...lockDisabled].includes(d))
+                }
                 id = g.id;
             } else {
-                disabled = [...new Set([...disabled, ...graphDisabled])]
+                disabled = [...new Set([...disabled, ...graphDisabled, ...lockDisabled])]
             }
             this.setState({
                 styleObj: style,
@@ -204,8 +210,16 @@ class EditorBox extends React.Component {
                 this.setGraphToBottom(graph);
                 break;
             case 'lock':
+                if(value)
+                    this.setState({
+                        disabled: [...new Set([...this.state.disabled.filter(d => !lockDisabled.includes(d)), ...graphDisabled])]
+                    })
+                else
+                    this.setState({
+                        disabled: this.state.disabled.filter(d => ![...graphDisabled, ...lockDisabled].includes(d))
+                    })
                 graph.lock = value;
-                break;
+                return ;
         }
         let style = interObject(defaultStyle, graph);
         this.setState({styleObj: style});

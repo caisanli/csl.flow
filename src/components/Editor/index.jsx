@@ -40,6 +40,7 @@ class Editor extends React.Component {
         // 属性
         this.positions = []; // 记录图形坐标
         this.selectPositions = [];
+        this.isLoad = false;
         // 事件
         this._onMouseDown = this._onMouseDown.bind(this);
         this._onMouseMove = this._onMouseMove.bind(this);
@@ -75,17 +76,17 @@ class Editor extends React.Component {
     _onMouseDown(e) {
         if(this._onClickBody)
             this._onClickBody(e);        
-        // let { pageX, pageY } = e;
-        // this.eventOption.isDown = true;
-        // this.selected = [];
-        // let { top, left } = this.props.getRelativePoint(pageX, pageY);
-        // this.eventOption.startX = left;
-        // this.eventOption.startY = top;
-        // this.setState({
-        //     drawLeft: left,
-        //     drawTop: top,
-        //     isDraw: true
-        // })
+        let { pageX, pageY } = e;
+        this.eventOption.isDown = true;
+        this.selected = [];
+        let { top, left } = this.props.getRelativePoint(pageX, pageY);
+        this.eventOption.startX = left;
+        this.eventOption.startY = top;
+        this.setState({
+            drawLeft: left,
+            drawTop: top,
+            isDraw: true
+        })
     }
     // 画框中
     _onMouseMove(e) {
@@ -134,7 +135,10 @@ class Editor extends React.Component {
             this.props.draw(obj);
     }
     _selecting(obj) {
+        let graphs = this.props.graphs;
         let selected = this.positions.filter(p => {
+            let g = graphs.find(g => g.id === p.id);
+            if(g.lock) return false;
             if(
                 p.left > obj.newDrawLeft
                 && p.top > obj.newDrawTop
@@ -159,6 +163,7 @@ class Editor extends React.Component {
             drawLeft: 0,
             isDraw: false
         })
+        console.log(this.selected)
         if(this.selected.length > 1) {
             setTimeout(() => {
                 this._drawSelectedBox();
@@ -265,7 +270,8 @@ class Editor extends React.Component {
     }
     // 双击图形
     _onDoubleClick(g, e) {
-        e.stopPropagation()
+        e.stopPropagation();
+        if(g.lock) return ;
         if(this.props.graphDoubleClick) {
             this.props.graphDoubleClick(g);
             let elem = document.getElementById(`editor-graph-warp-editor-${g.id}`);
@@ -294,6 +300,7 @@ class Editor extends React.Component {
         let graph = this.props.graphs.find(g => g.id === data.id);
         this.props.handleStep < 0 && this.props.spliceRecord(this.props.handleStep);
         this.props.addRecord({type: 'add', ...graph});
+        this.isLoad = true;
         this.props.setStep(0);
         this.props.change && this.props.change(data);
     }
@@ -343,8 +350,13 @@ class Editor extends React.Component {
         
     }
     _onEditorBlur(e) {
-        let graph = this.props.graphs.find(g => g.id === this.props.active);
         let content = e.target.textContent;
+        if(this.isLoad && !content) {
+            this.isLoad = false;
+            return ;
+        }
+        this.isLoad = false;
+        let graph = this.props.graphs.find(g => g.id === this.props.active);
         this.props.addRecord({type: 'edit', ...graph, text: content, prevText: graph.text });
         graph.text = content;
         this.props.change && this.props.change(graph);
@@ -400,7 +412,7 @@ class Editor extends React.Component {
                             }
                             {/* 画框 */}
                             {isDraw && <div className={style.drawBox} 
-                                    style={{width: drawWidth, height: drawHeight, left: drawLeft, top: drawTop}} />}
+                                    style={{width: drawWidth, height: drawHeight, left: drawLeft, top: drawTop, zIndex: '9999999'}} />}
                             {/* 框选后的画框 */}
                             { selectActive && <Transform down={this._onTransformDown} 
                                         change={this._onSelectPosition}
@@ -427,7 +439,8 @@ class Editor extends React.Component {
                                                         active={active === g.id} 
                                                         down={this._onTransformDown} 
                                                         move={this._onTransformMove} 
-                                                        key={g.id} {...g}
+                                                        key={g.id} 
+                                                        {...g}
                                                         children={(w, h) => (
                                                             <>
                                                                 {Comp && <Comp width={w} height={h} fill={g.backgroundColor} strokeDasharray={g.borderStyle} strokeWidth={g.borderSize}/>}
