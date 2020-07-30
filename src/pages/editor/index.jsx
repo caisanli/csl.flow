@@ -122,7 +122,6 @@ class EditorBox extends React.Component {
     // 点击图形
     onClickGraph(g) {
         setTimeout(() => {
-            console.log(g)
             let disabled = this.state.disabled, id = null;
             let style = defaultStyle;
             if(g) {
@@ -146,8 +145,6 @@ class EditorBox extends React.Component {
     }
     // 点击工具栏
     onClickTool(type, value) {
-        console.log('type：', type)
-        console.log('value：', value)
         let graphs = this.state.graphs
         let graph = graphs.find(g => g.id === this.state.graphActive);
         let {align, backgroundColor, borderSize, borderStyle, bold, fontColor, fontFamily, fontSize, italics, lock, underline, unlock, zIndex} = interObject(defaultStyle, graph);
@@ -212,13 +209,17 @@ class EditorBox extends React.Component {
             case 'lock':
                 if(value)
                     this.setState({
+                        graphEditing: null,
                         disabled: [...new Set([...this.state.disabled.filter(d => !lockDisabled.includes(d)), ...graphDisabled])]
                     })
                 else
                     this.setState({
+                        graphActive: this.state.graphActive,
                         disabled: this.state.disabled.filter(d => ![...graphDisabled, ...lockDisabled].includes(d))
                     })
                 graph.lock = value;
+                break;
+            default:
                 return ;
         }
         let style = interObject(defaultStyle, graph);
@@ -251,13 +252,22 @@ class EditorBox extends React.Component {
         } else {
             record = handleRecords.slice(handleStep, newStep)[0];
         }
-        
         if(!record) return ;
         this.props.setStep(newStep);
-        record = {...record};
+        if(Array.isArray(record)) {
+            record.forEach(r => this.recoveryRecord(r));
+        } else {
+            // this.onClickGraph(record)
+            this.recoveryRecord(record);
+        }
+        
+    }
+    // 恢复的实现
+    recoveryRecord(record) {
+        record = {...record}
         switch(record.type) {
             case 'add':
-                // delete record.type;
+                delete record.type;
                 this.setState({
                     graphs: [...this.state.graphs, record]
                 })
@@ -304,7 +314,18 @@ class EditorBox extends React.Component {
         }
         if(!record) return ;
         this.props.setStep(newStep);
+        if(Array.isArray(record)) {
+            record.forEach(r => {
+                this.revokeRecord(r)
+            });
+        } else {
+            this.onClickGraph(record)
+            this.revokeRecord(record);
+        }
+    }
+    revokeRecord(record) {
         record = {...record};
+        console.log(record)
         switch(record.type) {
             case 'add':
                 this.deleteGraph(record.id);
@@ -349,7 +370,7 @@ class EditorBox extends React.Component {
             })
         }, 100);
     }
-    onSelectChange(obj, positions) {
+    onSelectChange(positions) {
         let graphs = this.state.graphs.map(g => {
             let p = positions.find(p => p.id === g.id)
             if(!p) return g;
@@ -376,11 +397,14 @@ class EditorBox extends React.Component {
         this.editorOption.scrollTop = top;
         this.editorOption.scrollLeft = left;
     }
-    shouldComponentUpdate(nextProps) {
+    componentDidUpdate(nextProps) {
+        console.log('nextProps：', nextProps)
+        console.log('props：', this.props)
         if(
             nextProps.handleRecords.length !== this.props.handleRecords.length 
             || nextProps.handleStep !== this.props.handleStep
         ) {
+            console.log('jill')
             let disabled = this.state.disabled;
             if(Math.abs(nextProps.handleStep) >= nextProps.handleRecords.length) {
                 !disabled.includes('revoke') && disabled.push('revoke')                

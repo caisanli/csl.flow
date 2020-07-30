@@ -230,12 +230,11 @@ export default class Transform extends React.Component {
     }
     render() {
         let { width, height, rotate, left, top } = this.state;
-        let { active, click, selected, select, doubleClick, zIndex } = this.props;
+        let { active, selected, select, doubleClick, zIndex, lock } = this.props;
         return (
             <div ref={this.boxRef} 
-                className={[style.transformBox, active ? style.active : '', select ? style.select : ''].join(' ')} 
+                className={[style.transformBox, !lock && active ? style.active : '', select ? style.select : ''].join(' ')} 
                 style={{width, height, zIndex, transform: `translate(${left}px,${top}px) rotate(${rotate}deg)`, transformOrigin: selected ? '50% 50%': '50% 50%'}}
-                // onClick={ e => { console.log('点击率...'); click(e) }}
                 onDoubleClick={ doubleClick }>
                 <div className={style.transformBody}>
                     {/* 操作按钮 */}

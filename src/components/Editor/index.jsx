@@ -50,6 +50,7 @@ class Editor extends React.Component {
         this._onTransformMove = this._onTransformMove.bind(this);
         this._onChange = this._onChange.bind(this);
         this._onSelectPosition = this._onSelectPosition.bind(this);
+        this._onSelectEnd = this._onSelectEnd.bind(this);
         this._onEnd = this._onEnd.bind(this);
         this._onClick = this._onClick.bind(this);
         this._onClickBody = this._onClickBody.bind(this);
@@ -92,7 +93,6 @@ class Editor extends React.Component {
     _onMouseMove(e) {
         let {isDown, startX, startY} = this.eventOption;
         if(!isDown) return ;
-        // e.stopPropagation();
         let { pageX, pageY } = e;
         let { top, left } = this.props.getRelativePoint(pageX, pageY);
         let width = left - startX;
@@ -240,7 +240,7 @@ class Editor extends React.Component {
                 }
                 return p;
             });
-            this.props.selectChange(obj, positions);
+            this.props.selectChange(positions);
         }
     }
     // 监听图形位置大小角度变化
@@ -284,9 +284,30 @@ class Editor extends React.Component {
         if(this.props.graphClick)
             this.props.graphClick(g);
     }
+    _onSelectEnd() {
+
+        let handles = this.selected.map(s => {
+            let g = this.props.graphs.find(g => g.id === s.id);
+            let p = this.positions.find(p => p.id === s.id);
+            let prevP = this.selectPositions.find(p => p.id === s.id)
+            return deepClone({type: 'edit'}, g, p, {
+                prevLeft: prevP.left,
+                prevTop: prevP.top,
+                prevWidth: prevP.width,
+                prevHeight: prevP.height,
+                prevRotate: prevP.rotate
+            });
+        });
+        this.props.addRecord(handles);
+        // console.log('handles：', handles)
+        // console.log('positions：', this.positions)
+        // console.log('selectPositions：', this.selectPositions)
+        // console.log('ids：', this.selected)
+    }
     // 监听移动结束
     _onEnd(data, prevData) {
-        let handle = deepClone({type: 'edit'}, data, prevData);
+        let graph = this.props.graphs.find(g => g.id === data.id);
+        let handle = deepClone({type: 'edit'}, graph, data, prevData);
         this.props.addRecord(handle);
         this.props.change && this.props.change(data);
         this.selectPositions = [];
@@ -383,6 +404,7 @@ class Editor extends React.Component {
                 isDraw 
             } = this.state;
         let { graphs, active, editing, scroll, width, height, warpWidth, warpHeight } = this.props;
+
         return (
             <div className={style.editorBox} onContextMenu={e => {
                 e.preventDefault()
@@ -417,7 +439,7 @@ class Editor extends React.Component {
                             { selectActive && <Transform down={this._onTransformDown} 
                                         change={this._onSelectPosition}
                                         move={this._onTransformMove}
-                                        end={this._onEnd}
+                                        end={this._onSelectEnd}
                                         click={e => e.stopPropagation()}
                                         select={true} width={selectWidth} height={selectHeight} 
                                         left={selectLeft} top={selectTop} 
@@ -429,23 +451,28 @@ class Editor extends React.Component {
                                 graphs.map(g => {
                                     if(selectActive) 
                                         g.selected = !!this.selected.find(s => s.id === g.id);
-                                    let Comp = g.comp;
+                                    let { comp, selected, width, height, rotate, left, top, x, y, id, lock,  select, first} = g;
+                                    let Comp = comp;
                                     let aligns = g.align.split('-');
+                                    console.log('lock：', lock)
                                     return (<Transform change={this._onChange} 
                                                         load={this._onLoadGraph}
                                                         click={e => this._onClick(g, e)}
                                                         doubleClick={e => this._onDoubleClick(g, e)}
                                                         end={this._onEnd} 
-                                                        active={active === g.id} 
+                                                        active={active === id} 
                                                         down={this._onTransformDown} 
                                                         move={this._onTransformMove} 
-                                                        key={g.id} 
-                                                        {...g}
+                                                        key={id} selected={selected}
+                                                        width={width} height={height}
+                                                        rotate={rotate} left={left} top={top}
+                                                        x={x} y={y}
+                                                        id={id} lock={lock} select={select} first={first}
                                                         children={(w, h) => (
                                                             <>
                                                                 {Comp && <Comp width={w} height={h} fill={g.backgroundColor} strokeDasharray={g.borderStyle} strokeWidth={g.borderSize}/>}
-                                                                <div className={[style.editorGraphWarp, editing === g.id ? style.editing : ''].join(' ')} >
-                                                                    <div id={`editor-graph-warp-editor-${g.id}`} 
+                                                                <div className={[style.editorGraphWarp, editing === id ? style.editing : ''].join(' ')} >
+                                                                    <div id={`editor-graph-warp-editor-${id}`} 
                                                                             onInput={this._onEditorChange} 
                                                                             onFocus={this._onEditorFocus}
                                                                             onClick={e => e.stopPropagation()} 
@@ -463,7 +490,7 @@ class Editor extends React.Component {
                                                                             }}
                                                                             suppressContentEditableWarning
                                                                             className={style.editorGraphWarpEditor} 
-                                                                            contentEditable={ editing === g.id ? true : false }>
+                                                                            contentEditable={ editing === id ? true : false }>
                                                                                 { g.text }
                                                                         </div>
                                                                 </div>
