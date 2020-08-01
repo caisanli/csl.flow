@@ -88,11 +88,13 @@ class Scroll extends React.Component {
     const config = {
       childList: true,
     }
-    // IE10 => 'MutationEvent'
-    const observer = new (MutationObserver || MutationEvent)(() => {
-      this._setThumbWidthHeight()
-    })
-    observer.observe(this.$content.current, config)
+    if(window.MutationObserver) {
+        const observer = new MutationObserver(() => {
+            this._setThumbWidthHeight()
+        })
+        observer.observe(this.$content.current, config)
+    }
+    
     window.addEventListener('resize', this._onResize.bind(this))
     // y轴滚动
     this.props.y &&
