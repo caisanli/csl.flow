@@ -149,7 +149,7 @@ class EditorBox extends React.Component {
     onClickTool(type, value) {
         let graphs = this.state.graphs
         let graph = graphs.find(g => g.id === this.state.graphActive);
-        let {align, backgroundColor, borderSize, borderStyle, bold, fontColor, fontFamily, fontSize, italics, lock, underline, unlock, zIndex} = interObject(defaultStyle, graph);
+        let {align, backgroundColor, borderSize, borderStyle, bold, fontColor, rotate, fontFamily, fontSize, italics, lock, underline, unlock, zIndex} = interObject(defaultStyle, graph);
         let prevGraphStyle = {
             prevAlign: align,
             prevBackgroundColor: backgroundColor,
@@ -164,6 +164,7 @@ class EditorBox extends React.Component {
             prevUnderline: underline,
             prevUnlock: unlock,
             prevZIndex: zIndex,
+            prevRotate: rotate
         }
         switch(type) {
             case 'revoke': // 撤回
@@ -336,6 +337,7 @@ class EditorBox extends React.Component {
 
         records.forEach(record => {
             record = {...record}
+            console.log(record)
             switch(record.type) {
                 case 'add':
                     this.deleteGraph(record.id)
@@ -353,7 +355,7 @@ class EditorBox extends React.Component {
                         top: record.prevTop || record.top,
                         width: record.prevWidth || record.width,
                         height: record.prevHeight || record.height,
-                        rotate: record.prevRotate || record.rotate,
+                        rotate: record.prevRotate === 0 || record.prevRotate ? record.prevRotate : record.rotate,
                         align: record.prevAlign || record.align,
                         backgroundColor: record.prevBackgroundColor || record.backgroundColor,
                         bold: record.prevBold || record.bold,
