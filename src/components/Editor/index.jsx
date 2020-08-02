@@ -380,6 +380,7 @@ class Editor extends React.Component {
         let graph = this.props.graphs.find(g => g.id === this.props.active);
         this.props.addRecord({type: 'edit', ...graph, text: content, prevText: graph.text });
         graph.text = content;
+        graph.prevText = graph.text;
         this.props.change && this.props.change(graph);
     }
     _onEditorFocus() {
@@ -454,7 +455,6 @@ class Editor extends React.Component {
                                     let { comp, selected, width, height, rotate, left, top, x, y, id, lock,  select, first} = g;
                                     let Comp = comp;
                                     let aligns = g.align.split('-');
-                                    console.log('lock：', lock)
                                     return (<Transform change={this._onChange} 
                                                         load={this._onLoadGraph}
                                                         click={e => this._onClick(g, e)}

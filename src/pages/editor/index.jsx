@@ -106,17 +106,19 @@ class EditorBox extends React.Component {
         this.setGraph(data);
     }
     // 设置某个图形
-    setGraph(data) {
+    setGraph(...data) {
         let graphs = [...this.state.graphs];
-        let index = -1;
-        let g = graphs.find((g, i) => {
-            index = i;
-            return g.id === data.id;
-        });
-        if(!g) return ;
-        g.first = false;
-        let newGraph = Object.assign({}, g, data);
-        graphs.splice(index, 1, newGraph);
+        data.forEach(d => {
+            let index = -1;
+            let g = graphs.find((g, i) => {
+                index = i;
+                return g.id === d.id;
+            });
+            if(!g) return ;
+            g.first = false;
+            let newGraph = Object.assign({}, g, d);
+            graphs.splice(index, 1, newGraph);
+        })
         this.setState({ graphs })
     }
     // 点击图形
@@ -161,14 +163,22 @@ class EditorBox extends React.Component {
             prevLock: lock,
             prevUnderline: underline,
             prevUnlock: unlock,
-            prevZIndex: zIndex
+            prevZIndex: zIndex,
         }
         switch(type) {
             case 'revoke': // 撤回
+                this.setState({
+                    graphActive: null
+                })
                 this.revoke();
+                
                 return ;
             case 'recovery': // 恢复
+                this.setState({
+                    graphActive: null
+                })
                 this.recovery();
+                
                 return ;
             case 'bold': // 加粗
                 graph.bold = value;
@@ -209,13 +219,11 @@ class EditorBox extends React.Component {
             case 'lock':
                 if(value)
                     this.setState({
-                        graphEditing: null,
-                        disabled: [...new Set([...this.state.disabled.filter(d => !lockDisabled.includes(d)), ...graphDisabled])]
+                        graphEditing: null
                     })
                 else
                     this.setState({
-                        graphActive: this.state.graphActive,
-                        disabled: this.state.disabled.filter(d => ![...graphDisabled, ...lockDisabled].includes(d))
+                        graphActive: this.state.graphActive                    
                     })
                 graph.lock = value;
                 break;
@@ -255,58 +263,60 @@ class EditorBox extends React.Component {
         if(!record) return ;
         this.props.setStep(newStep);
         if(Array.isArray(record)) {
-            record.forEach(r => this.recoveryRecord(r));
+            this.recoveryRecord(...record);
         } else {
-            // this.onClickGraph(record)
             this.recoveryRecord(record);
         }
-        
     }
     // 恢复的实现
-    recoveryRecord(record) {
-        record = {...record}
-        switch(record.type) {
-            case 'add':
-                delete record.type;
-                this.setState({
-                    graphs: [...this.state.graphs, record]
-                })
-                break ;
-            case 'edit':
-                this.setGraph({
-                    id: record.id,
-                    left: record.left,
-                    top: record.top,
-                    width: record.width,
-                    height: record.height,
-                    rotate: record.rotate,
-                    align: record.align,
-                    backgroundColor: record.backgroundColor,
-                    bold: record.bold,
-                    borderSize: record.borderSize,
-                    borderStyle: record.borderStyle,
-                    fontColor: record.fontColor,
-                    fontFamily: record.fontFamily,
-                    fontSize: record.fontSize,
-                    italics: record.italics,
-                    lock: record.lock,
-                    underline: record.underline,
-                    unlock: record.unlock,
-                    zIndex: record.zIndex,
-                    text: record.text
-                });
-                break ;
-            case 'delete':
-                this.deleteGraph(record.id);
-                break ;
-        }
+    recoveryRecord(...records) {
+        let editRecords = [];
+        records.forEach(record => {
+            record = {...record}
+            switch(record.type) {
+                case 'add':
+                    delete record.type;
+                    this.setState({
+                        graphs: [...this.state.graphs, record]
+                    })
+                    break ;
+                case 'edit':
+                    editRecords.push({
+                        id: record.id,
+                        left: record.left,
+                        top: record.top,
+                        width: record.width,
+                        height: record.height,
+                        rotate: record.rotate,
+                        align: record.align,
+                        backgroundColor: record.backgroundColor,
+                        bold: record.bold,
+                        borderSize: record.borderSize,
+                        borderStyle: record.borderStyle,
+                        fontColor: record.fontColor,
+                        fontFamily: record.fontFamily,
+                        fontSize: record.fontSize,
+                        italics: record.italics,
+                        lock: record.lock,
+                        underline: record.underline,
+                        unlock: record.unlock,
+                        zIndex: record.zIndex,
+                        text: record.text
+                    });
+                    break ;
+                case 'delete':
+                    this.deleteGraph(record.id);
+                    break ;
+            }
+        })
+        if(editRecords.length)
+            this.setGraph(...editRecords)
     }
     // 撤回
     revoke() {
         let { handleStep, handleRecords } = this.props;
         let record = null;
         let newStep = handleStep - 1;
-        
         if(newStep === -1) {
             record = handleRecords.slice(newStep)[0];
         } else {
@@ -315,52 +325,55 @@ class EditorBox extends React.Component {
         if(!record) return ;
         this.props.setStep(newStep);
         if(Array.isArray(record)) {
-            record.forEach(r => {
-                this.revokeRecord(r)
-            });
+            this.revokeRecord(...record)
         } else {
-            this.onClickGraph(record)
             this.revokeRecord(record);
         }
     }
-    revokeRecord(record) {
-        record = {...record};
-        console.log(record)
-        switch(record.type) {
-            case 'add':
-                this.deleteGraph(record.id);
-                break;
-            case 'edit':
-                this.setGraph({
-                    id: record.id,
-                    left: record.prevLeft || record.left,
-                    top: record.prevTop || record.top,
-                    width: record.prevWidth || record.width,
-                    height: record.prevHeight || record.height,
-                    rotate: record.prevRotate || record.rotate,
-                    align: record.prevAlign || record.align,
-                    backgroundColor: record.prevBackgroundColor || record.backgroundColor,
-                    bold: record.prevBold || record.bold,
-                    borderSize: record.prevBorderSize || record.borderSize,
-                    borderStyle: record.prevBorderStyle || record.borderStyle,
-                    fontColor: record.prevFontColor || record.fontColor,
-                    fontFamily: record.prevFontFamily || record.fontFamily,
-                    fontSize: record.prevFontSize || record.fontSize,
-                    italics: record.prevItalics || record.italics,
-                    lock: record.prevLock || record.lock,
-                    underline: record.prevUnderline || record.underline,
-                    unlock: record.prevUnlock || record.unlock,
-                    zIndex: record.prevZIndex || record.zIndex,
-                    text: record.prevText || ''
-                });
-                break;
-            case 'delete':
-                delete record.type;
-                this.setState({
-                    graphs: [...this.state.graphs, record]
-                })
-                break;
-        }
+    // 撤回的具体实现
+    revokeRecord(...records) {
+        let editRecords = [];
+
+        records.forEach(record => {
+            record = {...record}
+            switch(record.type) {
+                case 'add':
+                    this.deleteGraph(record.id)
+                    break;
+                case 'delete':
+                    delete record.type;
+                    this.setState({
+                        graphs: [...this.state.graphs, record]
+                    })
+                    break;
+                case 'edit':
+                    editRecords.push({
+                        id: record.id,
+                        left: record.prevLeft || record.left,
+                        top: record.prevTop || record.top,
+                        width: record.prevWidth || record.width,
+                        height: record.prevHeight || record.height,
+                        rotate: record.prevRotate || record.rotate,
+                        align: record.prevAlign || record.align,
+                        backgroundColor: record.prevBackgroundColor || record.backgroundColor,
+                        bold: record.prevBold || record.bold,
+                        borderSize: record.prevBorderSize || record.borderSize,
+                        borderStyle: record.prevBorderStyle || record.borderStyle,
+                        fontColor: record.prevFontColor || record.fontColor,
+                        fontFamily: record.prevFontFamily || record.fontFamily,
+                        fontSize: record.prevFontSize || record.fontSize,
+                        italics: record.prevItalics || record.italics,
+                        lock: record.prevLock === true || record.prevLock === false ? record.prevLock : record.lock,
+                        underline: record.prevUnderline || record.underline,
+                        unlock: record.prevUnlock || record.unlock,
+                        zIndex: record.prevZIndex || record.zIndex,
+                        text: record.prevText || record.prevText === '' ? record.prevText : record.text
+                    })
+                    break;
+            }
+        });
+        if(editRecords.length)
+            this.setGraph(...editRecords);
     }
     // 双击图形
     onDoubleClickGraph(g) {
@@ -397,15 +410,22 @@ class EditorBox extends React.Component {
         this.editorOption.scrollTop = top;
         this.editorOption.scrollLeft = left;
     }
-    componentDidUpdate(nextProps) {
-        console.log('nextProps：', nextProps)
-        console.log('props：', this.props)
+    componentWillUpdate(nextProps, nextState) {
         if(
             nextProps.handleRecords.length !== this.props.handleRecords.length 
             || nextProps.handleStep !== this.props.handleStep
         ) {
-            console.log('jill')
             let disabled = this.state.disabled;
+            // let graph = nextState.graphs.find(g => g.id === nextState.graphActive);
+            // if(graph) {
+            //     if(graph.lock) {
+            //         disabled = [...new Set([...disabled.filter(d => !lockDisabled.includes(d)), ...graphDisabled])]
+            //     } else {
+            //         disabled = disabled.filter(d => ![...graphDisabled, ...lockDisabled].includes(d))
+            //     }
+            // }
+            if(!nextState.graphActive)
+                disabled = [...graphDisabled, ...lockDisabled]
             if(Math.abs(nextProps.handleStep) >= nextProps.handleRecords.length) {
                 !disabled.includes('revoke') && disabled.push('revoke')                
             } else {

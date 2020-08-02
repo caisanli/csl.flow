@@ -17,7 +17,7 @@ export default function ToolBar (props) {
     function onClick(...arg) {
         props.onClick && props.onClick(...arg);
     }
-    console.log('disable：', props.disabled)
+    // console.log('disable：', props.disabled)
     return (
         <div className={style.toolBarBox}>
             {/* 常用功能 */}
