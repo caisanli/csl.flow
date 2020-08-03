@@ -12,6 +12,7 @@ import Grid from '@comp/Grid';
 import Transform from '@comp/Transform';
 // import Transform from './Graph';
 import AlignLine from '@comp/AlignLine';
+import LineBoll from './LineBoll';
 // 工具
 import { deepClone } from '@assets/js/utils';
 // 样式
@@ -470,6 +471,7 @@ class Editor extends React.Component {
                                                         id={id} lock={lock} select={select} first={first}
                                                         children={(w, h) => (
                                                             <>
+                                                                <LineBoll onMove={this._onLineBollMove} />
                                                                 {Comp && <Comp width={w} height={h} fill={g.backgroundColor} strokeDasharray={g.borderStyle} strokeWidth={g.borderSize}/>}
                                                                 <div className={[style.editorGraphWarp, editing === id ? style.editing : ''].join(' ')} >
                                                                     <div id={`editor-graph-warp-editor-${id}`} 
