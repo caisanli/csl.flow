@@ -12,7 +12,8 @@ import Grid from '@comp/Grid';
 import Transform from '@comp/Transform';
 // import Transform from './Graph';
 import AlignLine from '@comp/AlignLine';
-import LineBoll from './LineBoll';
+import DrawBoll from './DrawBoll';
+import DrawLine from './Line';
 // 工具
 import { deepClone } from '@assets/js/utils';
 // 样式
@@ -35,6 +36,7 @@ class Editor extends React.Component {
             selectX: 0,
             selectY: 0,
             selectActive: false, // 是否在画框
+            drawLines: [], // 
         }
         // ref
         this.warpRef = React.createRef()
@@ -59,6 +61,9 @@ class Editor extends React.Component {
         this._onEditorChange = this._onEditorChange.bind(this)
         this._onEditorBlur = this._onEditorBlur.bind(this)
         this._onEditorFocus = this._onEditorFocus.bind(this)
+        this._onDrawBollDown = this._onDrawBollDown.bind(this)
+        this._onDrawBollMove = this._onDrawBollMove.bind(this)
+
         // 方法
 
         // 属性
@@ -387,6 +392,42 @@ class Editor extends React.Component {
     _onEditorFocus() {
         
     }
+    _onDrawBollMove({id, width, height}) {
+        let drawLines = this.state.drawLines;
+        let index = -1;
+        let line = drawLines.find((d, i) => {
+            index = i;
+            return d.id === id
+        });
+        if(!line) return ;
+        let top = line.top;
+        if(height < 0) {
+            top = line.firstTop + height;
+        }
+        line = Object.assign({}, line, { width, height, top })
+        drawLines.splice(index, 1, line);
+        this.setState({
+            drawLines
+        })
+    }
+    _onDrawBollDown({id, startX, startY}) {
+        let drawLines = this.state.drawLines;
+        let position = this.props.getRelativePoint(startX, startY);
+        let line = drawLines.find(d => d.id === id);
+        if(line) return ;
+        drawLines.push({
+            id,
+            width: 0,
+            height: 20,
+            firstTop: position.top,
+            top: position.top, 
+            left: position.left,
+            zIndex: drawLines.length + 1
+        })
+        this.setState({
+            drawLines
+        })
+    }
     componentDidMount() {
         this._event();
     }
@@ -403,10 +444,10 @@ class Editor extends React.Component {
     render() {
         let { drawHeight, drawWidth, drawTop, drawLeft, alignLines, selectHeight, 
                 selectWidth, selectTop, selectLeft, selectX, selectY, selectActive,
-                isDraw 
+                isDraw, drawLines
             } = this.state;
         let { graphs, active, editing, scroll, width, height, warpWidth, warpHeight } = this.props;
-
+        console.log('drawLines：', drawLines)
         return (
             <div className={style.editorBox} onContextMenu={e => {
                 e.preventDefault()
@@ -448,6 +489,10 @@ class Editor extends React.Component {
                                         zIndex="9999999"
                                         x={selectX} y={selectY}
                                         active={selectActive} /> }
+                            {/* 图形连线 */}
+                            {
+                                drawLines.map(line => <DrawLine key={line.id} {...line} />)
+                            }
                             {/* 已有的图形列表 */}
                             {
                                 graphs.map(g => {
@@ -471,7 +516,7 @@ class Editor extends React.Component {
                                                         id={id} lock={lock} select={select} first={first}
                                                         children={(w, h) => (
                                                             <>
-                                                                <LineBoll onMove={this._onLineBollMove} />
+                                                                <DrawBoll id={id} onDown={this._onDrawBollDown} onMove={this._onDrawBollMove} />
                                                                 {Comp && <Comp width={w} height={h} fill={g.backgroundColor} strokeDasharray={g.borderStyle} strokeWidth={g.borderSize}/>}
                                                                 <div className={[style.editorGraphWarp, editing === id ? style.editing : ''].join(' ')} >
                                                                     <div id={`editor-graph-warp-editor-${id}`} 

@@ -13,7 +13,9 @@ module.exports = function (env) {
             options: {
                 modules: {
                     mode: (resourcePath) => {
-                        if(/src\/pages\//.test(resourcePath) || /src\/components\//.test(resourcePath))
+                        // 兼容window和mac的路径 将分隔符统一
+                        resourcePath = resourcePath.split(path.sep).join('/');
+                        if(/src\/pages\//.test(resourcePath) || /src\/components\//.test(resourcePath)) 
                             return 'local';
                         return 'global';
                     },
