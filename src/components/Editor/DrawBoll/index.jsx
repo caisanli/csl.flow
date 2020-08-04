@@ -19,7 +19,7 @@ export default class LineBoll extends React.Component {
     _onMouseDown(e) {
         e.stopPropagation();
         let startX = e.pageX, startY = e.pageY;
-        this.props.onDown && this.props.onDown({id: this.id, startX, startY});
+        this.props.onDown && this.props.onDown({id: this.id, startX, startY, parent: this.props.parent});
         Object.assign(this.eventOption, {
             isDown: true,
             startX,

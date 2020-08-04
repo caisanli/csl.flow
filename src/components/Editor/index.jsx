@@ -403,6 +403,8 @@ class Editor extends React.Component {
         let top = line.top;
         if(height < 0) {
             top = line.firstTop + height;
+        } else {
+            top = line.firstTop
         }
         line = Object.assign({}, line, { width, height, top })
         drawLines.splice(index, 1, line);
@@ -410,18 +412,21 @@ class Editor extends React.Component {
             drawLines
         })
     }
-    _onDrawBollDown({id, startX, startY}) {
+    _onDrawBollDown({id, startX, startY, parent}) {
         let drawLines = this.state.drawLines;
         let position = this.props.getRelativePoint(startX, startY);
         let line = drawLines.find(d => d.id === id);
         if(line) return ;
+        let graph = this.props.graphs.find(g => g.id === parent);
+        let top = graph.top + graph.height / 2 - 10;
+        let left = graph.left + graph.width;
         drawLines.push({
             id,
             width: 0,
             height: 20,
-            firstTop: position.top,
-            top: position.top, 
-            left: position.left,
+            firstTop: top,
+            top: top, 
+            left,
             zIndex: drawLines.length + 1
         })
         this.setState({
@@ -516,7 +521,7 @@ class Editor extends React.Component {
                                                         id={id} lock={lock} select={select} first={first}
                                                         children={(w, h) => (
                                                             <>
-                                                                <DrawBoll id={id} onDown={this._onDrawBollDown} onMove={this._onDrawBollMove} />
+                                                                <DrawBoll parent={id} onDown={this._onDrawBollDown} onMove={this._onDrawBollMove} />
                                                                 {Comp && <Comp width={w} height={h} fill={g.backgroundColor} strokeDasharray={g.borderStyle} strokeWidth={g.borderSize}/>}
                                                                 <div className={[style.editorGraphWarp, editing === id ? style.editing : ''].join(' ')} >
                                                                     <div id={`editor-graph-warp-editor-${id}`} 
