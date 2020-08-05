@@ -22,12 +22,13 @@
             margin-top: 13px;
         }
         &:hover:not(.disabled), &.active:not(.disabled) {
-            background-color: #d7dadf;
+            // background-color: #d7dadf;
+            background-color: @backgroundLightColor;
         }
         &.disabled {
-            color: #e8e8e8;
+            // color: #e8e8e8;
+            color: @fontDisabledColor;
             cursor: no-drop;
-
         }
     }
     &_content {
@@ -40,7 +41,7 @@
         line-height: normal;
         padding: 5px 5px;
         border-radius: 3px;
-        background-color: #fff;
-        box-shadow: 0px 2px 10px 1px #c6ccd2;
+        background-color: @backgroundWhiteColor;
+        box-shadow: 0px 2px 10px 1px @backgroundGrayColor;
     }
 }

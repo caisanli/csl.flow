@@ -11,16 +11,17 @@
     }
     &-warp {
         position: relative;
-        background-color: #fff;
-        border: 1px solid #ddd;
+        background-color: @backgroundWhiteColor;
+        border: 1px solid @backgroundGrayColor;
         .draw-box {
             position: absolute;
-            border: 1px solid #899baf;
-            background-color: rgba(33, 150, 243, 0.2);
+            border: 1px solid @borderBaseColor;
+            // background-color: rgba(33, 150, 243, 0.2);
+            background-color: @backgroundBaseColor;
         }
         .select-box {
             position: absolute;
-            border: 1px solid #607D8B;
+            border: 1px solid @borderBaseColor;
             z-index: 3;
         }
     }
