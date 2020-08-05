@@ -5,6 +5,7 @@ import { Collapse, Panel } from "@comp/Collapse";
 
 // 图形组件
 import bases from '@comp/Graph/base';
+import flows from '@comp/Graph/flow';
 import Detail from '@comp/Graph/Detail';
 import Move from '@comp/Graph/Move';
 import Thumbnail from '@comp/Graph/Thumbnail';
@@ -138,10 +139,10 @@ export default class Aside extends React.Component {
                                         mouseDown={this.onMouseDown}/>
                         </Panel>
                         <Panel header={'FlowChart流程图'} key={'2'}>
-                            <p>这是内容01</p>
-                        </Panel>
-                        <Panel header={'EVC企业价值链'} key={'3'}>
-                            <p>这是内容01</p>
+                            <Thumbnail graphs={flows}
+                                        enter={this.onMouseEnter} 
+                                        leave={this.onMouseLeave}
+                                        mouseDown={this.onMouseDown}/>
                         </Panel>
                     </Collapse>
                         {/* 移动时的图形 */}

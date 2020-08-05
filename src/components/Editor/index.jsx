@@ -60,7 +60,6 @@ class Editor extends React.Component {
         this._onLoadGraph = this._onLoadGraph.bind(this);
         this._onEditorChange = this._onEditorChange.bind(this)
         this._onEditorBlur = this._onEditorBlur.bind(this)
-        this._onEditorFocus = this._onEditorFocus.bind(this)
         this._onDrawBollDown = this._onDrawBollDown.bind(this)
         this._onDrawBollMove = this._onDrawBollMove.bind(this)
 
@@ -260,9 +259,47 @@ class Editor extends React.Component {
             this.positions.splice(index, 1, obj);
         else
             this.positions.push(obj);
+        this._setDrawLineByChange(obj);
         if(this.positions.length > 1) {
             this._setAlignment(obj);
         }
+    }
+    // 根据图形变化设置划线
+    _setDrawLineByChange(obj) {
+        // 找到图形对应的线
+        let lines = this.state.drawLines.filter(d => d.parent === obj.id);
+        if(!lines.length) return ;
+        lines = lines.map(line => {
+            line.left = obj.left + obj.width;
+            line.top = obj.top + obj.height / 2 - 10;
+            line.width = line.prevWidth - obj.offsetLeft;
+            console.log('prev-line-height：', line.prevHeight)
+            // console.log('line-height：', line.height)
+            if(line.prevHeight < 0) {
+                line.top = line.top + line.prevHeight;
+            }
+            if(obj.offsetTop < 0) {
+                line.height = Math.abs(line.prevHeight) - obj.offsetTop;
+            } else {
+                line.height = Math.abs(line.prevHeight) - obj.offsetTop;
+                if(line.height >= 0 && line.height <= 20) {
+                    line.height = -line.height;
+                }
+            }
+            // else {
+            //     line.top = obj.top + obj.height / 2 - 10;
+            //     // line.height = 20 - obj.offsetTop;
+            // }
+            console.log('line-height：', line.height)
+            console.log('offsetTop：', obj.offsetTop)
+            // console.log('top：', line.top)
+            
+            
+            return line;
+        });
+        this.setState({
+            drawLines: lines
+        })
     }
     // 点击容器
     _onClickBody() {
@@ -291,7 +328,6 @@ class Editor extends React.Component {
             this.props.graphClick(g);
     }
     _onSelectEnd() {
-
         let handles = this.selected.map(s => {
             let g = this.props.graphs.find(g => g.id === s.id);
             let p = this.positions.find(p => p.id === s.id);
@@ -305,10 +341,6 @@ class Editor extends React.Component {
             });
         });
         this.props.addRecord(handles);
-        // console.log('handles：', handles)
-        // console.log('positions：', this.positions)
-        // console.log('selectPositions：', this.selectPositions)
-        // console.log('ids：', this.selected)
     }
     // 监听移动结束
     _onEnd(data, prevData) {
@@ -316,9 +348,17 @@ class Editor extends React.Component {
         let handle = deepClone({type: 'edit'}, graph, data, prevData);
         this.props.addRecord(handle);
         this.props.change && this.props.change(data);
+        // 
+        let lines = this.state.drawLines.filter(d => d.parent === data.id);
+        lines = lines.map(line => {
+            line.prevHeight = line.height;
+            line.prevWidth = line.width;
+            return line;
+        })
         this.selectPositions = [];
         this.setState({
-            alignLines: []
+            alignLines: [],
+            drawLines: lines
         })
     }
     // 监听第一次加入的图形加载完毕
@@ -389,9 +429,6 @@ class Editor extends React.Component {
         graph.prevText = graph.text;
         this.props.change && this.props.change(graph);
     }
-    _onEditorFocus() {
-        
-    }
     _onDrawBollMove({id, width, height}) {
         let drawLines = this.state.drawLines;
         let index = -1;
@@ -406,7 +443,7 @@ class Editor extends React.Component {
         } else {
             top = line.firstTop
         }
-        line = Object.assign({}, line, { width, height, top })
+        line = Object.assign({}, line, { width, height, prevHeight: height, prevWidth: width, top, prevTop: top })
         drawLines.splice(index, 1, line);
         this.setState({
             drawLines
@@ -414,9 +451,8 @@ class Editor extends React.Component {
     }
     _onDrawBollDown({id, startX, startY, parent}) {
         let drawLines = this.state.drawLines;
-        let position = this.props.getRelativePoint(startX, startY);
-        let line = drawLines.find(d => d.id === id);
-        if(line) return ;
+        // let line = drawLines.find(d => d.id === id);
+        // if(line) return ;
         let graph = this.props.graphs.find(g => g.id === parent);
         let top = graph.top + graph.height / 2 - 10;
         let left = graph.left + graph.width;
@@ -425,8 +461,10 @@ class Editor extends React.Component {
             width: 0,
             height: 20,
             firstTop: top,
+            // prevHeight: 
             top: top, 
             left,
+            parent,
             zIndex: drawLines.length + 1
         })
         this.setState({
@@ -452,7 +490,6 @@ class Editor extends React.Component {
                 isDraw, drawLines
             } = this.state;
         let { graphs, active, editing, scroll, width, height, warpWidth, warpHeight } = this.props;
-        console.log('drawLines：', drawLines)
         return (
             <div className={style.editorBox} onContextMenu={e => {
                 e.preventDefault()
@@ -503,7 +540,7 @@ class Editor extends React.Component {
                                 graphs.map(g => {
                                     if(selectActive) 
                                         g.selected = !!this.selected.find(s => s.id === g.id);
-                                    let { comp, selected, width, height, rotate, left, top, x, y, id, lock,  select, first} = g;
+                                    let { comp, selected, width, height, rotate, left, top, x, y, id, lock,  select, first, zIndex} = g;
                                     let Comp = comp;
                                     let aligns = g.align.split('-');
                                     return (<Transform change={this._onChange} 
@@ -517,7 +554,7 @@ class Editor extends React.Component {
                                                         key={id} selected={selected}
                                                         width={width} height={height}
                                                         rotate={rotate} left={left} top={top}
-                                                        x={x} y={y}
+                                                        x={x} y={y} zIndex={zIndex}
                                                         id={id} lock={lock} select={select} first={first}
                                                         children={(w, h) => (
                                                             <>
@@ -526,7 +563,6 @@ class Editor extends React.Component {
                                                                 <div className={[style.editorGraphWarp, editing === id ? style.editing : ''].join(' ')} >
                                                                     <div id={`editor-graph-warp-editor-${id}`} 
                                                                             onInput={this._onEditorChange} 
-                                                                            onFocus={this._onEditorFocus}
                                                                             onClick={e => e.stopPropagation()} 
                                                                             onBlur={this._onEditorBlur}    
                                                                             onMouseDown={e => e.stopPropagation()}                                                                      
