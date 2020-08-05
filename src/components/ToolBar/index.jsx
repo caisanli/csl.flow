@@ -25,7 +25,7 @@ export default function ToolBar (props) {
                 {newTools.map((t, i) => {
                     const Comp = t.comp;
                     if(!Comp) return null;
-                    return (<div key={i} 
+                    return (<div key={i} title={t.name}
                                 className={[style.tool, t.interval ? style.interval:''].join(' ')}>
                                     <Comp value={props.styleObj[t.value]} disabled={t.disabled} onClick={data => onClick(t.value, data)} />
                                 {/* <ToolTip id={t.value} placement="top" trigger={['hover']} overlay={<span>{t.name}</span>}>
