@@ -1,8 +1,9 @@
+@height: 25px;
 .dropdown {
     position: relative;
     display: inline-block;
-    height: 30px;
-    line-height: 30px;
+    height: @height;
+    line-height: @height;
     z-index: 10;
     &_label {
         display: flex;
@@ -19,11 +20,11 @@
             border-left-color: transparent;
             border-right-color: transparent;
             border-bottom-color: transparent;
-            margin-top: 13px;
+            margin-top: 10px;
         }
         &:hover:not(.disabled), &.active:not(.disabled) {
             // background-color: #d7dadf;
-            background-color: @backgroundLightColor;
+            background-color: @backgroundHoverColor;
         }
         &.disabled {
             // color: #e8e8e8;

@@ -1,24 +1,25 @@
+@height: 25px;
 .input-number {
     display: inline-block;
-    height: 30px;
-    line-height: 30px;
+    height: @height;
+    line-height: @height;
     &.disabled {
-        color: #e8e8e8;
+        color: @fontDisabledColor;
         cursor: no-drop;
-        background-color: #e8e8e8;
+        background-color: @backgroundDisabledColor;
     }
     &_content {
         display: flex;
         border-radius: 3px;
         overflow: hidden;
-        background-color: #fff;
+        background-color: @backgroundWhiteColor;
     }
     &:hover:not(.disabled) {
         .input-number_input-box {
-            background-color: #fff;
+            background-color: @backgroundWhiteColor;
         }
         .input-number_tool-box {
-            background-color: #e8e8e8;
+            background-color: @backgroundDisabledColor;
         }
     }
     &_input-box {
@@ -47,18 +48,18 @@
         position: relative;
         flex: 1;
         &:hover {
-            background-color: #ddd;
+            background-color: @backgroundGrayColor;
         }
         .bordered {
             width: 0;
             height: 0;
             position: absolute;
             left: 3px;
-            border: 4px solid #244462;
+            border: 4px solid @borderPrimaryColor;
             border-left-color: transparent;
             border-right-color: transparent;
             z-index: 9;
-            top: 4px;
+            top: 2px;
         }
         &.up::before {
             content: '';

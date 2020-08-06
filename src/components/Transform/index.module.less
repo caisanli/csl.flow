@@ -9,7 +9,7 @@
                 display: inline-block;
             }
             .transform-tools {
-                border-color: #607D8B;
+                border-color: @borderBaseColor;
                 &::after {
                     content: '';
                     position: absolute;
@@ -17,7 +17,7 @@
                     left: 50%;
                     transform: translateX(-50%);
                     height: 30px - @rwh / 2;
-                    border-left: 1px solid #607D8B;
+                    border-left: 1px solid @borderBaseColor;
                 }
             }
         }
@@ -42,8 +42,8 @@
         display: none;
         width: @wh;
         height: @wh;
-        border: 1px solid #607D8B;
-        background-color: #fff;
+        border: 1px solid @borderBaseColor;
+        background-color: @backgroundWhiteColor;
         &.lt {
             top: -@wh / 2;
             left: -@wh / 2;

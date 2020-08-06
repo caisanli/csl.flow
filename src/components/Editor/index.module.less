@@ -16,8 +16,9 @@
         .draw-box {
             position: absolute;
             border: 1px solid @borderBaseColor;
-            // background-color: rgba(33, 150, 243, 0.2);
-            background-color: @backgroundBaseColor;
+            background-color: rgba(33, 150, 243, 0.2);
+            // background-color: @backgroundBaseColor;
+            // opacity: 0.2;
         }
         .select-box {
             position: absolute;
@@ -42,7 +43,7 @@
         &.editing {
             z-index: 9999;
             & > div {
-                outline: #2196F3 auto 1px;
+                outline: @blueColor auto 1px;
             }
         }
         &_editor {
@@ -53,7 +54,7 @@
             vertical-align:middle;
             word-break: break-all;
             &:focus {
-                outline-color: #2196F3;
+                outline-color: @blueColor;
             }
         }
     }

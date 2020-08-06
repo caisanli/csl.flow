@@ -1,19 +1,19 @@
-@height: 40px;
+// @toolBarHeight: 40px;
 .tool-bar-box {
     display: flex;
     justify-content: space-between;
     align-items: center;    
     font-size: 0.8rem;
     color: @backgroundBaseColor;
-    height: @height;
+    height: @toolBarHeight;
 }
 .tools {
     display: flex;
     margin-left: -5px;
     .tool {
         position: relative;
-        height: @height;
-        line-height: @height;
+        height: @toolBarHeight;
+        line-height: @toolBarHeight;
         cursor: pointer;
         transition: color 0.2s;
         &.interval::after {
@@ -23,7 +23,7 @@
             top: -1px;
             right: 0;
             height: 100%;
-            border-right: 1px solid #8a9caf;
+            border-right: 1px solid @borderBaseColor;
         }
         &.interval {
             padding-right: 10px;
@@ -40,7 +40,7 @@
     padding: 5px 0;
     &.active {
         font-weight: 600;
-        color: #303133;
+        color: @fontBlackColor;
     }
     .iconfont {
         font-size: 14px;
@@ -48,12 +48,12 @@
         margin-right: 5px;
     }
     &:not(:last-child) {
-        border-bottom: 1px solid #d7dadf;
+        border-bottom: 1px solid @borderGrayColor;
     }
 }
 .divide {
     width: 100%;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid @borderBaseColor;
     margin: 5px 0;
 }
 .font-color {
@@ -79,5 +79,5 @@
     padding-top: 5px;
     margin-bottom: 5px;
     border-bottom-width: 2px ;
-    border-bottom-color: #8a9caf;
+    border-bottom-color: @borderBaseColor;
 }
