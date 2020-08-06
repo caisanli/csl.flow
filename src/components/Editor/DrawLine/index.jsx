@@ -5,9 +5,14 @@ export default function Line(props) {
     // 是否未负数
     let isNegative = false;
     // 当高度为负数
+    console.log('self：', props.self)
     if(height < 0) {
         isNegative = true;
         height = Math.abs(height) + 20;
+        // if(props.self)
+        //     height = Math.abs(height) + 20;
+        // else
+        //     height = Math.abs(height)
     }
     // 高度最小为20
     height = height < 20 ? 20 : height;
@@ -23,7 +28,8 @@ export default function Line(props) {
     // 两根线之间的高度
     let offsetHeight = height - LINE_HEIGHT * 2 - START_XY * 2;
     // 路径的高度指定20
-    height = offsetHeight <= 0 && offsetHeight >= -4 ? 20 : height;
+    if(props.self)
+        height = offsetHeight <= 0 && offsetHeight >= -4 ? 20 : height;
     // 起点时的指针图形（暂时三角）
     let startGraphPoint = ``;
     // 结束点时指针图形（暂时三角）

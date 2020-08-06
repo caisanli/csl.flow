@@ -13,7 +13,7 @@ import Transform from '@comp/Transform';
 // import Transform from './Graph';
 import AlignLine from '@comp/AlignLine';
 import DrawBoll from './DrawBoll';
-import DrawLine from './Line';
+import DrawLine from './DrawLine';
 // 工具
 import { deepClone } from '@assets/js/utils';
 // 样式
@@ -271,30 +271,32 @@ class Editor extends React.Component {
         if(!lines.length) return ;
         lines = lines.map(line => {
             line.left = obj.left + obj.width;
-            line.top = obj.top + obj.height / 2 - 10;
             line.width = line.prevWidth - obj.offsetLeft;
-            console.log('prev-line-height：', line.prevHeight)
-            // console.log('line-height：', line.height)
-            if(line.prevHeight < 0) {
-                line.top = line.top + line.prevHeight;
-            }
-            if(obj.offsetTop < 0) {
-                line.height = Math.abs(line.prevHeight) - obj.offsetTop;
+            line.height = Math.abs(line.prevHeight) - obj.offsetTop;
+            let baseTop = obj.top + obj.height / 2 - 10;
+            if(line.prevHeight > 0 && obj.offsetTop >= 0 && obj.offsetTop > Math.abs(line.prevHeight)) {
+                console.log('进上面了....');
+                line.top = baseTop - Math.abs(line.height);
+            } else if(line.prevHeight < 0) {
+                console.log('进中间了....')
+                let height = obj.offsetTop < 0 ? line.prevHeight + Math.abs(obj.offsetTop) : line.prevHeight - obj.offsetTop;
+                line.top = height < 0 ? line.prevTop : baseTop; 
+                line.height = obj.offsetTop < 0 ? line.prevHeight + Math.abs(obj.offsetTop) : line.prevHeight - obj.offsetTop;
+                // line.top = ;
             } else {
-                line.height = Math.abs(line.prevHeight) - obj.offsetTop;
-                if(line.height >= 0 && line.height <= 20) {
-                    line.height = -line.height;
-                }
+                console.log('进下面了....');
+                line.top = baseTop;
             }
-            // else {
-            //     line.top = obj.top + obj.height / 2 - 10;
-            //     // line.height = 20 - obj.offsetTop;
-            // }
+            if(line.height >= -4 && line.height <= 24) {
+                // let height = line.height < 0 ? -20 : 20;
+                // line.height = line.height < 0 ? - Math.abs(obj.offsetTop) :  Math.abs(obj.offsetTop) + 20; 
+                // console.log('进来聊聊。。。。')
+            }
+            console.log('pre-top：', line.prevTop)
+            console.log('prev-line-height：', line.prevHeight)
             console.log('line-height：', line.height)
             console.log('offsetTop：', obj.offsetTop)
-            // console.log('top：', line.top)
-            
-            
+            line.self = false;
             return line;
         });
         this.setState({
@@ -353,6 +355,7 @@ class Editor extends React.Component {
         lines = lines.map(line => {
             line.prevHeight = line.height;
             line.prevWidth = line.width;
+            line.prevTop = line.top;
             return line;
         })
         this.selectPositions = [];
@@ -443,7 +446,7 @@ class Editor extends React.Component {
         } else {
             top = line.firstTop
         }
-        line = Object.assign({}, line, { width, height, prevHeight: height, prevWidth: width, top, prevTop: top })
+        line = Object.assign({}, line, { width, height, prevHeight: height, prevWidth: width, top, prevTop: top, self: true })
         drawLines.splice(index, 1, line);
         this.setState({
             drawLines
@@ -463,6 +466,7 @@ class Editor extends React.Component {
             firstTop: top,
             // prevHeight: 
             top: top, 
+            self: true,
             left,
             parent,
             zIndex: drawLines.length + 1
