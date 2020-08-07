@@ -275,23 +275,42 @@ class Editor extends React.Component {
             line.height = Math.abs(line.prevHeight) - obj.offsetTop;
             let baseTop = obj.top + obj.height / 2 - 10;
             if(line.prevHeight > 0 && obj.offsetTop >= 0 && obj.offsetTop > Math.abs(line.prevHeight)) {
-                console.log('进上面了....');
                 line.top = baseTop - Math.abs(line.height);
             } else if(line.prevHeight < 0) {
-                console.log('进中间了....')
                 let height = obj.offsetTop < 0 ? line.prevHeight + Math.abs(obj.offsetTop) : line.prevHeight - obj.offsetTop;
                 line.top = height < 0 ? line.prevTop : baseTop; 
-                line.height = obj.offsetTop < 0 ? line.prevHeight + Math.abs(obj.offsetTop) : line.prevHeight - obj.offsetTop;
-                // line.top = ;
+                line.height = height; // obj.offsetTop < 0 ? line.prevHeight + Math.abs(obj.offsetTop) : line.prevHeight - obj.offsetTop;
             } else {
-                console.log('进下面了....');
                 line.top = baseTop;
             }
-            if(line.height >= -4 && line.height <= 24) {
-                // let height = line.height < 0 ? -20 : 20;
-                // line.height = line.height < 0 ? - Math.abs(obj.offsetTop) :  Math.abs(obj.offsetTop) + 20; 
-                // console.log('进来聊聊。。。。')
+            console.log('之前的height：', line.height)
+            if(Math.abs(line.height) >= 0 && Math.abs(line.height) <= 20) {
+                
+                if(obj.offsetTop > 0) {
+                    console.log('offset大于零...')
+                    this.offsetD20 = true;
+                    // line.height = line.height - 20;
+                    // line.top = line.top - Math.abs(line.height)
+                } else {
+                    this.offsetX20 = true;
+                    console.log('offset小于零...')
+                    // line.height = line.height + 20;
+                    // line.top = line.top + Math.abs(line.height)
+                }
+                // line.height = line.height < 0 ? - Math.abs(obj.offsetTop) :  line.height;//Math.abs(obj.offsetTop) + 20; 
+            } else {
+                if(this.offsetD20) {
+                    // line.height -= 20;
+                    this.offsetD20 = false;
+                    // line.top = line.top + 20
+                }
+                if(this.offsetX20) {
+                    // line.height += 20;
+                    this.offsetX20 = false;
+                    // line.top = line.top - 20
+                }
             }
+            console.log('jianshu--：', obj.offsetTop - line.height)
             console.log('pre-top：', line.prevTop)
             console.log('prev-line-height：', line.prevHeight)
             console.log('line-height：', line.height)
