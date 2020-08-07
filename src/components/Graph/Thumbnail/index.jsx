@@ -15,7 +15,7 @@ export default function(props) {
                         onMouseDown={e => mouseDown && mouseDown(g, e)}
                         onMouseEnter={e => enter && enter(g, e)} 
                         onMouseLeave={e => leave && leave(g, e)} >
-                        <Comp width={40} height={40} strokeWidth={30} fill="#fff" />
+                        <Comp width={40} height={40} strokeWidth={3} fill="#fff" />
                     </div>
                     )
                 })
