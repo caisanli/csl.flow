@@ -168,7 +168,6 @@ class Editor extends React.Component {
             drawLeft: 0,
             isDraw: false
         })
-        console.log(this.selected)
         if(this.selected.length > 1) {
             setTimeout(() => {
                 this._drawSelectedBox();
@@ -581,7 +580,7 @@ class Editor extends React.Component {
                                                         id={id} lock={lock} select={select} first={first}
                                                         children={(w, h) => (
                                                             <>
-                                                                <DrawBoll parent={id} onDown={this._onDrawBollDown} onMove={this._onDrawBollMove} />
+                                                                {/* <DrawBoll parent={id} onDown={this._onDrawBollDown} onMove={this._onDrawBollMove} /> */}
                                                                 {Comp && <Comp width={w} height={h} fill={g.backgroundColor} strokeDasharray={g.borderStyle} strokeWidth={g.borderSize}/>}
                                                                 <div className={[style.editorGraphWarp, editing === id ? style.editing : ''].join(' ')} >
                                                                     <div id={`editor-graph-warp-editor-${id}`} 
