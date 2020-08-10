@@ -4,12 +4,10 @@ import React from 'react';
 import Svg from '../Svg'
 export default function(props) {
     let {width, height, strokeWidth} = props;
-    let x = strokeWidth - 1;
-    let y = strokeWidth - 1;
+    let x = strokeWidth;
+    let y = strokeWidth;
     width -= strokeWidth * 2;
     height -= strokeWidth * 2;
-    width += 2
-    height += 2;
     let radius = 5;
     return (
         <Svg {...props} >

@@ -4,17 +4,17 @@ import React from 'react';
 import Svg from '../Svg'
 export default function(props) {
     let {width, height, strokeWidth} = props;
-    let x = strokeWidth - 1;
-    let y = strokeWidth - 1;
+    let x = strokeWidth;
+    let y = strokeWidth;
     // 
-    let offsetWidth = width / 3.5;
-    let offsetHeight = height / 3.5;
+    let offsetWidth = width / 4;
+    let offsetHeight = height / 4;
     let upLeftPoint = `${ offsetWidth }, ${ y }`;
     let upRightPoint = `${ width - offsetWidth }, ${ y }`
-    let newWidth = width - strokeWidth * 2;
-    let newHeigh = height - strokeWidth * 2;
-    newWidth += strokeWidth;
-    newHeigh += strokeWidth;
+    let newWidth = width - strokeWidth;
+    let newHeigh = height - strokeWidth;
+    // newWidth += strokeWidth;
+    // newHeigh += strokeWidth;
     let middleUpRightPoint = `${ newWidth }, ${ offsetHeight }`;
     let middleDownRightPoint = `${ newWidth }, ${ height - offsetHeight }`;
     let middleUpLeftPoint = `${ x }, ${ offsetHeight }`;

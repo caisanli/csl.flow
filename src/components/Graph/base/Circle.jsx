@@ -14,13 +14,7 @@ export default function(props) {
     let id = Date.now() + Math.random()
     return (
         <Svg {...props}>
-            <defs>
-                <ellipse id={id} rx={rx} ry={ry} cx={cx} cy={cy}/>
-                <clipPath id={'#' + id + '_clip'}>
-                    <use xlinkHref={'#' + id}/>
-                </clipPath>
-            </defs>
-            <use xlinkHref={'#' + id} fill={props.fill} stroke="#0081C6" strokeWidth={strokeWidth} clipPath={'url(#' + id + '_clip)'} />
+            <ellipse id={id} rx={rx} ry={ry} cx={cx} cy={cy}/>
         </Svg>
     );
 }

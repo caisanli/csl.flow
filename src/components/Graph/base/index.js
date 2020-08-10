@@ -22,7 +22,6 @@ import Start from './Start';
 import Talk from './Talk';
 import Text from './Text';
 import Triangle from './Triangle';
-
 export default [{
     title: '文本',
     name: 'text',
@@ -63,10 +62,6 @@ export default [{
     title: '八边形',
     comp: Octagon,
     name: 'octagon'
-},{
-    title: '五角星',
-    comp: Start,
-    name: 'start'
 },{
     title: '锥形',
     comp: Cone,

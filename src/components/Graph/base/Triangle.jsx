@@ -4,12 +4,11 @@ import React from 'react';
 import Svg from '../Svg'
 export default function(props) {
     let {width, height, strokeWidth} = props;
-    let x = strokeWidth - 1;
-    let y = strokeWidth - 1;
+    let x = strokeWidth;
+    let y = strokeWidth;
     let startPoint = `${ width / 2 }, ${ y }`;
-    width -= strokeWidth - 1;
-    height -= strokeWidth * 1.5 ;
-    height += strokeWidth;
+    width -= strokeWidth;
+    height -= strokeWidth;
     let graph = `${ startPoint } ${ width }, ${ height } ${ x }, ${ height }`;
     return (
         <Svg {...props} >

@@ -1,11 +1,28 @@
-// 文本
+// 五角星
 import React from 'react';
 // 基础配置
 import Svg from '../Svg'
 export default function(props) {
+    let { width, height, strokeWidth } = props;
+    let x = strokeWidth, y = strokeWidth;
+    let newWidth = width - strokeWidth;
+    let newHeight = height - strokeWidth;
+    let offsetWidth = newWidth / 8;
+    let offsetHeight = newHeight / 3;
+    let onePoint = `${ width / 2 }, ${ y }`;
+    let twoPoint = `${ newWidth - newWidth / 3 }, ${ offsetHeight }`;
+    let threePoint = `${ newWidth }, ${ offsetHeight }`;
+    let fourPoint = `${ newWidth - newWidth / 4 }, ${ newHeight / 1.7 }`;
+    let fivePoint = `${ newWidth - offsetWidth }, ${ newHeight }`;
+    let sixPoint = `${ width / 2 }, ${ newHeight / 1.4 }`;
+    let sevenPoint = `${ offsetWidth }, ${ newHeight }`;
+    let eightPoint = `${ newWidth / 4 }, ${  newHeight / 1.7 }`;
+    let ninePoint = `${ x }, ${ offsetHeight }`
+    let tenPoint = `${ newWidth / 3 }, ${ offsetHeight }`;
+    let graph = `${ onePoint } ${ twoPoint } ${ threePoint } ${ fourPoint } ${ fivePoint } ${ sixPoint } ${ sevenPoint } ${ eightPoint } ${ninePoint} ${ tenPoint }`;
     return (
         <Svg {...props} >
-            <path d="M957.297 404.414a14.64 14.64 0 0 0-13.928-10.117H623.967L525.262 90.524a14.643 14.643 0 0 0-13.929-10.117 14.643 14.643 0 0 0-13.927 10.117l-98.698 303.773H79.305a14.645 14.645 0 0 0-13.929 10.117 14.648 14.648 0 0 0 5.32 16.373l258.399 187.736-98.698 303.767a14.647 14.647 0 0 0 13.927 19.168c3.017 0 6.043-0.93 8.61-2.796l258.398-187.743L769.74 928.662a14.633 14.633 0 0 0 17.216 0 14.644 14.644 0 0 0 5.32-16.372L693.57 608.523l258.407-187.736a14.649 14.649 0 0 0 5.32-16.373z"></path>
+            <polygon x={x} y={y} points={graph} />
         </Svg>
     );
 }

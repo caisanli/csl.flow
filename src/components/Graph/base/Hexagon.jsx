@@ -5,16 +5,14 @@ import Svg from '../Svg'
 export default function(props) {
 
     let {width, height, strokeWidth} = props;
-    let x = strokeWidth - 1;
-    let y = strokeWidth - 1;
+    let x = strokeWidth;
+    let y = strokeWidth;
     // 
     let offset = width / 5;
     let upLeftPoint = `${ offset }, ${ y }`;
     let upRightPoint = `${ width - offset }, ${ y }`
-    let newWidth = width - strokeWidth * 3;
+    let newWidth = width - strokeWidth;
     let newHeigh = height - strokeWidth;
-    newWidth += strokeWidth * 2;
-    newHeigh += strokeWidth * 0.5;
     let rightPoint = `${ newWidth }, ${ height / 2 }`;
     let leftPoint = `${ x }, ${ height / 2 }`;
     let downRightPoint = `${ width - offset }, ${ newHeigh }`;

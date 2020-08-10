@@ -4,8 +4,7 @@ function Svg (props) {
     // let { width, height, viewBox, fill, stroke, strokeWidth, strokeDasharray } = props;
     return (
         <svg xmlns="http://www.w3.org/2000/svg" 
-            width={props.width}
-            height={props.height}
+            {...props}
             version="1.1"
         >
             {props.children}
@@ -18,6 +17,6 @@ Svg.defaultProps = {
     fill: 'none',
     strokeDasharray: '',
     stroke: '#000',
-    strokeWidth: '5'
+    strokeWidth: 2
 }
 export default Svg;

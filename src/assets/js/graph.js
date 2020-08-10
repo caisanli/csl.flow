@@ -8,7 +8,7 @@ export const defaultStyle = {
     fontColor: '#303133', // 字体颜色
     align: 'left-middle', // 对齐方式 
     backgroundColor: '#fff', // 图形背景颜色
-    borderSize: 5, // 图形边框宽度
+    borderSize: 2, // 图形边框宽度
     borderStyle: '', // 图形边框样式
     lock: false, // 是否锁定
     unlock: true, // 是否不锁定

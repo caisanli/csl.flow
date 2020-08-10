@@ -22,7 +22,7 @@ export default function(props) {
         <div className={style.graphDetailBox} style={{top: top + 'px'}}>
             <div className={style.graphDetailContent}>
                 <div className={style.graphDetailSvg}>
-                    <Comp width={120} height={90} strokeWidth={15} stroke={'#244462'}/>
+                    <Comp width={120} height={90} strokeWidth={2} stroke={'#244462'}/>
                 </div>
                 <p className={style.graphDetailTitle}>{title}</p>
             </div>
