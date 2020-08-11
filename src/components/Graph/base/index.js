@@ -4,6 +4,7 @@ import ArrowLeft from './ArrowLeft';
 import ArrowTop from './ArrowTop';
 import ArrowRight from './ArrowRight';
 import BackArrowLeft from './BackArrowLeft';
+import BackArrowRight from './BackArrowRight';
 import BracketLeft from './BracketLeft';
 import BracketRight from './BracketRight';
 import Circle from './Circle';
@@ -75,14 +76,6 @@ export default [{
     comp: Cross,
     name: 'cross'
 },{
-    title: '左括号',
-    comp: BracketLeft,
-    name: 'bracketLeft'
-},{
-    title: '右括号',
-    comp: BracketRight,
-    name: 'bracketRight'
-},{
     title: 'APQC',
     comp: Apqc,
     name: 'apqc'
@@ -106,4 +99,8 @@ export default [{
     title: '左返回箭头',
     comp: BackArrowLeft,
     name: 'backArrowLeft'
+}, {
+    title: '右返回箭头',
+    comp: BackArrowRight,
+    name: 'backArrowRight'
 }]

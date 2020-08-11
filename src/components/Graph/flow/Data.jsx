@@ -3,9 +3,22 @@ import React from 'react';
 // 基础配置
 import Svg from '../Svg'
 export default function(props) {
+    let {width, height, strokeWidth} = props;
+    let x = strokeWidth;
+    let y = strokeWidth;
+        
+    let newWidth = width - strokeWidth;
+    let newHeight = height - strokeWidth;
+
+    let offsetWidth = Math.round(newWidth / 6);
+    let graph = `M${ x + offsetWidth } ${ y }
+                H${ newWidth }
+                L${ newWidth - offsetWidth } ${ newHeight }
+                H${ x }
+                Z`;
     return (
         <Svg {...props} >
-            <path d="M84.5104028395852,939.4896222516576 L255.5062547752818,84.51040737173237 L939.4895764463676,84.51040737173237 L768.4937245106714,939.4896222516576 L84.5104028395852,939.4896222516576 z"></path>
+            <path d={graph} />
         </Svg>
     );
 }

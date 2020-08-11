@@ -3,9 +3,24 @@ import React from 'react';
 // 基础配置
 import Svg from '../Svg'
 export default function(props) {
+    let {width, height, strokeWidth} = props;
+    let x = strokeWidth;
+    let y = strokeWidth;
+        
+    let newWidth = width - strokeWidth;
+    let newHeight = height - strokeWidth;
+
+    let offsetWidth = Math.round(newWidth / 8);
+
+    let graph = `M${x + offsetWidth} ${ y } 
+                H${ newWidth }
+                Q ${ newWidth - offsetWidth * 2 } ${ height / 2 } ${ newWidth } ${ newHeight }
+                H ${ x + offsetWidth  }
+                C ${ -offsetWidth / 3.49 } ${ height - (height / 4) } ${ -offsetWidth / 3.49 } ${height / 4 } ${ offsetWidth + x } ${ y }`;
+
     return (
         <Svg {...props} >
-            <path d="M227.34026432242345,187.00796301565973 L938.9896195855894,187.00796301565973 C860.383003504339,187.00796301565973 796.6597599574302,332.5118797181294 796.6597599574302,512.0000128832758 C796.6597599574302,691.4881678357118 860.383003504339,836.9920409636374 938.9896195855894,836.9920409636374 L227.34026432242345,836.9920409636374 L227.34026432242345,836.9920409636374 C148.73364824117667,836.9920409636374 85.01040469424494,691.4881460484686 85.01040469424494,512.0000128832758 C85.01040469424494,332.5118797181294 148.73364824117667,187.00796301565973 227.34026432242345,187.00796301565973 z"></path>
+            <path d={graph} ></path>
         </Svg>
     );
 }

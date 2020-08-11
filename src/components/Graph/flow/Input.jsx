@@ -3,9 +3,21 @@ import React from 'react';
 // 基础配置
 import Svg from '../Svg'
 export default function(props) {
+    let {width, height, strokeWidth} = props;
+    let x = strokeWidth;
+    let y = strokeWidth;
+        
+    let newWidth = width - strokeWidth;
+    let newHeight = height - strokeWidth;
+    let offsetHeight = height / 6;
+    let graph = `M${ x } ${ offsetHeight }
+                V${ newHeight }
+                H${ newWidth }
+                V${ y }
+                Z`;
     return (
         <Svg {...props} >
-            <path d="M85.01046568725553,317.0047509335942 L938.989514679893,187.00793206882747 L938.989514679893,836.9921105229399 L85.01046568725553,836.9921105229399 L85.01046568725553,317.0047509335942 z"></path>
+            <path d={graph} />
         </Svg>
     );
 }

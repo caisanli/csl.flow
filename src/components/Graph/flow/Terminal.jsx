@@ -1,11 +1,25 @@
-// 开始、结束 终端
+// 开始、结束
 import React from 'react';
 // 基础配置
 import Svg from '../Svg'
 export default function(props) {
+    let {width, height, strokeWidth} = props;
+    let x = strokeWidth;
+    let y = strokeWidth;
+        
+    let newWidth = width - strokeWidth;
+    let newHeight = height - strokeWidth;
+
+    let offsetWidth = Math.round(newWidth / 8);
+
+    let graph = `M${x + offsetWidth} ${ y } H${ newWidth - offsetWidth }
+                C${ (newWidth + offsetWidth) / 1.08 } ${ height / 4 } ${ (newWidth + offsetWidth) / 1.08 } ${ height - (height / 4) } ${ newWidth - offsetWidth } ${ newHeight }
+                H${ x + offsetWidth }
+                C${ -offsetWidth / 3.49 } ${ height - (height / 4) } ${ -offsetWidth / 3.49 } ${ height / 4 } ${x + offsetWidth} ${ y }`;
+
     return (
         <Svg {...props} >
-            <path d="M222.39828835721798,262.0060995320489 L801.6017145986795,262.0060995320489 L801.6017145986795,262.0060995320489 C877.4790112308176,262.0060995320489 938.9895662890631,373.93222749635606 938.9895662890631,512.0000348385516 C938.9895662890631,650.0677930458587 877.478982574034,761.9938718753784 801.6017145986795,761.9938718753784 L222.39828835721798,761.9938718753784 L222.39828835721798,761.9938718753784 C146.52107769546106,761.9938718753784 85.01043666684109,650.0677930458587 85.01043666684109,512.0000348385516 C85.01043666684109,373.93217836154275 146.52107769546106,262.0060995320489 222.39828835721798,262.0060995320489 z"></path>
+            <path d={graph} ></path>
         </Svg>
     );
 }
