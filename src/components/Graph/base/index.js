@@ -75,14 +75,6 @@ export default [{
     comp: Cross,
     name: 'cross'
 },{
-    title: '云',
-    comp: Cloud,
-    name: 'cloud'
-},{
-    title: '气泡',
-    comp: Talk,
-    name: 'talk'
-},{
     title: '左括号',
     comp: BracketLeft,
     name: 'bracketLeft'

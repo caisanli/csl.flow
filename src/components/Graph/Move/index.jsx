@@ -11,7 +11,7 @@ export default React.forwardRef((props, ref) => {
     return (
         <div ref={ref} className={style.graphMoveBox} style={{top: top + 'px', left: left + 'px'}}>
             <div className={style.graphMoveContent}>
-                <Comp width={100} height={100} strokeWidth={15} stroke={'#244462'} fill="#ffffff"/>
+                <Comp width={100} height={100} strokeWidth={2} stroke={'#244462'} fill="#ffffff"/>
             </div>
         </div>
     )

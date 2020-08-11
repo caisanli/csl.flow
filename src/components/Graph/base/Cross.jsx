@@ -3,9 +3,30 @@ import React from 'react';
 // 基础配置
 import Svg from '../Svg'
 export default function(props) {
+    let {width, height, strokeWidth} = props;
+    let x = strokeWidth;
+    let y = strokeWidth;
+        
+    let newWidth = width - strokeWidth;
+    let newHeight = height - strokeWidth;
+    let HW = Math.round(newWidth / 5);
+    let VH = Math.round(newHeight / 5);
+    let graph = `M${ x } ${ VH * 2 } 
+                H${ HW * 2 } 
+                V${ y } 
+                H${ HW * 3 } 
+                V${ VH * 2 } 
+                H${ newWidth } 
+                V${ VH * 3 } 
+                H${ HW * 3 } 
+                V${ newHeight } 
+                H${ HW * 2 } 
+                V${ VH * 3 }
+                H${ x }
+                V${ VH * 2 }`
     return (
         <Svg {...props} >
-            <polygon points="425,85 595,85 595,425 935,425 935,595 595,595 595,935 425,935 425,595 85,595 85,425 425,425" />
+            <path d={ graph } />
         </Svg>
     );
 }

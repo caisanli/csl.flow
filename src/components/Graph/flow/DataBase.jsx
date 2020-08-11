@@ -3,10 +3,32 @@ import React from 'react';
 // 基础配置
 import Svg from '../Svg'
 export default function(props) {
+    let {width, height, strokeWidth} = props;
+    let x = strokeWidth;
+    let y = strokeWidth;
+        
+    let newWidth = width - strokeWidth;
+    let newHeight = height - strokeWidth;
+    let offsetWidth = newWidth / 7;
+    // let graph = `M${ x + offsetWidth } ${ y } 
+    //             H${ newWidth - offsetWidth } 
+    //             C${ (newWidth + offsetWidth) / 1.09  } ${ height / 4 } ${ (newWidth + offsetWidth) / 1.09 } ${ height - height / 4 } ${ newWidth - offsetWidth } ${ newHeight }
+    //             H${ x + offsetWidth }
+    //             C${ -offsetWidth / 3.5 } ${ height -  height / 4 } ${ -offsetWidth / 3.5 } ${  height / 4 } ${ x + offsetWidth } ${ y }
+    //             M${ newWidth - offsetWidth } ${ y }
+    //             C${ (newWidth + offsetWidth) / 1.7 } ${ height / 4 } ${ (newWidth + offsetWidth) / 1.7 } ${ height - height / 4 } ${ newWidth - offsetWidth } ${ newHeight }
+    //             `;
+    let graph = `M${ x + offsetWidth } ${ y } 
+                H${ newWidth - offsetWidth } 
+                V${ newWidth - offsetWidth } ${ newHeight }
+                H${ x + offsetWidth }
+                C${ -offsetWidth / 3.5 } ${ height -  height / 4 } ${ -offsetWidth / 3.5 } ${  height / 4 } ${ x + offsetWidth } ${ y }
+                `;
+
     return (
         <Svg {...props} >
-            <path d="M175.24246492931601,288.50000511880586 L862.7424191315528,288.50000511880586 C786.8032721960998,288.50000511880586 725.2424393278901,388.5643825900596 725.2424393278901,512.0000172842354 C725.2424393278901,635.435666961679 786.8032721960998,735.5000144663443 862.7424191315528,735.5000144663443 L175.24246492931601,735.5000144663443 L175.24246492931601,735.5000144663443 C99.30331799387804,735.5000144663443 37.74248512566872,635.4356519783859 37.74248512566872,512.0000172842354 C37.74248512566872,388.5643825900596 99.30331799387804,288.50000511880586 175.24246492931601,288.50000511880586 z" ></path>
-            <ellipse cx="858.9999905448145" cy="512.0000010918673" rx="133.50000202251837" ry="223.00001465033142" ></ellipse>
+            <path stroke-linecap="round" d={graph} ></path>
+            <ellipse cx={ newWidth - offsetWidth } cy={ height / 2 } rx={ offsetWidth } ry={ (height - strokeWidth * 2 ) / 2 } ></ellipse>
         </Svg>
     );
 }
