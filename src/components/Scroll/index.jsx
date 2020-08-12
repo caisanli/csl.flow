@@ -106,6 +106,7 @@ class Scroll extends React.Component {
     document.addEventListener('mouseup', this._onMouseup.bind(this))
   }
   _onResize() {// 监听窗口变化
+    if(!this.$content.current) return ;
     this.eventOption.boxHeight = this.$content.current.offsetHeight
     this.eventOption.boxWidth = this.$content.current.offsetWidth;
     this._setThumbWidthHeight();
