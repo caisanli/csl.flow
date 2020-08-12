@@ -1,4 +1,5 @@
-import React, {useEffect} from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import style from './index.module.less';
 
 export default class LineBoll extends React.Component {
@@ -47,9 +48,33 @@ export default class LineBoll extends React.Component {
         document.removeEventListener('mousemove', this._onMouseMove)
         document.removeEventListener('mouseup', this._onMouseUp)
     }
+    
     render() {
+        // let { width, height, dir, left, top, right, bottom } = this.props;
         return (
-            <span onMouseDown={this._onMouseDown} className={style.lineBoll}></span>
-        )
+            <div className={style.lineBoll}>
+                {
+                    this.props.dots.map((d, i) => 
+                        <span onMouseDown={e => this._onMouseDown(e, d)}
+                            key={i} 
+                            style={{
+                                width: d.width + 'px',
+                                height: d.height + 'px',
+                                left: d.left,
+                                top: d.top,
+                                right: d.right,
+                                bottom: d.bottom
+                            }}
+                            data-type={d.dir}
+                            className={style.lineBollWarp} />)
+                }
+            </div>)
     }
+}
+LineBoll.propTypes = {
+    dots: PropTypes.arrayOf(PropTypes.shape({
+        width: PropTypes.number.isRequired,
+        height: PropTypes.number.isRequired,
+        dir: PropTypes.string.isRequired,
+    }))
 }

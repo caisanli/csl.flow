@@ -12,7 +12,6 @@ import Grid from '@comp/Grid';
 import Transform from '@comp/Transform';
 // import Transform from './Graph';
 import AlignLine from '@comp/AlignLine';
-import DrawBoll from './DrawBoll';
 import DrawLine from './DrawLine';
 // 工具
 import { deepClone } from '@assets/js/utils';
@@ -344,6 +343,7 @@ class Editor extends React.Component {
     // 监听点击
     _onClick(g, e) {
         e.stopPropagation()
+        console.log(g)
         if(this.props.graphClick)
             this.props.graphClick(g);
     }
@@ -562,7 +562,7 @@ class Editor extends React.Component {
                                 graphs.map(g => {
                                     if(selectActive) 
                                         g.selected = !!this.selected.find(s => s.id === g.id);
-                                    let { comp, selected, width, height, rotate, left, top, x, y, id, lock,  select, first, zIndex} = g;
+                                    let { comp, selected, width, height, rotate, left, top, x, y, id, lock, select, first, zIndex, dots} = g;
                                     let Comp = comp;
                                     let aligns = g.align.split('-');
                                     return (<Transform change={this._onChange} 
@@ -580,8 +580,7 @@ class Editor extends React.Component {
                                                         id={id} lock={lock} select={select} first={first}
                                                         children={(w, h) => (
                                                             <>
-                                                                {/* <DrawBoll parent={id} onDown={this._onDrawBollDown} onMove={this._onDrawBollMove} /> */}
-                                                                {Comp && <Comp width={w} height={h} fill={g.backgroundColor} strokeDasharray={g.borderStyle} strokeWidth={g.borderSize}/>}
+                                                                { Comp && <Comp showDot width={w} height={h} fill={g.backgroundColor} strokeDasharray={g.borderStyle} strokeWidth={g.borderSize}/> }
                                                                 <div className={[style.editorGraphWarp, editing === id ? style.editing : ''].join(' ')} >
                                                                     <div id={`editor-graph-warp-editor-${id}`} 
                                                                             onInput={this._onEditorChange} 

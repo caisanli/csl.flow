@@ -1,14 +1,19 @@
 import React from 'react';
 // svg基础组件
+import DrawBoll from '@comp/Editor/DrawBoll';
 function Svg (props) {
-    // let { width, height, viewBox, fill, stroke, strokeWidth, strokeDasharray } = props;
+    let { dots, children, ...svgProps } = props;
+
     return (
-        <svg xmlns="http://www.w3.org/2000/svg" 
-            {...props}
-            version="1.1"
-        >
-            {props.children}
-        </svg>
+        <>
+            <svg xmlns="http://www.w3.org/2000/svg" 
+                {...svgProps}
+                version="1.1"
+            >
+                {children}
+            </svg>
+            { !!dots.length && <DrawBoll dots={dots} /> }
+        </>
     )
 }
 Svg.defaultProps = {
@@ -17,6 +22,7 @@ Svg.defaultProps = {
     fill: 'none',
     strokeDasharray: '',
     stroke: '#000',
-    strokeWidth: 2
+    strokeWidth: 2,
+    dots: []
 }
 export default Svg;

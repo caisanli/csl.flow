@@ -131,7 +131,7 @@ export default class Aside extends React.Component {
             <div className={style.aside} ref={this.asideRef}>
                 <Detail y={detailY} graph={detailGraph} visible={detailVisible}/>
                 <Scroll>
-                    <Collapse defaultActiveKeys={['1']}>
+                    <Collapse defaultActiveKeys={['1', '2']}>
                         <Panel header={'基础图形'} key={'1'}>
                             <Thumbnail graphs={bases}
                                         enter={this.onMouseEnter} 

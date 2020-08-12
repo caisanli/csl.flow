@@ -235,7 +235,8 @@ export default class Transform extends React.Component {
             <div ref={this.boxRef} 
                 className={[style.transformBox, !lock && active ? style.active : '', select ? style.select : ''].join(' ')} 
                 style={{width, height, zIndex, transform: `translate(${left}px,${top}px) rotate(${rotate}deg)`, transformOrigin: selected ? '50% 50%': '50% 50%'}}
-                onDoubleClick={ doubleClick }>
+                onDoubleClick={ doubleClick }
+                onClick={this.props.click}>
                 <div className={style.transformBody}>
                     {/* 操作按钮 */}
                     <div className={style.transformTools} onMouseDown={this._onMouseDown} data-type="move">
