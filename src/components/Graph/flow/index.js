@@ -1,3 +1,5 @@
+
+// 图形组件
 import Card from './Card';
 import ChildFlowChart from './ChildFlowChart';
 import ConnectOffPage from './ConnectOffPage';
@@ -15,6 +17,8 @@ import PunchedTape from './PunchedTape';
 import Terminal from './Terminal';
 import Rect from '../base/Rect';
 import Diamond from '../base/Diamond';
+import Hexagon from '../base/Hexagon';
+import Circle from '../base/Circle';
 export default [{
     title: '流程',
     comp: Rect,
@@ -64,13 +68,9 @@ export default [{
     name: 'card',
     comp: Card
 }, {
-    title: '跨页引用',
-    name: 'connectOffPage',
-    comp: ConnectOffPage
-}, {
-    title: '循环限值',
-    name: 'cycleLimit',
-    comp: CycleLimit
+    title: '条带',
+    name: 'punchedTape',
+    comp: PunchedTape
 }, {
     title: '展示',
     name: 'display',
@@ -80,7 +80,19 @@ export default [{
     name: 'handle',
     comp: Handle
 }, {
-    title: '条带',
-    name: 'punchedTape',
-    comp: PunchedTape
+    title: '预备',
+    comp: Hexagon,
+    name: 'hexagon'
+}, {
+    title: '循环限值',
+    name: 'cycleLimit',
+    comp: CycleLimit
+}, {
+    title: '页内引用',
+    name: 'circle',
+    comp: Circle
+}, {
+    title: '跨页引用',
+    name: 'connectOffPage',
+    comp: ConnectOffPage
 }]

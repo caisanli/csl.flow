@@ -15,11 +15,11 @@ export default function(props) {
     let graph = `M${x + offsetWidth} ${ y } H${ newWidth - offsetWidth }
                 C${ (newWidth + offsetWidth) / 1.08 } ${ height / 4 } ${ (newWidth + offsetWidth) / 1.08 } ${ height - (height / 4) } ${ newWidth - offsetWidth } ${ newHeight }
                 H${ x + offsetWidth }
-                C${ -offsetWidth / 3.49 } ${ height - (height / 4) } ${ -offsetWidth / 3.49 } ${ height / 4 } ${x + offsetWidth} ${ y }`;
+                C${ -offsetWidth / 3.48 } ${ height - (height / 4) } ${ -offsetWidth / 3.48 } ${ height / 4 } ${x + offsetWidth} ${ y }`;
 
     return (
         <Svg {...props} >
-            <path d={graph} ></path>
+            <path d={graph} strokeLinecap="round" strokeLinejoin="round"></path>
         </Svg>
     );
 }

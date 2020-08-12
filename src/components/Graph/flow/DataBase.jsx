@@ -27,7 +27,7 @@ export default function(props) {
 
     return (
         <Svg {...props} >
-            <path stroke-linecap="round" d={graph} ></path>
+            <path strokeLinecap="round" strokeLinejoin="round" d={graph} ></path>
             <ellipse cx={ newWidth - offsetWidth } cy={ height / 2 } rx={ offsetWidth } ry={ (height - strokeWidth * 2 ) / 2 } ></ellipse>
         </Svg>
     );

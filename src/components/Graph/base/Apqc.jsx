@@ -12,7 +12,6 @@ export default function(props) {
 
     let offsetHeight = newHeight / 6;
 
-
     let graph = `M${ x } ${ offsetHeight }
                 C${ newWidth / 4 } ${ -offsetHeight / 3.49 } ${ newWidth - newWidth / 4 } ${ -offsetHeight / 3.49 } ${ newWidth } ${ offsetHeight }
                 V${ newHeight }

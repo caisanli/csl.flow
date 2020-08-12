@@ -3,9 +3,24 @@ import React from 'react';
 // 基础配置
 import Svg from '../Svg'
 export default function(props) {
+    let {width, height, strokeWidth} = props;
+    let x = strokeWidth;
+    let y = strokeWidth;
+        
+    let newWidth = width - strokeWidth;
+    let newHeight = height - strokeWidth;
+
+    let arrowWidth = Math.round(newWidth / 6);
+    let offsetWidth = Math.round(newWidth / 7);
+    let graph =  `M${ x + arrowWidth } ${ y } 
+                H${ newWidth - offsetWidth }
+                C${ (newWidth + offsetWidth) * 0.92 } ${ height / 4 } ${ (newWidth + offsetWidth) * 0.92 } ${ height - (height / 4) } ${ newWidth - offsetWidth } ${ newHeight }
+                H${ x + arrowWidth }
+                L${ x } ${ height / 2 }
+                Z`;
     return (
         <Svg {...props} >
-            <path d="M85.01040921652434,511.99998122721115 L227.34042248993939,187.00790238717704 L796.6582976501098,187.00790238717704 C875.2654747758535,187.00790238717704 938.9895718323361,332.511631605539 938.9895718323361,511.99998122721115 C938.9895718323361,691.4864293949598 875.2654747758535,836.9920934262237 796.6582976501098,836.9920934262237 L227.34042248993939,836.9920934262237 L85.01040921652434,511.99998122721115 z"></path>
+            <path strokeLinecap="round" strokeLinejoin="round" d={graph} />
         </Svg>
     );
 }

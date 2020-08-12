@@ -2,10 +2,30 @@
 import React from 'react';
 // 基础配置
 import Svg from '../Svg'
+import defaultDot, { dotWidth, dotHeight } from '@assets/js/dots';
 export default function(props) {
+    let {width, height, strokeWidth} = props;
+    let x = strokeWidth;
+    let y = strokeWidth;
+        
+    let newWidth = width - strokeWidth;
+    let newHeight = height - strokeWidth;
+
+    let offsetWidth = Math.round(newWidth / 6);
+    let graph = `M${ x } ${ y } H${ newWidth }
+                L${ newWidth - offsetWidth } ${ newHeight }
+                H${ x + offsetWidth }
+                Z`;
+    
+    let dots = props.showDot ? [defaultDot.tc, Object.assign(defaultDot.mr, {
+        right: offsetWidth / 2 - dotWidth / 2
+    }), Object.assign(defaultDot.ml, {
+        left: offsetWidth / 2 - dotWidth / 2
+    }), defaultDot.bc] : [];    
+
     return (
-        <Svg {...props} >
-            <path d="M80.25547,233.50224L937.74464,232.74896L781,792.7511L237.73919,792.7511L80.25547,233.00002z"></path>
+        <Svg {...props} dots={dots}>
+            <path d={graph} />
         </Svg>
     );
 }
