@@ -4,6 +4,8 @@ import React from 'react';
 import Svg from '../Svg'
 import defaultDot, { dotHeight } from '@assets/js/dots';
 import { deepClone } from '@assets/js/utils';
+let newDefaultDot = deepClone(defaultDot)
+
 export default function(props) {
     let {width, height, strokeWidth, showDot} = props;
     let x = strokeWidth;
@@ -20,9 +22,9 @@ export default function(props) {
                 Q${ newWidth - (newWidth / 4) } ${ newHeight - offsetHeight * 1.5 } ${ newWidth / 2 } ${ newHeight - offsetHeight / 2 } T${ x } ${ newHeight - offsetHeight / 2 }
                 Z`;
                 
-    let dots = showDot ? [deepClone({}, defaultDot.tc, {
+    let dots = showDot ? [Object.assign({}, newDefaultDot.tc, {
         top: offsetHeight / 2 - dotHeight / 2 
-    }), defaultDot.mr, defaultDot.ml, deepClone({}, defaultDot.bc, {
+    }), newDefaultDot.mr, newDefaultDot.ml, Object.assign({}, newDefaultDot.bc, {
         bottom: offsetHeight / 2 - dotHeight / 2 
     })] : [];   
 

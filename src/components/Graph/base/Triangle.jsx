@@ -3,6 +3,8 @@ import React from 'react';
 // 基础配置
 import Svg from '../Svg'
 import defaultDot, { dotWidth } from '@assets/js/dots';
+import {deepClone} from '@assets/js/utils';
+let newDefaultDot = deepClone(defaultDot)
 
 export default function(props) {
     let {width, height, strokeWidth, showDot} = props;
@@ -13,11 +15,11 @@ export default function(props) {
     width -= strokeWidth;
     height -= strokeWidth;
     let graph = `${ startPoint } ${ width }, ${ height } ${ x }, ${ height }`;
-    let dots = showDot ? [defaultDot.tc, Object.assign(defaultDot.mr, {
+    let dots = showDot ? [newDefaultDot.tc, Object.assign(newDefaultDot.mr, {
         right: offsetWidth / 2 - dotWidth / 2
-    }), Object.assign(defaultDot.ml, {
+    }), Object.assign(newDefaultDot.ml, {
         left: offsetWidth / 2 - dotWidth / 2
-    }), defaultDot.bc] : [];  
+    }), newDefaultDot.bc] : [];  
     return (
         <Svg {...props} dots={dots} >
             <polygon points={ graph } />

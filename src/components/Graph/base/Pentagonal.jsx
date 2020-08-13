@@ -3,9 +3,12 @@ import React from 'react';
 // 基础配置
 import Svg from '../Svg'
 import defaultDot, { dotHeight } from '@assets/js/dots';
-
+import {deepClone} from '@assets/js/utils';
+let newDefaultDot = deepClone(defaultDot)
 export default function(props) {
     let {width, height, strokeWidth, showDot} = props;
+    
+
     let x = strokeWidth;
     let y = strokeWidth;
     // 
@@ -20,11 +23,11 @@ export default function(props) {
     let downRightPoint = `${ width - downOffset }, ${ newHeigh }`;
     let downLeftPoint = `${ downOffset }, ${ newHeigh }`;
     let graph = `${ leftPoint } ${ upPoint } ${ rightPoint } ${ downRightPoint } ${ downLeftPoint }`;
-    let dots = showDot ? [defaultDot.tc, Object.assign(defaultDot.mr, {
+    let dots = showDot ? [newDefaultDot.tc, Object.assign(newDefaultDot.mr, {
         top: offsetHeight - dotHeight / 2
-    }), Object.assign(defaultDot.ml, {
+    }), Object.assign(newDefaultDot.ml, {
         top: offsetHeight - dotHeight / 2
-    }), defaultDot.bc] : [];   
+    }), newDefaultDot.bc] : [];   
 
     return (
         <Svg {...props} dots={dots} >

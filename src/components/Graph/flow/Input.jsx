@@ -3,6 +3,8 @@ import React from 'react';
 // 基础配置
 import Svg from '../Svg'
 import defaultDot, { dotHeight } from '@assets/js/dots';
+import {deepClone} from '@assets/js/utils';
+let newDefaultDot = deepClone(defaultDot)
 
 export default function(props) {
     let {width, height, strokeWidth, showDot} = props;
@@ -17,9 +19,9 @@ export default function(props) {
                 H${ newWidth }
                 V${ y }
                 Z`;
-    let dots = showDot ? [Object.assign(defaultDot.tc, {
+    let dots = showDot ? [Object.assign(newDefaultDot.tc, {
         top: offsetHeight / 2 - dotHeight / 2
-    }), defaultDot.mr, defaultDot.ml, defaultDot.bc] : [];   
+    }), newDefaultDot.mr, newDefaultDot.ml, newDefaultDot.bc] : [];   
 
     return (
         <Svg {...props} dots={dots} >
