@@ -1,23 +1,9 @@
 .line-boll {
+    display: inline-block;
+    border: 1px solid @borderBaseColor;
     position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 6;
-    &:hover {
-        .line-boll_warp {
-            display: inline-block;
-        }
-    }
-    &_warp {
-        display: none;
-        border: 1px solid @borderBaseColor;
-        position: absolute;
-        z-index: 99;
-        border-radius: 50%;
-        background-color: @backgroundWhiteColor;
-        cursor: crosshair;
-    }
-    
+    z-index: 99;
+    border-radius: 50%;
+    background-color: @backgroundWhiteColor;
+    cursor: crosshair;
 }

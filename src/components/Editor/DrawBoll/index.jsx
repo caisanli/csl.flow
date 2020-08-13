@@ -19,6 +19,7 @@ export default class LineBoll extends React.Component {
     }
     _onMouseDown(e) {
         e.stopPropagation();
+        console.log('boll--mousedown')
         let startX = e.pageX, startY = e.pageY;
         this.props.onDown && this.props.onDown({id: this.id, startX, startY, parent: this.props.parent});
         Object.assign(this.eventOption, {
@@ -29,7 +30,9 @@ export default class LineBoll extends React.Component {
     }
     _onMouseMove(e) {
         let { isDown, startX, startY } = this.eventOption;
+        
         if(!isDown) return ;
+        console.log('boll--mousemove')
         let endX = e.pageX;
         let endY = e.pageY;
         let width = endX - startX;
@@ -37,8 +40,7 @@ export default class LineBoll extends React.Component {
         this.props.onMove && this.props.onMove({id: this.id, width , height });
     }
     _onMouseUp() {
-        if(this.eventOption.isDown)
-            this.eventOption.isDown = false;
+        this.eventOption.isDown = false;
     }
     componentDidMount() {
         document.addEventListener('mousemove', this._onMouseMove)
@@ -50,9 +52,8 @@ export default class LineBoll extends React.Component {
     }
     
     render() {
-        // let { width, height, dir, left, top, right, bottom } = this.props;
         return (
-            <div className={style.lineBoll}>
+            <>
                 {
                     this.props.dots.map((d, i) => 
                         <span onMouseDown={e => this._onMouseDown(e, d)}
@@ -66,9 +67,9 @@ export default class LineBoll extends React.Component {
                                 bottom: d.bottom
                             }}
                             data-type={d.dir}
-                            className={style.lineBollWarp} />)
+                            className={style.lineBoll} />)
                 }
-            </div>)
+            </>)
     }
 }
 LineBoll.propTypes = {
@@ -76,5 +77,6 @@ LineBoll.propTypes = {
         width: PropTypes.number.isRequired,
         height: PropTypes.number.isRequired,
         dir: PropTypes.string.isRequired,
-    }))
+    })),
+    visible: PropTypes.bool
 }

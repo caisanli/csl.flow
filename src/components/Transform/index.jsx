@@ -237,16 +237,14 @@ export default class Transform extends React.Component {
                 style={{width, height, zIndex, transform: `translate(${left}px,${top}px) rotate(${rotate}deg)`, transformOrigin: selected ? '50% 50%': '50% 50%'}}
                 onDoubleClick={ doubleClick }
                 onClick={this.props.click}>
-                <div className={style.transformBody}>
+                <div className={style.transformBody} onMouseDown={this._onMouseDown} data-type="move">
                     {/* 操作按钮 */}
-                    <div className={style.transformTools} onMouseDown={this._onMouseDown} data-type="move">
-                        <span onMouseDown={this._onMouseDown} data-type="rotate" className={[style.transformTool, style.rotate].join(' ')}></span>
-                        <span onMouseDown={this._onMouseDown} data-type="lt" className={[style.transformTool, style.lt].join(' ')}></span>
-                        <span onMouseDown={this._onMouseDown} data-type="rt" className={[style.transformTool, style.rt].join(' ')}></span>
-                        <span onMouseDown={this._onMouseDown} data-type="lb" className={[style.transformTool, style.lb].join(' ')}></span>
-                        <span onMouseDown={this._onMouseDown} data-type="rb" className={[style.transformTool, style.rb].join(' ')}></span>
-                    </div>
-                    {this.props.children && this.props.children(width, height)}
+                    <span onMouseDown={this._onMouseDown} data-type="rotate" className={[style.transformTool, style.rotate].join(' ')}></span>
+                    <span onMouseDown={this._onMouseDown} data-type="lt" className={[style.transformTool, style.lt].join(' ')}></span>
+                    <span onMouseDown={this._onMouseDown} data-type="rt" className={[style.transformTool, style.rt].join(' ')}></span>
+                    <span onMouseDown={this._onMouseDown} data-type="lb" className={[style.transformTool, style.lb].join(' ')}></span>
+                    <span onMouseDown={this._onMouseDown} data-type="rb" className={[style.transformTool, style.rb].join(' ')}></span>
+                    {this.props.children && this.props.children(width, height, active)}
                 </div>
             </div>
         );

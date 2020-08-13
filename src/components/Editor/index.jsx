@@ -578,9 +578,9 @@ class Editor extends React.Component {
                                                         rotate={rotate} left={left} top={top}
                                                         x={x} y={y} zIndex={zIndex}
                                                         id={id} lock={lock} select={select} first={first}
-                                                        children={(w, h) => (
+                                                        children={(w, h, drawBollVisible) => (
                                                             <>
-                                                                { Comp && <Comp showDot width={w} height={h} fill={g.backgroundColor} strokeDasharray={g.borderStyle} strokeWidth={g.borderSize}/> }
+                                                                { Comp && <Comp showDot={ drawBollVisible ? true : false } width={w} height={h} fill={g.backgroundColor} strokeDasharray={g.borderStyle} strokeWidth={g.borderSize}/> }
                                                                 <div className={[style.editorGraphWarp, editing === id ? style.editing : ''].join(' ')} >
                                                                     <div id={`editor-graph-warp-editor-${id}`} 
                                                                             onInput={this._onEditorChange} 

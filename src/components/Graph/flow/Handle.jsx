@@ -2,9 +2,9 @@
 import React from 'react';
 // 基础配置
 import Svg from '../Svg'
-import defaultDot, { dotWidth, dotHeight } from '@assets/js/dots';
+import defaultDot, { dotWidth } from '@assets/js/dots';
 export default function(props) {
-    let {width, height, strokeWidth} = props;
+    let {width, height, strokeWidth, showDot} = props;
     let x = strokeWidth;
     let y = strokeWidth;
         
@@ -17,7 +17,7 @@ export default function(props) {
                 H${ x + offsetWidth }
                 Z`;
     
-    let dots = props.showDot ? [defaultDot.tc, Object.assign(defaultDot.mr, {
+    let dots = showDot ? [defaultDot.tc, Object.assign(defaultDot.mr, {
         right: offsetWidth / 2 - dotWidth / 2
     }), Object.assign(defaultDot.ml, {
         left: offsetWidth / 2 - dotWidth / 2

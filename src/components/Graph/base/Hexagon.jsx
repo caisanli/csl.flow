@@ -2,9 +2,11 @@
 import React from 'react';
 // 基础配置
 import Svg from '../Svg'
+import defaultDot from '@assets/js/dots';
+
 export default function(props) {
 
-    let {width, height, strokeWidth} = props;
+    let {width, height, strokeWidth, showDot} = props;
     let x = strokeWidth;
     let y = strokeWidth;
     // 
@@ -18,9 +20,10 @@ export default function(props) {
     let downRightPoint = `${ width - offset }, ${ newHeigh }`;
     let downLeftPoint = `${ offset }, ${ newHeigh }`;
     let graph = `${ upLeftPoint } ${ upRightPoint } ${ rightPoint } ${ downRightPoint } ${ downLeftPoint } ${ leftPoint }`;
+    let dots = showDot ? [defaultDot.tc, defaultDot.mr, defaultDot.ml, defaultDot.bc] : [];   
 
     return (
-        <Svg {...props} >
+        <Svg {...props} dots={dots} >
             <polygon points={graph} />
         </Svg>
     );
