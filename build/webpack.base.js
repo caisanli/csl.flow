@@ -24,7 +24,8 @@ module.exports = {
     },
     performance: {
         // false | "error" | "warning" // 不显示性能提示 | 以错误形式提示 | 以警告...
-        hints: "warning",
+        // hints: "warning",
+        hints: false,
         // 开发环境设置较大防止警告
         // 根据入口起点的最大体积，控制webpack何时生成性能提示,整数类型,以字节为单位
         maxEntrypointSize: 5000000, 
