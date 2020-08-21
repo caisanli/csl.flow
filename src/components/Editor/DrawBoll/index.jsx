@@ -3,10 +3,11 @@ import PropTypes from 'prop-types';
 import style from './index.module.less';
 
 export default class LineBoll extends React.Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
+        console.log(props)
         // 属性
-        this.id = Date.now();
+        this.currentId = null;
         // 事件
         this._onMouseDown = this._onMouseDown.bind(this)
         this._onMouseMove = this._onMouseMove.bind(this)
@@ -17,11 +18,13 @@ export default class LineBoll extends React.Component {
             startY: 0
         }
     }
-    _onMouseDown(e) {
+    _onMouseDown(e, boll) {
         e.stopPropagation();
-        console.log('boll--mousedown')
+        // console.log('boll--mousedown')
         let startX = e.pageX, startY = e.pageY;
-        this.props.onDown && this.props.onDown({id: this.id, startX, startY, parent: this.props.parent});
+        let id = Date.now();
+        this.currentId = id;
+        this.props.onDown && this.props.onDown({id, startX, startY, parent: this.props.parent}, boll);
         Object.assign(this.eventOption, {
             isDown: true,
             startX,
@@ -32,12 +35,12 @@ export default class LineBoll extends React.Component {
         let { isDown, startX, startY } = this.eventOption;
         
         if(!isDown) return ;
-        console.log('boll--mousemove')
+        // console.log('boll--mousemove')
         let endX = e.pageX;
         let endY = e.pageY;
         let width = endX - startX;
         let height = endY - startY;
-        this.props.onMove && this.props.onMove({id: this.id, width , height });
+        this.props.onMove && this.props.onMove({id: this.currentId, width , height });
     }
     _onMouseUp() {
         this.eventOption.isDown = false;

@@ -24,7 +24,9 @@ export default function(props) {
         top: offsetHeight - dotHeight / 2
     }), Object.assign(newDefaultDot.ml, {
         top: offsetHeight - dotHeight / 2
-    }), newDefaultDot.bc] : [];   
+    }), Object.assign(newDefaultDot.bc, {
+        bottom: (offsetHeight / 3) - dotHeight / 2
+    })] : [];   
 
     return (
         <Svg {...props} dots={dots} >

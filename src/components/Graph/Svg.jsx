@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 // svg基础组件
 import DrawBoll from '@comp/Editor/DrawBoll';
 function Svg (props) {
-    let { dots, children, showDot, ...svgProps } = props;
+    let { dots, children, showDot, onDown, onMove, parent,  ...svgProps } = props;
     return (
         <>
             <svg xmlns="http://www.w3.org/2000/svg" 
@@ -11,7 +11,7 @@ function Svg (props) {
             >
                 {children}
             </svg>
-            { !!dots.length && <DrawBoll dots={dots} /> }
+            { !!dots.length && <DrawBoll onDown={onDown} onMove={onMove} dots={dots} parent={parent} /> }
         </>
     )
 }

@@ -470,17 +470,75 @@ class Editor extends React.Component {
             drawLines
         })
     }
-    _onDrawBollDown({id, startX, startY, parent}) {
+    // 计算定位
+    _calcBollPosition(graph, boll) {
+        let {height, width} = graph;
+        let newPosition = {};
+        const POSITION = ['left', 'top', 'right', 'bottom'];
+        const CALC_REG = /^calc/;
+        const PX_REG = /px$/;
+        for (const c in boll) {
+            if (POSITION.includes(c) && boll[c]) {
+                let value = boll[c];
+                if(CALC_REG.test(value)) {
+                    let p = 0;
+                    if(c === 'top' || c === 'bottom') {
+                        p = height / 2 ;//- boll.height / 2;
+                        newPosition['top'] = p; 
+                    } else {
+                        p = width / 2 ;//- boll.width / 2;
+                        newPosition['left'] = p;
+                    }
+                    
+                } else if(PX_REG.test(value)) {
+                    if(c === 'top' || c === 'bottom') {
+                        newPosition['top'] = c === 'top' ? 0 : height ; //value.replace('px', '');
+                    } else {
+                        newPosition['left'] = c === 'left' ? 0 : width;
+                    }
+                } else {
+                    if(c === 'top' || c === 'bottom') {
+                        newPosition['top'] = c === 'top' ? value + boll.height / 2 : height ; //value.replace('px', '');
+                    } else {
+                        newPosition['left'] = c === 'left' ? value + boll.width / 2 : width;
+                    }
+                }
+            }
+        }
+        console.log('newPosition：', newPosition);
+        return newPosition;
+    }
+    _onDrawBollDown({id, parent}, boll) {
         let drawLines = this.state.drawLines;
         // let line = drawLines.find(d => d.id === id);
         // if(line) return ;
+        console.log('boll：', boll)
         let graph = this.props.graphs.find(g => g.id === parent);
-        let top = graph.top + graph.height / 2 - 10;
-        let left = graph.left + graph.width;
+        if(!graph) return ;
+        let position = this._calcBollPosition(graph, boll);
+        let top = graph.top + position.top;
+        let left = graph.left + position.left;
+        switch(boll.dir) {
+            case 'bottom-center':
+                // top = top;
+                left = left - 6;
+            break;
+            case 'top-center':
+                // top = top;
+                left = left - 6;
+            break;
+            case 'middle-right':
+                top  = top - 10;
+            break;
+            case 'middle-left':
+                top  = top - 10;
+            break;
+        }
         drawLines.push({
             id,
             width: 0,
             height: 20,
+            dir: boll.dir,
             firstTop: top,
             // prevHeight: 
             top: top, 
@@ -580,7 +638,15 @@ class Editor extends React.Component {
                                                         id={id} lock={lock} select={select} first={first}
                                                         children={(w, h, drawBollVisible) => (
                                                             <>
-                                                                { Comp && <Comp showDot={ drawBollVisible ? true : false } width={w} height={h} fill={g.backgroundColor} strokeDasharray={g.borderStyle} strokeWidth={g.borderSize}/> }
+                                                                { Comp && <Comp onDown={this._onDrawBollDown} 
+                                                                                onMove={this._onDrawBollMove} 
+                                                                                parent={g.id}
+                                                                                showDot={ drawBollVisible ? true : false } 
+                                                                                width={w} 
+                                                                                height={h} 
+                                                                                fill={g.backgroundColor} 
+                                                                                strokeDasharray={g.borderStyle} 
+                                                                                strokeWidth={g.borderSize}/> }
                                                                 <div className={[style.editorGraphWarp, editing === id ? style.editing : ''].join(' ')} >
                                                                     <div id={`editor-graph-warp-editor-${id}`} 
                                                                             onInput={this._onEditorChange} 
