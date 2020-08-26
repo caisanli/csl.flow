@@ -36,6 +36,7 @@ class Editor extends React.Component {
             selectY: 0,
             selectActive: false, // 是否在画框
             drawLines: [], // 
+            enter: null, // 当前enter的图形id
         }
         // ref
         this.warpRef = React.createRef()
@@ -61,7 +62,6 @@ class Editor extends React.Component {
         this._onEditorBlur = this._onEditorBlur.bind(this)
         this._onDrawBollDown = this._onDrawBollDown.bind(this)
         this._onDrawBollMove = this._onDrawBollMove.bind(this)
-
         // 方法
 
         // 属性
@@ -551,6 +551,12 @@ class Editor extends React.Component {
             drawLines
         })
     }
+    _onMouseEnter(id) {
+        this.setState({enter: id})
+    }
+    _onMouseLeave() {
+        this.setState({enter: null})
+    }
     componentDidMount() {
         this._event();
     }
@@ -567,7 +573,7 @@ class Editor extends React.Component {
     render() {
         let { drawHeight, drawWidth, drawTop, drawLeft, alignLines, selectHeight, 
                 selectWidth, selectTop, selectLeft, selectX, selectY, selectActive,
-                isDraw, drawLines
+                isDraw, drawLines, enter
             } = this.state;
         let { graphs, active, editing, scroll, width, height, warpWidth, warpHeight } = this.props;
         return (
@@ -630,6 +636,8 @@ class Editor extends React.Component {
                                                         end={this._onEnd} 
                                                         active={active === id} 
                                                         down={this._onTransformDown} 
+                                                        onMouseEnter={() => this._onMouseEnter(id)}
+                                                        onMouseLeave={() => this._onMouseLeave()}
                                                         move={this._onTransformMove} 
                                                         key={id} selected={selected}
                                                         width={width} height={height}
@@ -641,7 +649,8 @@ class Editor extends React.Component {
                                                                 { Comp && <Comp onDown={this._onDrawBollDown} 
                                                                                 onMove={this._onDrawBollMove} 
                                                                                 parent={g.id}
-                                                                                showDot={ drawBollVisible ? true : false } 
+                                                                                enter={enter === id ? 1 : 0}
+                                                                                showDot={ true } 
                                                                                 width={w} 
                                                                                 height={h} 
                                                                                 fill={g.backgroundColor} 

@@ -24,6 +24,8 @@ export default class Transform extends React.Component {
         this._onMouseDown = this._onMouseDown.bind(this);
         this._onMouseMove = this._onMouseMove.bind(this);
         this._onMouseUp = this._onMouseUp.bind(this);
+        this._onMouseLeave = this._onMouseLeave.bind(this);
+        this._onMouseEnter = this._onMouseEnter.bind(this);
         // 方法
         this._atan2 = this._atan2.bind(this);
         // 属性
@@ -78,10 +80,7 @@ export default class Transform extends React.Component {
             this.offset.width = 0;
             this.offset.height = 0;
         }
-
         this.props.click(e)
-        
-        
     }
     _onMouseMove(e) {
         e.stopPropagation();
@@ -216,6 +215,12 @@ export default class Transform extends React.Component {
         }
         this.eventOption.isDown = false;
     }
+    _onMouseEnter() {
+        this.props.onMouseEnter && this.props.onMouseEnter();
+    }
+    _onMouseLeave() {
+        this.props.onMouseLeave && this.props.onMouseLeave();
+    }
     componentDidUpdate(prevProps) {
         let {left, top, rotate, width, height} = this.props;
         if(left && top && width && height &&  (prevProps.left !== left || prevProps.top !== top || prevProps.rotate !== rotate || prevProps.width !== width || prevProps.height !== height)) {
@@ -236,6 +241,8 @@ export default class Transform extends React.Component {
                 className={[style.transformBox, !lock && active ? style.active : '', select ? style.select : ''].join(' ')} 
                 style={{width, height, zIndex, transform: `translate(${left}px,${top}px) rotate(${rotate}deg)`, transformOrigin: selected ? '50% 50%': '50% 50%'}}
                 onDoubleClick={ doubleClick }
+                onMouseEnter={ this._onMouseEnter }
+                onMouseLeave={ this._onMouseLeave }
                 onClick={this.props.click}>
                 <div className={style.transformBody} onMouseDown={this._onMouseDown} data-type="move">
                     {/* 操作按钮 */}

@@ -5,7 +5,6 @@ import style from './index.module.less';
 export default class LineBoll extends React.Component {
     constructor(props) {
         super(props);
-        console.log(props)
         // 属性
         this.currentId = null;
         // 事件
@@ -20,7 +19,6 @@ export default class LineBoll extends React.Component {
     }
     _onMouseDown(e, boll) {
         e.stopPropagation();
-        // console.log('boll--mousedown')
         let startX = e.pageX, startY = e.pageY;
         let id = Date.now();
         this.currentId = id;
@@ -35,7 +33,6 @@ export default class LineBoll extends React.Component {
         let { isDown, startX, startY } = this.eventOption;
         
         if(!isDown) return ;
-        // console.log('boll--mousemove')
         let endX = e.pageX;
         let endY = e.pageY;
         let width = endX - startX;
@@ -55,6 +52,7 @@ export default class LineBoll extends React.Component {
     }
     
     render() {
+        let { enter } = this.props;
         return (
             <>
                 {
@@ -70,7 +68,7 @@ export default class LineBoll extends React.Component {
                                 bottom: d.bottom
                             }}
                             data-type={d.dir}
-                            className={style.lineBoll} />)
+                            className={[style.lineBoll, enter ? style.active : ''].join(' ')} />)
                 }
             </>)
     }
