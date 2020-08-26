@@ -13,17 +13,20 @@ export default function Line(props) {
     if(height < 0) {
         isHeightNegative = true;
         height = Math.abs(height) + MIN_HEIGHT;
+    } else {
+        height = height + MIN_HEIGHT;
     }
     if(width < 0) {
         isWidthNegative = true;
         width = Math.abs(width) + MIN_WIDTH;
+    } else {
+        // width = width + MIN_WIDTH;
     }
 
     // 宽度最小为20 + 图形宽度
     width = width < MIN_WIDTH + GRAPH_WIDTH ? MIN_WIDTH + GRAPH_WIDTH : width;
     // 高度最小为20
     height = height < MIN_HEIGHT ? MIN_HEIGHT : height;
-    
     let d = ``;
     switch(dir) {
         case 'middle-right':

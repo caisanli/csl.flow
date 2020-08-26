@@ -281,39 +281,6 @@ class Editor extends React.Component {
             } else {
                 line.top = baseTop;
             }
-            console.log('之前的height：', line.height)
-            if(Math.abs(line.height) >= 0 && Math.abs(line.height) <= 20) {
-                
-                if(obj.offsetTop > 0) {
-                    console.log('offset大于零...')
-                    this.offsetD20 = true;
-                    // line.height = line.height - 20;
-                    // line.top = line.top - Math.abs(line.height)
-                } else {
-                    this.offsetX20 = true;
-                    console.log('offset小于零...')
-                    // line.height = line.height + 20;
-                    // line.top = line.top + Math.abs(line.height)
-                }
-                // line.height = line.height < 0 ? - Math.abs(obj.offsetTop) :  line.height;//Math.abs(obj.offsetTop) + 20; 
-            } else {
-                if(this.offsetD20) {
-                    // line.height -= 20;
-                    this.offsetD20 = false;
-                    // line.top = line.top + 20
-                }
-                if(this.offsetX20) {
-                    // line.height += 20;
-                    this.offsetX20 = false;
-                    // line.top = line.top - 20
-                }
-            }
-            console.log('jianshu--：', obj.offsetTop - line.height)
-            console.log('pre-top：', line.prevTop)
-            console.log('prev-line-height：', line.prevHeight)
-            console.log('line-height：', line.height)
-            console.log('offsetTop：', obj.offsetTop)
-            line.self = false;
             return line;
         });
         this.setState({
@@ -374,6 +341,7 @@ class Editor extends React.Component {
             line.prevHeight = line.height;
             line.prevWidth = line.width;
             line.prevTop = line.top;
+            line.prevLeft = line.left;
             return line;
         })
         this.selectPositions = [];
@@ -464,7 +432,7 @@ class Editor extends React.Component {
         } else {
             top = line.firstTop
         }
-        line = Object.assign({}, line, { width, height, prevHeight: height, prevWidth: width, top, prevTop: top, self: true })
+        line = Object.assign({}, line, { width, height, prevHeight: height, prevWidth: width, top, prevTop: top})
         drawLines.splice(index, 1, line);
         this.setState({
             drawLines
@@ -476,7 +444,7 @@ class Editor extends React.Component {
         let newPosition = {};
         const POSITION = ['left', 'top', 'right', 'bottom'];
         const CALC_REG = /^calc/;
-        const PX_REG = /px$/;
+        const PX_REG = /^(-?.+)px$/;
         for (const c in boll) {
             if (POSITION.includes(c) && boll[c]) {
                 let value = boll[c];
@@ -489,18 +457,18 @@ class Editor extends React.Component {
                         p = width / 2 ;//- boll.width / 2;
                         newPosition['left'] = p;
                     }
-                    
                 } else if(PX_REG.test(value)) {
+                    let num = Number(PX_REG.exec(value)[1]);
                     if(c === 'top' || c === 'bottom') {
-                        newPosition['top'] = c === 'top' ? 0 : height ; //value.replace('px', '');
+                        newPosition['top'] = c === 'top' ? num : height - num - boll.height; //value.replace('px', '');
                     } else {
-                        newPosition['left'] = c === 'left' ? 0 : width;
+                        newPosition['left'] = c === 'left' ? num : width - num - boll.width;
                     }
                 } else {
                     if(c === 'top' || c === 'bottom') {
-                        newPosition['top'] = c === 'top' ? value + boll.height / 2 : height ; //value.replace('px', '');
+                        newPosition['top'] = c === 'top' ? value + boll.height / 2 : height - value - boll.height; //value.replace('px', '');
                     } else {
-                        newPosition['left'] = c === 'left' ? value + boll.width / 2 : width;
+                        newPosition['left'] = c === 'left' ? value + boll.width / 2 : width - value - boll.width;
                     }
                 }
             }
@@ -520,11 +488,9 @@ class Editor extends React.Component {
         let left = graph.left + position.left;
         switch(boll.dir) {
             case 'bottom-center':
-                // top = top;
                 left = left - 6;
             break;
             case 'top-center':
-                // top = top;
                 left = left - 6;
             break;
             case 'middle-right':
@@ -537,14 +503,15 @@ class Editor extends React.Component {
         drawLines.push({
             id,
             width: 0,
-            height: 20,
+            height: 0,
             dir: boll.dir,
             firstTop: top,
-            // prevHeight: 
             top: top, 
-            self: true,
             left,
+            prevLeft: left,
+            prevTop: top,
             parent,
+            bollPosition: position,
             zIndex: drawLines.length + 1
         })
         this.setState({
