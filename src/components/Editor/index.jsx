@@ -15,6 +15,8 @@ import AlignLine from '@comp/AlignLine';
 import DrawLine from './DrawLine';
 // 工具
 import { deepClone } from '@assets/js/utils';
+// 常量
+import { START_XY, MIN_HEIGHT, GRAPH_OFFSET_HEIGHT, LINE_HEIGHT, GRAPH_HEIGHT } from './DrawLine/constant';
 // 样式
 import style from './index.module.less';
 class Editor extends React.Component {
@@ -62,6 +64,7 @@ class Editor extends React.Component {
         this._onEditorBlur = this._onEditorBlur.bind(this)
         this._onDrawBollDown = this._onDrawBollDown.bind(this)
         this._onDrawBollMove = this._onDrawBollMove.bind(this)
+        this._onDrawBollUp = this._onDrawBollUp.bind(this)
         // 方法
 
         // 属性
@@ -262,31 +265,6 @@ class Editor extends React.Component {
             this._setAlignment(obj);
         }
     }
-    // 根据图形变化设置划线
-    _setDrawLineByChange(obj) {
-        // 找到图形对应的线
-        let lines = this.state.drawLines.filter(d => d.parent === obj.id);
-        if(!lines.length) return ;
-        lines = lines.map(line => {
-            line.left = obj.left + obj.width;
-            line.width = line.prevWidth - obj.offsetLeft;
-            line.height = Math.abs(line.prevHeight) - obj.offsetTop;
-            let baseTop = obj.top + obj.height / 2 - 10;
-            if(line.prevHeight > 0 && obj.offsetTop >= 0 && obj.offsetTop > Math.abs(line.prevHeight)) {
-                line.top = baseTop - Math.abs(line.height);
-            } else if(line.prevHeight < 0) {
-                let height = obj.offsetTop < 0 ? line.prevHeight + Math.abs(obj.offsetTop) : line.prevHeight - obj.offsetTop;
-                line.top = height < 0 ? line.prevTop : baseTop; 
-                line.height = height; // obj.offsetTop < 0 ? line.prevHeight + Math.abs(obj.offsetTop) : line.prevHeight - obj.offsetTop;
-            } else {
-                line.top = baseTop;
-            }
-            return line;
-        });
-        this.setState({
-            drawLines: lines
-        })
-    }
     // 点击容器
     _onClickBody() {
         if(this.state.selectActive) {
@@ -418,26 +396,6 @@ class Editor extends React.Component {
         graph.prevText = graph.text;
         this.props.change && this.props.change(graph);
     }
-    _onDrawBollMove({id, width, height}) {
-        let drawLines = this.state.drawLines;
-        let index = -1;
-        let line = drawLines.find((d, i) => {
-            index = i;
-            return d.id === id
-        });
-        if(!line) return ;
-        let top = line.top;
-        if(height < 0) {
-            top = line.firstTop + height;
-        } else {
-            top = line.firstTop
-        }
-        line = Object.assign({}, line, { width, height, prevHeight: height, prevWidth: width, top, prevTop: top})
-        drawLines.splice(index, 1, line);
-        this.setState({
-            drawLines
-        })
-    }
     // 计算定位
     _calcBollPosition(graph, boll) {
         let {height, width} = graph;
@@ -462,18 +420,18 @@ class Editor extends React.Component {
                     if(c === 'top' || c === 'bottom') {
                         newPosition['top'] = c === 'top' ? num : height - num - boll.height; //value.replace('px', '');
                     } else {
-                        newPosition['left'] = c === 'left' ? num : width - num - boll.width;
+                        newPosition['left'] = c === 'left' ? num : width - num - boll.width / 2;
                     }
                 } else {
                     if(c === 'top' || c === 'bottom') {
                         newPosition['top'] = c === 'top' ? value + boll.height / 2 : height - value - boll.height; //value.replace('px', '');
                     } else {
-                        newPosition['left'] = c === 'left' ? value + boll.width / 2 : width - value - boll.width;
+                        newPosition['left'] = c === 'left' ? value + boll.width / 2 : width - value - boll.width / 2;
                     }
                 }
             }
         }
-        console.log('newPosition：', newPosition);
+        console.log('newPosition：', newPosition)
         return newPosition;
     }
     _onDrawBollDown({id, parent}, boll) {
@@ -494,10 +452,10 @@ class Editor extends React.Component {
                 left = left - 6;
             break;
             case 'middle-right':
-                top  = top - 10;
+                top  = top - (START_XY + MIN_HEIGHT / 2);
             break;
             case 'middle-left':
-                top  = top - 10;
+                top  = top - (START_XY + MIN_HEIGHT / 2);
             break;
         }
         drawLines.push({
@@ -506,7 +464,7 @@ class Editor extends React.Component {
             height: 0,
             dir: boll.dir,
             firstTop: top,
-            top: top, 
+            top, 
             left,
             prevLeft: left,
             prevTop: top,
@@ -516,6 +474,73 @@ class Editor extends React.Component {
         })
         this.setState({
             drawLines
+        })
+    }
+    _onDrawBollMove({id, width, height}) {
+        let drawLines = this.state.drawLines;
+        let index = -1;
+        let line = drawLines.find((d, i) => {
+            index = i;
+            return d.id === id
+        });
+        if(!line) return ;
+        let top = 0; // + 4 ;
+        if(height < -3) {
+            top = line.prevTop + height - 9;
+            height -= 9;
+        } else if(height > 3) {
+            top = line.prevTop + 4;
+            height -= 4;
+        } else {
+            
+        }
+        if(height >= -3 && height <= 3) {
+            height = 0;
+            top = line.prevTop; // + 4 ;
+        }
+        line = Object.assign({}, line, { width, height, prevHeight: height, prevWidth: width, top})
+        drawLines.splice(index, 1, line);
+        this.setState({
+            drawLines
+        })
+    }
+    _onDrawBollUp(id) {
+        let drawLines = this.state.drawLines;
+        let index = -1;
+        let line = drawLines.find((d, i) => {
+            index = i;
+            return d.id === id
+        });
+        if(!line) return ;
+        line = Object.assign({}, line, { prevTop: line.top})
+        drawLines.splice(index, 1, line);
+        this.setState({
+            drawLines
+        })
+    }
+    // 根据图形变化设置划线
+    _setDrawLineByChange(obj) {
+        // 找到图形对应的线
+        let lines = this.state.drawLines.filter(d => d.parent === obj.id);
+        if(!lines.length) return ;
+        lines = lines.map(line => {
+            line.left = obj.left + obj.width;
+            line.width = Math.abs(line.prevWidth) - obj.offsetLeft;
+            line.height = Math.abs(line.prevHeight) - obj.offsetTop;
+            let baseTop = obj.top + obj.height / 2 - 4 / 2;
+            if(line.prevHeight > 0 && obj.offsetTop >= 0 && obj.offsetTop > Math.abs(line.prevHeight)) {
+                line.top = baseTop - Math.abs(line.height);
+                console.log('11111')
+            } else {
+                let height = obj.offsetTop < 0 ? line.prevHeight + Math.abs(obj.offsetTop) : line.prevHeight - obj.offsetTop;
+                line.top = height < 0 ? line.prevTop : baseTop; 
+                line.height = height;
+                console.log('22222')
+            }
+            return line;
+        });
+        this.setState({
+            drawLines: lines
         })
     }
     _onMouseEnter(id) {
@@ -615,6 +640,7 @@ class Editor extends React.Component {
                                                             <>
                                                                 { Comp && <Comp onDown={this._onDrawBollDown} 
                                                                                 onMove={this._onDrawBollMove} 
+                                                                                onUp={this._onDrawBollUp}
                                                                                 parent={g.id}
                                                                                 enter={enter === id ? 1 : 0}
                                                                                 showDot={ true } 

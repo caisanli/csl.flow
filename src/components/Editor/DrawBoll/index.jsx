@@ -41,6 +41,7 @@ export default class LineBoll extends React.Component {
     }
     _onMouseUp() {
         this.eventOption.isDown = false;
+        this.props.onUp && this.props.onUp({id: this.currentId});
     }
     componentDidMount() {
         document.addEventListener('mousemove', this._onMouseMove)
