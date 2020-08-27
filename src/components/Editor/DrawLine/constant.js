@@ -5,7 +5,7 @@ export const START_XY = 0;
 // X轴的结束点
 export const END_X = 0; 
 // 线的高度
-export const LINE_HEIGHT = 3; 
+export const LINE_HEIGHT = 5; 
 
 // 前后指针图形的宽度
 export const GRAPH_WIDTH = 8; 

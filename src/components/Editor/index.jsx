@@ -485,16 +485,13 @@ class Editor extends React.Component {
         });
         if(!line) return ;
         let top = 0; // + 4 ;
-        if(height < -3) {
-            top = line.prevTop + height - 9;
-            height -= 9;
-        } else if(height > 3) {
-            top = line.prevTop + 4;
-            height -= 4;
-        } else {
-            
+        if(height < 0) {
+            top = line.prevTop + height - GRAPH_OFFSET_HEIGHT;
+        } else if(height > LINE_HEIGHT) {
+            top = line.prevTop + GRAPH_OFFSET_HEIGHT;
+            height -= GRAPH_OFFSET_HEIGHT;
         }
-        if(height >= -3 && height <= 3) {
+        if(height >= -LINE_HEIGHT && height <= LINE_HEIGHT) {
             height = 0;
             top = line.prevTop; // + 4 ;
         }
@@ -523,20 +520,47 @@ class Editor extends React.Component {
         // 找到图形对应的线
         let lines = this.state.drawLines.filter(d => d.parent === obj.id);
         if(!lines.length) return ;
+        console.log('obj：', obj)
         lines = lines.map(line => {
             line.left = obj.left + obj.width;
             line.width = Math.abs(line.prevWidth) - obj.offsetLeft;
             line.height = Math.abs(line.prevHeight) - obj.offsetTop;
-            let baseTop = obj.top + obj.height / 2 - 4 / 2;
-            if(line.prevHeight > 0 && obj.offsetTop >= 0 && obj.offsetTop > Math.abs(line.prevHeight)) {
-                line.top = baseTop - Math.abs(line.height);
-                console.log('11111')
+            // let baseTop = obj.top + obj.height / 2;// - 4;
+            let baseTop = obj.top + line.bollPosition.top - (START_XY + MIN_HEIGHT / 2);
+            
+            console.log('offsetTop：', obj.offsetTop)
+            console.log('obj-top：', obj.top)
+            console.log('base-top：', baseTop)
+            console.log('prevHeight：', line.prevHeight)
+            console.log('line.height：', line.height)
+            if(line.height >= 0) {
+                line.top = baseTop;
             } else {
-                let height = obj.offsetTop < 0 ? line.prevHeight + Math.abs(obj.offsetTop) : line.prevHeight - obj.offsetTop;
-                line.top = height < 0 ? line.prevTop : baseTop; 
-                line.height = height;
-                console.log('22222')
+                line.top = line.top;
             }
+            if(line.height > 5) {
+                line.top += 4;
+                if(line.prevHeight <= 0)
+                    line.height -= 4;
+            } else if(line.height < -5) {
+                line.height += 4;
+            } else if(line.prevHeight > 0 && line.height < 0) {
+                line.height -= 4;
+                console.log('进来了...')
+            }
+            console.log('之后的line.height：', line.height)
+            // if(line.height >=0 && line.height < LINE_HEIGHT) {
+            //     line.height = 0;
+            // }
+            // if(line.prevHeight > 0 && obj.offsetTop >= 0 && obj.offsetTop > Math.abs(line.prevHeight)) {
+            //     line.top = baseTop - Math.abs(line.height);
+            //     console.log('11111')
+            // } else {
+            //     let height = obj.offsetTop < 0 ? line.prevHeight + Math.abs(obj.offsetTop) : line.prevHeight - obj.offsetTop;
+            //     line.top = height < 0 ? line.prevTop : baseTop; 
+            //     line.height = height;
+            //     console.log('22222')
+            // }
             return line;
         });
         this.setState({

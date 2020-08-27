@@ -9,7 +9,7 @@ export default function Line(props) {
     let isHeightNegative = false;
     // 是否宽度为负数
     let isWidthNegative = false;
-    console.log('之前的height：', height)
+    // console.log('之前的height：', height)
     // 当高度为负数
     if(height < 0) 
         isHeightNegative = true;
@@ -22,7 +22,7 @@ export default function Line(props) {
     // width = width < MIN_WIDTH + GRAPH_WIDTH ? MIN_WIDTH + GRAPH_WIDTH : width;
     // 高度
     // height = height < MIN_HEIGHT ? MIN_HEIGHT : height;
-    console.log('之后的height：', height)
+    // console.log('之后的height：', height)
     let d = ``;
     switch(dir) {
         case 'middle-right':
