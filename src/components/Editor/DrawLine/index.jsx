@@ -13,7 +13,7 @@ export default function Line(props) {
     // 当高度为负数
     if(height < 0) 
         isHeightNegative = true;
-    height = Math.abs(height) + MIN_HEIGHT;
+    height = Math.abs(height);
 
     if(width < 0) 
         isWidthNegative = true;
