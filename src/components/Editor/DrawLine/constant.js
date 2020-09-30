@@ -1,11 +1,11 @@
 // 常量
 
 // X、Y的开始点
-export const START_XY = 0; 
+export const START_XY = 4; 
 // X轴的结束点
 export const END_X = 0; 
 // 线的高度
-export const LINE_HEIGHT = 5; 
+export const LINE_HEIGHT = 3; 
 
 // 前后指针图形的宽度
 export const GRAPH_WIDTH = 8; 

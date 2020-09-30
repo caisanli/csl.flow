@@ -29,7 +29,7 @@ export default function(width, height, isHeightNegative) {
         } else {
             startPoint = `M ${ START_XY } ${ START_XY + GRAPH_OFFSET_HEIGHT }`;
         }
-        endGraphPoint = `L ${width - GRAPH_WIDTH - END_X} ${ START_XY } L ${ width - END_X } ${ START_XY + GRAPH_HEIGHT / 2 } L ${ width - GRAPH_WIDTH - END_X } ${ START_XY + GRAPH_HEIGHT }`;
+        endGraphPoint = `M ${width - GRAPH_WIDTH - END_X} ${ START_XY + GRAPH_OFFSET_HEIGHT } L ${width - GRAPH_WIDTH - END_X} ${ START_XY } L ${ width - END_X } ${ START_XY + GRAPH_HEIGHT / 2 } L ${ width - GRAPH_WIDTH - END_X } ${ START_XY + GRAPH_HEIGHT }`;
         graphToLinePoint = `L ${ width - GRAPH_WIDTH - END_X } ${ START_XY + GRAPH_OFFSET_HEIGHT + LINE_HEIGHT }`;
     } else { // 为正数时 向下折叠
         startPoint = `M ${ START_XY } ${ START_XY }`;
@@ -41,8 +41,8 @@ export default function(width, height, isHeightNegative) {
         } else {
             startPoint = `M ${ START_XY } ${ START_XY + GRAPH_OFFSET_HEIGHT }`;
         }
-        endGraphPoint = `L ${width - GRAPH_WIDTH - END_X} ${ height - ( START_XY + GRAPH_HEIGHT ) } L ${ width - END_X } ${ height - ( START_XY + GRAPH_HEIGHT / 2 ) } L ${ width - GRAPH_WIDTH - END_X } ${ height - START_XY }`;
+        endGraphPoint = `M ${width - GRAPH_WIDTH - END_X} ${ height - (START_XY + LINE_HEIGHT + GRAPH_OFFSET_HEIGHT) }  L ${width - GRAPH_WIDTH - END_X} ${ height - ( START_XY + GRAPH_HEIGHT ) } L ${ width - END_X } ${ height - ( START_XY + GRAPH_HEIGHT / 2 ) } L ${ width - GRAPH_WIDTH - END_X } ${ height - START_XY }`;
         graphToLinePoint = `L ${ width - GRAPH_WIDTH - END_X } ${ height - (START_XY + GRAPH_OFFSET_HEIGHT) }`;
     }
-    return `${ startPoint } ${ upLine } ${ endGraphPoint } ${ graphToLinePoint } ${ endLine }`;
+    return {path: `${ startPoint } ${ upLine } ${ graphToLinePoint } ${ endLine }`, endPoint: endGraphPoint};
 }

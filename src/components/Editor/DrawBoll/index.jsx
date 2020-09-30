@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import style from './index.module.less';
 
 export default class LineBoll extends React.Component {
-    constructor(props) {
-        super(props);
+    constructor() {
+        super();
         // 属性
         this.currentId = null;
         // 事件

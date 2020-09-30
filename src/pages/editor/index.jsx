@@ -412,7 +412,8 @@ class EditorBox extends React.Component {
         this.editorOption.scrollTop = top;
         this.editorOption.scrollLeft = left;
     }
-    componentWillUpdate(nextProps, nextState) {
+    // shouldComponentUpdate
+    shouldComponentUpdate(nextProps, nextState) {
         if(
             nextProps.handleRecords.length !== this.props.handleRecords.length 
             || nextProps.handleStep !== this.props.handleStep

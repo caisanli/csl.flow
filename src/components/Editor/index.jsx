@@ -21,7 +21,7 @@ import { START_XY, MIN_HEIGHT, GRAPH_OFFSET_HEIGHT, LINE_HEIGHT, GRAPH_HEIGHT, M
 import style from './index.module.less';
 class Editor extends React.Component {
     constructor(props) {
-        super(props);
+        super();
         // state
         this.state = {
             isDraw: false,
@@ -38,6 +38,7 @@ class Editor extends React.Component {
             selectY: 0,
             selectActive: false, // 是否在画框
             drawLines: [], // 
+            lineActive: null,
             enter: null, // 当前enter的图形id
         }
         // ref
@@ -58,6 +59,8 @@ class Editor extends React.Component {
         this._onSelectEnd = this._onSelectEnd.bind(this);
         this._onEnd = this._onEnd.bind(this);
         this._onClick = this._onClick.bind(this);
+        this._onClickLine = this._onClickLine.bind(this);
+        this._onClickLinePoint = this._onClickLinePoint.bind(this);
         this._onClickBody = this._onClickBody.bind(this);
         this._onLoadGraph = this._onLoadGraph.bind(this);
         this._onEditorChange = this._onEditorChange.bind(this)
@@ -82,8 +85,7 @@ class Editor extends React.Component {
     }
     // 画框开始
     _onMouseDown(e) {
-        if(this._onClickBody)
-            this._onClickBody(e);        
+        this._onClickBody(e);        
         let { pageX, pageY } = e;
         this.eventOption.isDown = true;
         this.selected = [];
@@ -274,6 +276,9 @@ class Editor extends React.Component {
         }
         if(this.props.graphClick)
             this.props.graphClick(null);
+        this.setState({
+            lineActive: null
+        })
     }
     // 双击图形
     _onDoubleClick(g, e) {
@@ -459,14 +464,16 @@ class Editor extends React.Component {
                 top  = top - (START_XY + MIN_HEIGHT / 2);
             break;
         }
+        console.log('mousedown:' + top)
         drawLines.push({
             id,
             width: 0,
-            height: 0,
+            height: MIN_HEIGHT,
             dir: boll.dir,
             firstTop: top,
             top, 
             left,
+            prevHeight: MIN_HEIGHT,
             prevLeft: left,
             prevTop: top,
             parent,
@@ -486,22 +493,27 @@ class Editor extends React.Component {
         });
         if(!line) return ;
         let top = 0; // + 4 ;
+
         if(height < 0) {
             top = line.prevTop + height - GRAPH_OFFSET_HEIGHT;
         } else if(height > LINE_HEIGHT) {
-            top = line.prevTop + GRAPH_OFFSET_HEIGHT;
+            top = line.prevTop; // + GRAPH_OFFSET_HEIGHT;
             height -= GRAPH_OFFSET_HEIGHT;
         }
+        console.log('mousemove:' + top)
         if(height >= -LINE_HEIGHT && height <= LINE_HEIGHT) {
             height = 0;
             top = line.prevTop; // + 4 ;
         }
+            
+        let heightNegative = false;
         if(height < 0) {
+            heightNegative = true;
             height -= MIN_HEIGHT;
         } else {
             height += MIN_HEIGHT;
         }
-        line = Object.assign({}, line, { width, height, prevHeight: height, prevWidth: width, top})
+        line = Object.assign({}, line, { width, height, heightNegative, top})
         drawLines.splice(index, 1, line);
         this.setState({
             drawLines
@@ -514,9 +526,9 @@ class Editor extends React.Component {
             index = i;
             return d.id === id
         });
-        console.log("up：", id)
+        // console.log("up：", id)
         if(!line) return ;
-        line = deepClone({}, line, { prevTop: line.top})
+        line = deepClone({}, line, { prevTop: line.top, prevHeight: line.height, prevWidth: line.width})
         drawLines.splice(index, 1, line);
         console.log('drawLines:', drawLines)
         this.setState({
@@ -560,11 +572,25 @@ class Editor extends React.Component {
             drawLines: lines
         })
     }
+    // 移入图形
     _onMouseEnter(id) {
         this.setState({enter: id})
     }
+    // 移出图形
     _onMouseLeave() {
         this.setState({enter: null})
+    }
+    // 点击了连线
+    _onClickLine(id) {
+        this.setState({
+            lineActive: id
+        })
+    }
+    // 点击了指针
+    _onClickLinePoint(id) {
+        this.setState({
+            lineActive: id
+        })
     }
     componentDidMount() {
         this._event();
@@ -582,7 +608,7 @@ class Editor extends React.Component {
     render() {
         let { drawHeight, drawWidth, drawTop, drawLeft, alignLines, selectHeight, 
                 selectWidth, selectTop, selectLeft, selectX, selectY, selectActive,
-                isDraw, drawLines, enter
+                isDraw, drawLines, enter, lineActive
             } = this.state;
         let { graphs, active, editing, scroll, width, height, warpWidth, warpHeight } = this.props;
         return (
@@ -628,7 +654,12 @@ class Editor extends React.Component {
                                         active={selectActive} /> }
                             {/* 图形连线 */}
                             {
-                                drawLines.map(line => <DrawLine key={line.id} {...line} />)
+                                drawLines.map(line => <DrawLine key={line.id} {...line} 
+                                                                onClickLine={this._onClickLine} 
+                                                                onClickLinePoint={this._onClickLinePoint}
+                                                                onMove={this._onDrawBollMove}
+                                                                onUp={this._onDrawBollUp}
+                                                                active={lineActive === line.id} />)
                             }
                             {/* 已有的图形列表 */}
                             {
@@ -638,6 +669,7 @@ class Editor extends React.Component {
                                     let { comp, selected, width, height, rotate, left, top, x, y, id, lock, select, first, zIndex, dots} = g;
                                     let Comp = comp;
                                     let aligns = g.align.split('-');
+                                    let isEdit = editing === id;
                                     return (<Transform change={this._onChange} 
                                                         load={this._onLoadGraph}
                                                         click={e => this._onClick(g, e)}
@@ -666,12 +698,12 @@ class Editor extends React.Component {
                                                                                 fill={g.backgroundColor} 
                                                                                 strokeDasharray={g.borderStyle} 
                                                                                 strokeWidth={g.borderSize}/> }
-                                                                <div className={[style.editorGraphWarp, editing === id ? style.editing : ''].join(' ')} >
+                                                                <div className={[style.editorGraphWarp, isEdit ? style.editing : ''].join(' ')} >
                                                                     <div id={`editor-graph-warp-editor-${id}`} 
                                                                             onInput={this._onEditorChange} 
-                                                                            onClick={e => e.stopPropagation()} 
+                                                                            onClick={e => isEdit && e.stopPropagation() } 
                                                                             onBlur={this._onEditorBlur}    
-                                                                            onMouseDown={e => e.stopPropagation()}                                                                      
+                                                                            onMouseDown={e => isEdit && e.stopPropagation()}                                                                      
                                                                             style={{
                                                                                 fontFamily: g.fontFamily,
                                                                                 fontSize: g.fontSize,
@@ -684,7 +716,7 @@ class Editor extends React.Component {
                                                                             }}
                                                                             suppressContentEditableWarning
                                                                             className={style.editorGraphWarpEditor} 
-                                                                            contentEditable={ editing === id ? true : false }>
+                                                                            contentEditable={ isEdit ? true : false }>
                                                                                 { g.text }
                                                                         </div>
                                                                 </div>
