@@ -19,6 +19,7 @@ import { deepClone } from '@assets/js/utils';
 import { START_XY, MIN_HEIGHT, GRAPH_OFFSET_HEIGHT, LINE_HEIGHT, GRAPH_HEIGHT, MIN_WIDTH } from './DrawLine/constant';
 // 样式
 import style from './index.module.less';
+import Top from '../ToolBar/top';
 class Editor extends React.Component {
     constructor(props) {
         super();
@@ -458,13 +459,12 @@ class Editor extends React.Component {
                 left = left - 6;
             break;
             case 'middle-right':
-                top  = top - (START_XY + MIN_HEIGHT / 2);
+                top  = top - MIN_HEIGHT / 2;
             break;
             case 'middle-left':
-                top  = top - (START_XY + MIN_HEIGHT / 2);
+                top  = top - MIN_HEIGHT / 2;
             break;
         }
-        console.log('mousedown:' + top)
         drawLines.push({
             id,
             width: 0,
@@ -484,7 +484,7 @@ class Editor extends React.Component {
             drawLines
         })
     }
-    _onDrawBollMove({id, width, height}) {
+    _onDrawBollMove({id, width, height, isAgin}) {
         let drawLines = this.state.drawLines;
         let index = -1;
         let line = drawLines.find((d, i) => {
@@ -492,26 +492,28 @@ class Editor extends React.Component {
             return d.id === id
         });
         if(!line) return ;
-        let top = 0; // + 4 ;
-
-        if(height < 0) {
-            top = line.prevTop + height - GRAPH_OFFSET_HEIGHT;
-        } else if(height > LINE_HEIGHT) {
-            top = line.prevTop; // + GRAPH_OFFSET_HEIGHT;
-            height -= GRAPH_OFFSET_HEIGHT;
+        let top = 0; 
+        top = line.prevTop;
+        if(!isAgin) {
+            if(height < 0) {
+                height -= MIN_HEIGHT;
+            } else if(height >= 0 ) {
+                height += MIN_HEIGHT;
+            }
         }
-        console.log('mousemove:' + top)
-        if(height >= -LINE_HEIGHT && height <= LINE_HEIGHT) {
-            height = 0;
-            top = line.prevTop; // + 4 ;
+        
+        if(!isAgin) {
+            if(height > MIN_HEIGHT + LINE_HEIGHT) {
+                top += GRAPH_OFFSET_HEIGHT;
+                height -= GRAPH_OFFSET_HEIGHT;
+            }
         }
-            
+        
         let heightNegative = false;
         if(height < 0) {
             heightNegative = true;
-            height -= MIN_HEIGHT;
         } else {
-            height += MIN_HEIGHT;
+            
         }
         line = Object.assign({}, line, { width, height, heightNegative, top})
         drawLines.splice(index, 1, line);

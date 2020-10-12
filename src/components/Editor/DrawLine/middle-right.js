@@ -1,9 +1,11 @@
-import { GRAPH_WIDTH, GRAPH_HEIGHT, GRAPH_OFFSET_HEIGHT, START_XY, END_X, LINE_HEIGHT } from './constant';
+import { GRAPH_WIDTH, GRAPH_HEIGHT, GRAPH_OFFSET_HEIGHT, START_XY, END_X, LINE_HEIGHT, MIN_HEIGHT } from './constant';
 
 export default function(width, height, isHeightNegative) {
     // 两根线之间的高度
     let offsetHeight = height - LINE_HEIGHT * 2 - START_XY * 2 - GRAPH_OFFSET_HEIGHT * 2;
-
+    if(height < MIN_HEIGHT + LINE_HEIGHT) {
+        // offsetHeight = height - LINE_HEIGHT * 2 - START_XY * 2 - 0;
+    }
     // 起点时的指针图形（暂时三角）
     let startGraphPoint = ``;
     // 结束点时指针图形（暂时三角）

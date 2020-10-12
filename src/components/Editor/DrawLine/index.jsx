@@ -46,7 +46,7 @@ export default class Line extends Component {
         // height += LINE_HEIGHT;
         width += this.props.prevWidth;
         // console.log(this.props.onMove)
-        this.props.onMove && this.props.onMove({id: this.props.id, width, height})
+        this.props.onMove && this.props.onMove({id: this.props.id, width, height, isAgin: true})
         console.log('height：', height)
     }
     onMouseUp() {
