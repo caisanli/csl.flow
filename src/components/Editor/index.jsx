@@ -326,10 +326,13 @@ class Editor extends React.Component {
             line.prevWidth = line.width;
             line.prevTop = line.top;
             line.prevLeft = line.left;
+            line.parentPosition = {
+                left: data.left,
+                top: data.top
+            }
             return line;
         })
         this.selectPositions = [];
-        console.log('drawLines:', lines)
         this.setState({
             alignLines: [],
             drawLines: lines
@@ -403,7 +406,7 @@ class Editor extends React.Component {
         graph.prevText = graph.text;
         this.props.change && this.props.change(graph);
     }
-    // 计算定位
+    // 计算球的定位
     _calcBollPosition(graph, boll) {
         let {height, width} = graph;
         let newPosition = {};
@@ -441,17 +444,11 @@ class Editor extends React.Component {
         console.log('newPosition：', newPosition)
         return newPosition;
     }
-    _onDrawBollDown({id, parent}, boll) {
-        let drawLines = this.state.drawLines;
-        // let line = drawLines.find(d => d.id === id);
-        // if(line) return ;
-        console.log('boll：', boll)
-        let graph = this.props.graphs.find(g => g.id === parent);
-        if(!graph) return ;
-        let position = this._calcBollPosition(graph, boll);
-        let top = graph.top + position.top;
-        let left = graph.left + position.left;
-        switch(boll.dir) {
+    // 计算线的位置
+    _calcLinePosition(bollPosition, graphPosition, bollDir) {
+        let top = graphPosition.top + bollPosition.top;
+        let left = graphPosition.left + bollPosition.left;
+        switch(bollDir) {
             case 'bottom-center':
                 left = left - 6;
             break;
@@ -465,11 +462,18 @@ class Editor extends React.Component {
                 top  = top - MIN_HEIGHT / 2;
             break;
         }
+        return {left, top};
+    }
+    _onDrawBollDown({id, parent}, boll) {
+        let drawLines = this.state.drawLines;
+        let graph = this.props.graphs.find(g => g.id === parent);
+        if(!graph) return ;
+        let position = this._calcBollPosition(graph, boll);
+        let {top, left} = this._calcLinePosition(position, graph, boll.dir);
         drawLines.push({
             id,
             width: 0,
             height: MIN_HEIGHT,
-            dir: boll.dir,
             firstTop: top,
             top, 
             left,
@@ -477,7 +481,9 @@ class Editor extends React.Component {
             prevLeft: left,
             prevTop: top,
             parent,
+            parentPosition: {top: graph.top, left: graph.left},
             bollPosition: position,
+            bollDir: boll.dir,
             zIndex: drawLines.length + 1
         })
         this.setState({
@@ -493,27 +499,26 @@ class Editor extends React.Component {
         });
         if(!line) return ;
         let top = 0; 
-        top = line.prevTop;
-        if(!isAgin) {
+        
+        if(isAgin && line.prevHeightNegative) {
             if(height < 0) {
+                top = line.prevTop + (height - line.prevHeight);
+            } else {
+                let pos = this._calcLinePosition(line.bollPosition, line.parentPosition, line.bollDir);
+                top = pos.top;
+            }
+        } else {
+            if(height < 0) {
+                top = line.prevTop + height;
                 height -= MIN_HEIGHT;
-            } else if(height >= 0 ) {
+            } else {
+                top = line.prevTop;
                 height += MIN_HEIGHT;
             }
         }
-        
-        if(!isAgin) {
-            if(height > MIN_HEIGHT + LINE_HEIGHT) {
-                top += GRAPH_OFFSET_HEIGHT;
-                height -= GRAPH_OFFSET_HEIGHT;
-            }
-        }
-        
         let heightNegative = false;
         if(height < 0) {
             heightNegative = true;
-        } else {
-            
         }
         line = Object.assign({}, line, { width, height, heightNegative, top})
         drawLines.splice(index, 1, line);
@@ -530,7 +535,7 @@ class Editor extends React.Component {
         });
         // console.log("up：", id)
         if(!line) return ;
-        line = deepClone({}, line, { prevTop: line.top, prevHeight: line.height, prevWidth: line.width})
+        line = deepClone({}, line, { prevTop: line.top, prevHeight: line.height, prevWidth: line.width, prevHeightNegative: line.heightNegative})
         drawLines.splice(index, 1, line);
         console.log('drawLines:', drawLines)
         this.setState({

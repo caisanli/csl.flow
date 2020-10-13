@@ -28,7 +28,6 @@ export default class Line extends Component {
         this.eventOpt.isDown = true;
         this.eventOpt.startY = pageY;
         this.eventOpt.startX = pageX;
-        // console.log('props:', props)
         this.props.onClickLinePoint && this.props.onClickLinePoint(this.props.id)
     }
     onMouseMove(e) {
@@ -38,16 +37,17 @@ export default class Line extends Component {
         let {pageX, pageY} = e;
         let width = pageX - startX;
         let height = pageY - startY;
-        if(this.props.heightNegative) {
-            height += (-this.props.prevHeight);
+        if(this.props.prevHeightNegative) {
+            height += this.props.prevHeight;
+            if(height > -MIN_HEIGHT) 
+                height = MIN_HEIGHT + MIN_HEIGHT + height;
+            
         } else {
             height += this.props.prevHeight;
+            height -= MIN_HEIGHT;
         }
-        // height += LINE_HEIGHT;
         width += this.props.prevWidth;
-        // console.log(this.props.onMove)
         this.props.onMove && this.props.onMove({id: this.props.id, width, height, isAgin: true})
-        console.log('height：', height)
     }
     onMouseUp() {
         this.eventOpt.isDown = false;
@@ -64,7 +64,7 @@ export default class Line extends Component {
         body.removeEventListener('mouseup', this.onMouseUp)
     }
     render() {
-        let { width, height, left, top, zIndex, dir, heightNegative } = this.props;
+        let { width, height, left, top, zIndex, bollDir, heightNegative } = this.props;
 
         // 是否高度为负数
         // let isHeightNegative = false;
@@ -85,7 +85,7 @@ export default class Line extends Component {
         // height = height < MIN_HEIGHT ? MIN_HEIGHT : height;
         // console.log('之后的height：', height)
         let graphObj = null;
-        switch(dir) {
+        switch(bollDir) {
             case 'middle-right':
                 graphObj = createMiddleLeft(width, height, heightNegative);
                 break;
