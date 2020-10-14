@@ -78,7 +78,7 @@ export default class Line extends Component {
 
         if(width < 0) 
             isWidthNegative = true;
-        width = Math.abs(width) + MIN_WIDTH;
+        // width = Math.abs(width) + MIN_WIDTH;
         // 宽度 + 图形宽度
         // width = width < MIN_WIDTH + GRAPH_WIDTH ? MIN_WIDTH + GRAPH_WIDTH : width;
         // 高度
@@ -102,6 +102,7 @@ export default class Line extends Component {
             top: top + 'px',
             zIndex
         }
+        // console.log('height：' + height)
         return (
             <svg className={style.drawLine} 
                 style={ styleObj } 

@@ -48,6 +48,7 @@ class Editor extends React.Component {
         this.positions = []; // 记录图形坐标
         this.selectPositions = [];
         this.isLoad = false;
+        this.isMoving = false; // 是否在移动中
         // 事件
         this._onMouseDown = this._onMouseDown.bind(this);
         this._onMouseMove = this._onMouseMove.bind(this);
@@ -233,6 +234,7 @@ class Editor extends React.Component {
         let {x, y} = this.props.getPagePosition(left, top);
         let position = this.props.getRelativePoint(pageX, pageY);
         this.selectPositions = deepClone(this.positions);
+        this.isMoving = true;
         return {x, y, startX: position.left, startY: position.top}
     }
     // 监听框选的框的图形位置大小角度变化
@@ -294,7 +296,6 @@ class Editor extends React.Component {
     // 监听点击
     _onClick(g, e) {
         e.stopPropagation()
-        console.log(g)
         if(this.props.graphClick)
             this.props.graphClick(g);
     }
@@ -315,20 +316,23 @@ class Editor extends React.Component {
     }
     // 监听移动结束
     _onEnd(data, prevData) {
+        this.isMoving = false;
         let graph = this.props.graphs.find(g => g.id === data.id);
         let handle = deepClone({type: 'edit'}, graph, data, prevData);
         this.props.addRecord(handle);
         this.props.change && this.props.change(data);
         // 
-        let lines = this.state.drawLines.filter(d => d.parent === data.id);
-        lines = lines.map(line => {
-            line.prevHeight = line.height;
-            line.prevWidth = line.width;
-            line.prevTop = line.top;
-            line.prevLeft = line.left;
-            line.parentPosition = {
-                left: data.left,
-                top: data.top
+        let lines = this.state.drawLines.map(line => {
+            if(line.parent === data.id) {
+                line.prevHeight = line.height;
+                line.prevWidth = line.width;
+                line.prevTop = line.top;
+                line.prevLeft = line.left;
+                line.prevHeightNegative = line.heightNegative;
+                line.parentPosition = {
+                    left: data.left,
+                    top: data.top
+                }
             }
             return line;
         })
@@ -441,7 +445,6 @@ class Editor extends React.Component {
                 }
             }
         }
-        console.log('newPosition：', newPosition)
         return newPosition;
     }
     // 计算线的位置
@@ -533,46 +536,48 @@ class Editor extends React.Component {
             index = i;
             return d.id === id
         });
-        // console.log("up：", id)
+
         if(!line) return ;
         line = deepClone({}, line, { prevTop: line.top, prevHeight: line.height, prevWidth: line.width, prevHeightNegative: line.heightNegative})
         drawLines.splice(index, 1, line);
-        console.log('drawLines:', drawLines)
         this.setState({
             drawLines
         })
     }
     // 根据图形变化设置划线
     _setDrawLineByChange(obj) {
+        if(!this.isMoving)
+            return ;
         // 找到图形对应的线
         let lines = this.state.drawLines.filter(d => d.parent === obj.id);
         if(!lines.length) return ;
         lines = lines.map(line => {
-            line.left = obj.left + obj.width;
-            line.width = Math.abs(line.prevWidth) - obj.offsetLeft;
-            line.height = Math.abs(line.prevHeight) - obj.offsetTop;
-            // let baseTop = obj.top + obj.height / 2;// - 4;
-            let baseTop = obj.top + line.bollPosition.top;
-            if(line.prevHeight < MIN_HEIGHT && line.prevHeight > -MIN_HEIGHT) {
-                // baseTop -= (START_XY + MIN_HEIGHT / 2);
+            var baseWidth = line.prevWidth - obj.offsetLeft;
+            var baseHeight =line.prevHeight - obj.offsetTop;
+            let position = this._calcLinePosition(obj, line.bollPosition, line.bollDir)
+            let baseTop = position.top;
+            let baseLeft = position.left;
+            if(!line.prevHeightNegative) {
+                if(baseHeight < 0) {
+                    baseTop += baseHeight - MIN_HEIGHT;
+                    baseHeight = -MIN_HEIGHT * 2 + baseHeight;
+                }
+            } else {
+                baseTop = line.prevTop;
+                if(baseHeight > -MIN_HEIGHT) {
+                    baseHeight = MIN_HEIGHT * 2  + baseHeight;
+                    baseTop = line.prevTop - baseHeight + MIN_HEIGHT;
+                }
             }
-            console.log('line.height：', line.height)
-            console.log('offsetTop：', obj.offsetTop)
-            console.log('line.top：', line.top)
-            // console.log('base-top：', baseTop)
-            console.log('prevHeight：', line.prevHeight)
-            if(line.height < MIN_HEIGHT && line.height > -MIN_HEIGHT ) {
-                // line.height = MIN_HEIGHT;
-                
+            let heightNegative = false;
+            if(baseHeight < 0) {
+                heightNegative = true;
             }
-            // if(line.height >= 0) {
-            //     line.top = baseTop;
-            // } else {
-            //     line.top = line.top;
-            // }
+            line.left = baseLeft;
             line.top = baseTop;
-            console.log('之前的top：', line.prevTop)
-            console.log('之前的line.top：', line.top)
+            line.height = baseHeight;
+            line.width = baseWidth;
+            line.heightNegative = heightNegative;
             return line;
         });
         this.setState({
