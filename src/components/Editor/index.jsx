@@ -445,6 +445,7 @@ class Editor extends React.Component {
                 }
             }
         }
+        console.log('newPosition：', newPosition)
         return newPosition;
     }
     // 计算线的位置
@@ -475,12 +476,12 @@ class Editor extends React.Component {
         let {top, left} = this._calcLinePosition(position, graph, boll.dir);
         drawLines.push({
             id,
-            width: 0,
+            width: MIN_WIDTH,
             height: MIN_HEIGHT,
-            firstTop: top,
             top, 
             left,
             prevHeight: MIN_HEIGHT,
+            prevWidth: MIN_WIDTH,
             prevLeft: left,
             prevTop: top,
             parent,
@@ -502,7 +503,7 @@ class Editor extends React.Component {
         });
         if(!line) return ;
         let top = 0; 
-        
+        console.log('之前的width：', width)
         if(isAgin && line.prevHeightNegative) {
             if(height < 0) {
                 top = line.prevTop + (height - line.prevHeight);

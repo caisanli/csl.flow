@@ -12,6 +12,6 @@ export const GRAPH_WIDTH = 8;
 export const GRAPH_OFFSET_HEIGHT = 4;
 export const GRAPH_HEIGHT = LINE_HEIGHT + GRAPH_OFFSET_HEIGHT * 2;
 // 最小宽度
-export const MIN_WIDTH = 0;
+export const MIN_WIDTH = GRAPH_HEIGHT + START_XY * 2;
 // 最小高度
 export const MIN_HEIGHT = GRAPH_HEIGHT + START_XY * 2;
