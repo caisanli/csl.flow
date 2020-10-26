@@ -16,10 +16,11 @@ function resolve(_path) {
 }
 module.exports = {
     entry: {
+        polyfill: ['core-js/stable'],
         index: './src/index.js'
     },
     output: {
-        filename: 'js/bundle.js',
+        filename: 'js/[name].[contenthash].build.js',
         path: resolve('./../dist')
     },
     performance: {
@@ -63,6 +64,9 @@ module.exports = {
                     reuseExistingChunk: true
                 }
             },
+            // chunks(chunk) {
+            //     return chunk.name !== 'polyfill';
+            // }
         }
     },
     module: {
@@ -105,7 +109,8 @@ module.exports = {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            template: 'public/index.html'
+            template: 'public/index.html',
+            chunks: ['polyfill', 'index']
         }),
         
     ]

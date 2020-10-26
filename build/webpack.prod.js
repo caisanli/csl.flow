@@ -7,6 +7,8 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const StyleLoader = require('./styleLoader');
 // 拆分css
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+// 打包分析
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = merge(base, {
   mode: 'production',
@@ -20,6 +22,7 @@ module.exports = merge(base, {
     }),
     new MiniCssExtractPlugin({
         filename: 'css/[name].[hash:8].css'
-    })
+    }),
+    new BundleAnalyzerPlugin()
   ]
 });
