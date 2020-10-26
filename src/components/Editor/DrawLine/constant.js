@@ -1,7 +1,7 @@
 // 常量
 
 // X、Y的开始点
-export const START_XY = 3; 
+export const START_XY = 0; 
 // X轴的结束点
 export const END_X = 0; 
 // 线的高度
