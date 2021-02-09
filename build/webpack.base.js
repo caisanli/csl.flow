@@ -20,7 +20,7 @@ module.exports = {
         index: './src/index.js'
     },
     output: {
-        filename: 'js/[name].[contenthash].build.js',
+        filename: 'js/[name].[hash].build.js',
         path: resolve('./../dist')
     },
     performance: {
