@@ -1,5 +1,5 @@
 const path = require('path');
-
+const webpack = require('webpack')
 // 抽离css
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 // html
@@ -16,11 +16,10 @@ function resolve(_path) {
 }
 module.exports = {
     entry: {
-        polyfill: ['core-js/stable'],
         index: './src/index.js'
     },
     output: {
-        filename: 'js/[name].[contenthash].build.js',
+        filename: 'js/[name].[hash].build.js',
         path: resolve('./../dist')
     },
     performance: {
@@ -108,6 +107,11 @@ module.exports = {
         ]
     },
     plugins: [
+        // 告诉 Webpack 使用了哪些第三方库代码
+        // new webpack.DllReferencePlugin({
+        //     // 映射到 JSON 文件上去
+        //     manifest: require('../dist/library/library.json'),
+        // }),
         new HtmlWebpackPlugin({
             template: 'public/index.html',
             chunks: ['polyfill', 'index']

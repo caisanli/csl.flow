@@ -16,7 +16,9 @@ module.exports = merge(base, {
     rules: [StyleLoader('prod')]
   },
   plugins: [
-    new CleanWebpackPlugin(),
+    new CleanWebpackPlugin({
+        cleanOnceBeforeBuildPatterns: ['!build*', '!library']
+    }),
     new CopyWebpackPlugin({
       patterns: ['./public']
     }),
